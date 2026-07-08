@@ -1,0 +1,10 @@
+#ifndef GAME_CONSTANTS_H
+#define GAME_CONSTANTS_H
+
+#define WINDOW_WIDTH 1280
+#define WINDOW_HEIGHT 720
+
+#define FPS 60
+#define TARGET_FRAME_TIME (1000.f/FPS)
+
+#endif
