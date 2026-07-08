@@ -6,10 +6,6 @@
 #include "game_object.h"
 #include "game_objects.h"
 
-/*
-Queue is blocking; pool is non-blocking.
-*/
-
 #define ANIMATION_QUEUE_SIZE 8
 #define ANIMATION_POOL_SIZE 16
 

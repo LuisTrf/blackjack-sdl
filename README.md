@@ -1,9 +1,8 @@
 # blackjack-sdl
 Blackjack in C using SDL3.
-
-Uses 5-card Charlie rule (player's 5 cards beats dealer's 21; no cards are drawn on dealer blackjack so dealer's blackjack still beats player's 5 cards).
-
-Dealer hits on soft 17 (e.g. ace+6). TODO.
+Uses 5-card Charlie rule (player wins on 5 cards).
+# INSTALLATION
+Requires SDL3, SDL_ttf, FreeType and Harfbuzz as dependencies. From the blackjack-sdl folder run the following.
 ```
 mkdir build
 cd build
