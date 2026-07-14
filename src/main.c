@@ -6,7 +6,6 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 #define STB_DS_IMPLEMENTATION
 #include "../include/stb_ds.h"
@@ -65,10 +64,10 @@ bool app_state_initialize(AppState *as){
     return false;
 }
 
-void widgets_initialize(AppState *as, RenderState *rs){
+void widgets_initialize(AppState *as, render_hash* texture_map){
     Container *root = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
     PictureBox *bkg = picturebox_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true,
-        hmget(rs->texture_map, 1),
+        hmget(texture_map, 1),
         NULL
     );
     container_add_widget(root, (Widget*)bkg);
@@ -107,11 +106,9 @@ int main(int argc, char **argv){
         abort();
     }
     *p_as = as;
-    RenderState *rs = render_initialize(p_as->renderer);
+    render_hash* texture_map = texture_map_create(p_as->renderer);
     /*
     allocate_memory();
-    get_renderer(renderer);
-    load_resources();
     update_all_label_dimensions();
     while (!should_quit){
         running=handle_input();
@@ -123,10 +120,10 @@ int main(int argc, char **argv){
     teardown();
     */
     while (!should_quit){
-        render(rs);
+        render(p_as->renderer, texture_map);
         SDL_Delay(100);
     }
-    render_teardown(rs);
+    texture_map_destroy(texture_map);
     SDL_DestroyRenderer(p_as->renderer);
     SDL_DestroyWindow(p_as->window);
     SDL_Quit();

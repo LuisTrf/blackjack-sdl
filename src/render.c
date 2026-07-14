@@ -5,9 +5,6 @@
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_surface.h>
 
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "../include/stb_ds.h"
 #include "../include/render.h"
 
@@ -18,37 +15,23 @@ SDL_Texture* render_load_texture_from_png(SDL_Renderer *renderer, char* filepath
     return p_texture;
 }
 
-void texture_map_load_textures(RenderState *rs){
-    SDL_Surface *p_surface = SDL_LoadPNG("../resources/bg.png");
-    SDL_Texture *p_texture = SDL_CreateTextureFromSurface(rs->renderer, p_surface);
-    SDL_DestroySurface(p_surface);
-    hmput(rs->texture_map, 1, p_texture);
+render_hash* texture_map_create(SDL_Renderer *renderer){
+    render_hash* texture_map = NULL;
+    hmput(texture_map, 1, render_load_texture_from_png(renderer, "../resources/bg.png"));
+    return texture_map;
 }
 
-RenderState* render_initialize(SDL_Renderer *sdl_renderer){
-    RenderState rs = {sdl_renderer, NULL};
-    texture_map_load_textures(&rs);
-    RenderState *p_rs = malloc(sizeof(RenderState));
-    if (p_rs == NULL){
-        abort();
+void texture_map_destroy(render_hash* texture_map){
+    for (i32 i = 0; i < hmlen(texture_map); i++){
+        SDL_DestroyTexture(texture_map[i].value);
+        texture_map[i].value = NULL;
     }
-    *p_rs = rs;
-    return p_rs;
+    hmfree(texture_map);
 }
 
-void render_teardown(RenderState *rs){
-    for (i32 i = 0; i < hmlen(rs->texture_map); i++){
-        SDL_DestroyTexture(rs->texture_map[i].value);
-        rs->texture_map[i].value = NULL;
-    }
-    hmfree(rs->texture_map);
-    free(rs);
-    rs = NULL;
-}
-
-void render(RenderState *rs){
-    SDL_RenderTexture(rs->renderer, hmget(rs->texture_map, 1), NULL, NULL);
-    SDL_RenderPresent(rs->renderer);
+void render(SDL_Renderer *renderer, render_hash* texture_map){
+    SDL_RenderTexture(renderer, hmget(texture_map, 1), NULL, NULL);
+    SDL_RenderPresent(renderer);
 }
 
 /*

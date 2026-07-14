@@ -8,14 +8,9 @@ typedef struct render_hash_t {
     SDL_Texture* value;
 } render_hash;
 
-typedef struct RenderState {
-    SDL_Renderer *renderer;
-    render_hash* texture_map;
-} RenderState;
-
-RenderState* render_initialize(SDL_Renderer *sdl_renderer);
-void render_teardown(RenderState *rs);
-void render(RenderState *rs);
+render_hash* texture_map_create(SDL_Renderer *renderer);
+void texture_map_destroy(render_hash* texture_map);
+void render(SDL_Renderer *renderer, render_hash* texture_map);
 
 /*
 #define SPRITESHEET_SEP 2

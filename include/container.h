@@ -7,7 +7,7 @@
 
 typedef struct Container {
     Widget widget;
-    Widget** children;;
+    Widget** children;
 } Container;
 
 Container* container_create(f32 x, f32 y, i32 width, i32 height, bool visible, void (*update_func)(Widget *self, Event event));
