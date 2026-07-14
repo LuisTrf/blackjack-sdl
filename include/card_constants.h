@@ -1,7 +1,6 @@
-#ifndef CARD_CONSTANTS_H
-#define CARD_CONSTANTS_H
+#pragma once
 
-#include "../include/game_constants.h"
+#include "../include/constants.h"
 
 #define CARD_WIDTH 150
 #define CARD_HEIGHT 210
@@ -11,5 +10,3 @@
 #define CARD_Y_ORIGIN_PLAYER 300
 #define DECK_X_ORIGIN 120
 #define DECK_Y_ORIGIN (CARD_Y_ORIGIN_DEALER/2.f + CARD_Y_ORIGIN_PLAYER/2.f)
-
-#endif

@@ -163,7 +163,7 @@ void remove_anim(Animation *anim){
     *anim_pool[i]=null_anim;
 }
 
-void translate_in_fixed_time(GameObject *target, float dst_x, float dst_y, float src_x, float src_y, float time){
+void translate_in_fixed_time(vec2 *target, float dst_x, float dst_y, float src_x, float src_y, float time){
     if (target->x > dst_x){
         if ((target->x - dst_x) < (get_delta_time()/time) * (src_x - dst_x)){
             target->x=dst_x;

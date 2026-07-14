@@ -1,9 +1,7 @@
-//blackjack.c provides methods to access/modify game state.
 #include <time.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../include/game.h"
-#include "../include/card_constants.h"
 
 /*
 RULES
@@ -33,11 +31,11 @@ const char suits[4] = {'C', 'D', 'H', 'S'};
 const char ranks[13] = {'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'};
 const int rank_values[13] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11};
 
-static GAME_STATE game_state = NEW;
+static GAME_STATE game_state = GAME_STATE_NEW;
 static GAME_STATE prev_game_state;
 static Card *deck[52];
 static Player player = {.hand={NULL}, .hand_value=0, .cards_in_hand=0, .aces_in_hand_worth_11=0, .money=PLAYER_BEGINNING_MONEY, .bet=0, 
-    .bet_history={_NONE_CHIP_VALUATION}, .betted_chips=0};
+    .bet_history={_CHIP_VALUE_NONE}, .betted_chips=0};
 static Dealer dealer = {.hand={NULL}, .hand_value=0, .cards_in_hand=0, .aces_in_hand_worth_11=0};
 
 GAME_STATE get_game_state(void){
@@ -56,8 +54,7 @@ void set_game_state(GAME_STATE state){
 void allocate_deck_memory(void){
     for (int s=0; s<4; s++){
         for (int r=0; r<13; r++){
-            Card card = {.obj={.x=DECK_X_ORIGIN, .y=DECK_Y_ORIGIN, .width=CARD_WIDTH, .height=CARD_HEIGHT, false},
-                .suit=suits[s], .rank=ranks[r], .rank_value=rank_values[r], .location=DECK, .face_down=true};
+            Card card = {.suit=suits[s], .rank=ranks[r], .rank_value=rank_values[r], .location=CARD_LOCATION_DECK, .face_down=true};
             Card *p = malloc(sizeof(Card));
             if (p==NULL){
                 abort();
@@ -89,16 +86,13 @@ Card* draw_random_card(void){
     Card *c;
     do{
         c=deck[rand()%52];
-    } while (c->location!=DECK);
+    } while (c->location!=CARD_LOCATION_DECK);
     return c;
 }
 
 void reset_dealer(void){
     for (;dealer.cards_in_hand>0; dealer.cards_in_hand--){
-        dealer.hand[dealer.cards_in_hand-1]->location = DECK;
-        dealer.hand[dealer.cards_in_hand-1]->obj.x = DECK_X_ORIGIN;
-        dealer.hand[dealer.cards_in_hand-1]->obj.y = DECK_Y_ORIGIN;
-        dealer.hand[dealer.cards_in_hand-1]->obj.visible = false;
+        dealer.hand[dealer.cards_in_hand-1]->location = CARD_LOCATION_DECK;
         dealer.hand[dealer.cards_in_hand-1]->face_down = true;
         dealer.hand[dealer.cards_in_hand-1] = NULL;
     }
@@ -108,10 +102,7 @@ void reset_dealer(void){
 
 void reset_player(void){
     for (;player.cards_in_hand>0; player.cards_in_hand--){
-        player.hand[player.cards_in_hand-1]->location = DECK;
-        player.hand[player.cards_in_hand-1]->obj.x = DECK_X_ORIGIN;
-        player.hand[player.cards_in_hand-1]->obj.y = DECK_Y_ORIGIN;
-        player.hand[player.cards_in_hand-1]->obj.visible = false;
+        player.hand[player.cards_in_hand-1]->location = CARD_LOCATION_DECK;
         player.hand[player.cards_in_hand-1]->face_down = true;
         player.hand[player.cards_in_hand-1] = NULL;
     }
@@ -166,7 +157,7 @@ void reveal_second_dealer_card(void){
 Card* dealer_hit(void){
     Card *c = draw_random_card();
     if (dealer_can_hit()){
-        c->location=DEALER_HAND;
+        c->location=CARD_LOCATION_DEALER_HAND;
         dealer.hand[dealer.cards_in_hand] = c;
         dealer.cards_in_hand++;
         dealer.hand_value += c->rank_value;
@@ -189,7 +180,7 @@ Card* dealer_hit(void){
 Card* player_hit(void){
     Card *c = draw_random_card();
     if (player_can_hit()){
-        c->location=PLAYER_HAND;
+        c->location=CARD_LOCATION_PLAYER_HAND;
         player.hand[player.cards_in_hand] = c;
         player.cards_in_hand++;
         player.hand_value += c->rank_value;
@@ -268,7 +259,7 @@ CHIP_VALUE pop_bet(void){
         return player.bet_history[player.betted_chips];
     }
     else {
-        return _NONE_CHIP_VALUATION;
+        return _CHIP_VALUE_NONE;
     }
 }
 
@@ -277,7 +268,7 @@ CHIP_VALUE peek_bet(void){
         return player.bet_history[player.betted_chips-1];
     }
     else {
-        return _NONE_CHIP_VALUATION;
+        return _CHIP_VALUE_NONE;
     }
 }
 
@@ -298,7 +289,7 @@ void sub_from_player_money(double money){
 }
 
 bool can_player_bet(void){
-    return get_player_money() >= ONE;
+    return get_player_money() >= CHIP_VALUE_ONE;
 }
 
 bool can_double_down(void){

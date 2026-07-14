@@ -5,26 +5,53 @@
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_surface.h>
 
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 
-#include "../include/card_constants.h"
-#include "../include/buttons.h"
-#include "../include/game.h"
-#include "../include/animate.h"
-#include "../include/labels.h"
+#include "../include/stb_ds.h"
 #include "../include/render.h"
 
-static SDL_Renderer *renderer = NULL;
-static SDL_Texture *background = NULL;
-static SDL_Texture *card_spritesheet = NULL;
-static TTF_Font *font = NULL;
-static const SDL_Color FONT_COLOR = {255, 255, 255, 255};
-
-void get_renderer(SDL_Renderer *sdl_renderer){
-    renderer=sdl_renderer;
+SDL_Texture* render_load_texture_from_png(SDL_Renderer *renderer, char* filepath){
+    SDL_Surface *p_surface = SDL_LoadPNG(filepath);
+    SDL_Texture *p_texture = SDL_CreateTextureFromSurface(renderer, p_surface);
+    SDL_DestroySurface(p_surface);
+    return p_texture;
 }
 
+void texture_map_load_textures(RenderState *rs){
+    SDL_Surface *p_surface = SDL_LoadPNG("../resources/bg.png");
+    SDL_Texture *p_texture = SDL_CreateTextureFromSurface(rs->renderer, p_surface);
+    SDL_DestroySurface(p_surface);
+    hmput(rs->texture_map, 1, p_texture);
+}
+
+RenderState* render_initialize(SDL_Renderer *sdl_renderer){
+    RenderState rs = {sdl_renderer, NULL};
+    texture_map_load_textures(&rs);
+    RenderState *p_rs = malloc(sizeof(RenderState));
+    if (p_rs == NULL){
+        abort();
+    }
+    *p_rs = rs;
+    return p_rs;
+}
+
+void render_teardown(RenderState *rs){
+    for (i32 i = 0; i < hmlen(rs->texture_map); i++){
+        SDL_DestroyTexture(rs->texture_map[i].value);
+        rs->texture_map[i].value = NULL;
+    }
+    hmfree(rs->texture_map);
+    free(rs);
+    rs = NULL;
+}
+
+void render(RenderState *rs){
+    SDL_RenderTexture(rs->renderer, hmget(rs->texture_map, 1), NULL, NULL);
+    SDL_RenderPresent(rs->renderer);
+}
+
+/*
 void load_background_texture(void){
     SDL_Surface *bkg_surface = SDL_LoadPNG("../resources/bg.png");
     background = SDL_CreateTextureFromSurface(renderer, bkg_surface);
@@ -259,9 +286,7 @@ void render_label(Label *label){
 
 void render_textured_game_object(TexturedGameObject *textured_game_object){
     if (!textured_game_object->obj.visible) {return;}
-    /*
     Using src_rect to not render spritesheet is a hacky solution think of something better.
-    */
     SDL_FRect src_rect = {
         0.f,
         0.f,
@@ -275,35 +300,6 @@ void render_textured_game_object(TexturedGameObject *textured_game_object){
         textured_game_object->obj.height
     };
     SDL_RenderTexture(renderer, textured_game_object->texture, &src_rect, &textured_game_object_rect);
-}
-
-void render_textured_game_objects(void){
-    for (int i=0; i<MAXIMUM_ALIVE_TEXTURED_GAME_OBJS; i++){
-        if (alive_textured_game_objects[i]!=NULL){
-            render_textured_game_object(alive_textured_game_objects[i]);
-        }
-    }
-}
-
-void render_labels(void){
-    render_label(&player_money_label);
-    render_label(&player_bet_label);
-    if (is_anim_queue_blocking()) {return;}
-    render_label(&dealer_hand_label);
-    render_label(&player_hand_label);
-}
-
-void render_buttons(void){
-    if (is_anim_queue_blocking()) {return;}
-    for (int i=0; i<NUMBER_OF_BUTTONS; i++){
-        render_button(
-            buttons[i], 
-            buttons[i]->obj.width, 
-            buttons[i]->obj.height, 
-            buttons[i]->obj.width+SPRITESHEET_SEP, 
-            buttons[i]->obj.height+SPRITESHEET_SEP
-        );
-    }
 }
 
 void render(void){
@@ -360,3 +356,4 @@ void resource_teardown(void){
     cards_texture_teardown();
     background_texture_teardown();
 }
+*/

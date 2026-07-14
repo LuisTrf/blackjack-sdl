@@ -1,17 +1,24 @@
-#ifndef RENDER_H
-#define RENDER_H
+#pragma once
 
 #include <SDL3/SDL.h>
-#include "card_constants.h"
-#include "buttons.h"
+#include "types.h"
 
-void get_renderer(SDL_Renderer *sdl_renderer);
-void load_resources(void);
-void render(void);
-void resource_teardown(void);
+typedef struct render_hash_t {
+    i32 key;
+    SDL_Texture* value;
+} render_hash;
 
+typedef struct RenderState {
+    SDL_Renderer *renderer;
+    render_hash* texture_map;
+} RenderState;
+
+RenderState* render_initialize(SDL_Renderer *sdl_renderer);
+void render_teardown(RenderState *rs);
+void render(RenderState *rs);
+
+/*
 #define SPRITESHEET_SEP 2
-
 #define BUTTON_SPRITESHEET_IDLE_REL_OFFSET_X 0
 #define BUTTON_SPRITESHEET_IDLE_REL_OFFSET_Y 0
 #define BUTTON_SPRITESHEET_DISABLED_REL_OFFSET_X 1
@@ -20,5 +27,4 @@ void resource_teardown(void);
 #define BUTTON_SPRITESHEET_HOVERED_REL_OFFSET_Y 1
 #define BUTTON_SPRITESHEET_PRESSED_REL_OFFSET_X 1
 #define BUTTON_SPRITESHEET_PRESSED_REL_OFFSET_Y 1
-
-#endif
+*/

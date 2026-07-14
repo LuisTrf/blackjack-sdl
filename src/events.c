@@ -1,12 +1,11 @@
 #include <stdbool.h>
 #include <stdio.h>
-#include "../include/labels.h"
-#include "../include/buttons.h"
+#include "../include/label.h"
+#include "../include/button.h"
 #include "../include/animate.h"
 #include "../include/game.h"
 #include "../include/events.h"
 
-static const Event NONE_EVENT = {_NONE_EVENT_TYPE, NULL};
 static EventQueue event_queue;
 
 void initialize_event_queue(void){
