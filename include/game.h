@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdbool.h>
-#include "types.h"
 
 typedef enum {
     GAME_STATE_NEW,
@@ -33,7 +32,7 @@ typedef struct Card {
     CARD_LOCATION location;
     char suit;
     char rank;
-    u8 rank_value;
+    int rank_value;
     bool face_down;
 } Card;
 

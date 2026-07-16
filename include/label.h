@@ -16,7 +16,7 @@ typedef struct Label {
 #define XSTRING(s) STRING(s)
 #define DOLLAR_STRING(s) "$" XSTRING(s)
 
-Label* label_create(f32 x, f32 y, i32 width, i32 height, bool visible, TTF_Font* font, f32 font_size, 
+Label* label_create(float x, float y, int width, int height, bool visible, TTF_Font* font, float font_size, 
     void (*update_func)(Widget *self, Event event));
 void label_destroy(Label *p_label);
 void label_update_dimensions(Label *label);

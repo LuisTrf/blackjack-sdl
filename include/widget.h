@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdbool.h>
-#include "types.h"
 #include "vec2.h"
 
 typedef enum {
@@ -19,8 +18,8 @@ typedef enum {
 typedef struct Widget {
     WIDGET_TYPE wtype;
     vec2 pos;
-    i32 width;
-    i32 height;
+    int width;
+    int height;
     bool visible;
     void (*update_func)(struct Widget *self, Event event);
 } Widget;

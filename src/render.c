@@ -22,7 +22,7 @@ render_hash* texture_map_create(SDL_Renderer *renderer){
 }
 
 void texture_map_destroy(render_hash* texture_map){
-    for (i32 i = 0; i < hmlen(texture_map); i++){
+    for (int i = 0; i < hmlen(texture_map); i++){
         SDL_DestroyTexture(texture_map[i].value);
         texture_map[i].value = NULL;
     }

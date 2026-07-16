@@ -1,11 +1,9 @@
 #include <SDL3/SDL.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include "../include/types.h"
 #include "../include/picbox.h"
 
-PictureBox* picturebox_create(f32 x, f32 y, i32 width, i32 height, bool visible, SDL_Texture *p_texture,
+PictureBox* picturebox_create(float x, float y, int width, int height, bool visible, SDL_Texture *p_texture,
     void (*update_func)(Widget *self, Event event)
 ){
     PictureBox picbox = {{WIDGET_PICBOX, {x, y}, width, height, visible, update_func}, p_texture};

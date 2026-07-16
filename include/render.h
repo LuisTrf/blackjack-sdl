@@ -1,10 +1,9 @@
 #pragma once
 
 #include <SDL3/SDL.h>
-#include "types.h"
 
 typedef struct render_hash_t {
-    i32 key;
+    int key;
     SDL_Texture* value;
 } render_hash;
 

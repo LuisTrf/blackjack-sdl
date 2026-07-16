@@ -1,7 +1,6 @@
 #include <SDL3/SDL.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../include/types.h"
 #include "../include/widget.h"
 #include "../include/button.h"
 #include "../include/stb_ds.h"
@@ -43,7 +42,7 @@ Button gold100k_button = {{{CHIP_BUTTON_X(9), CHIP_BUTTON_Y(9), CHIP_BUTTON_WIDT
     DISABLED, _NONE_BUTTON_STATE, NULL, on_valued_released}, HUNDRED_K};
 */
 
-Button* button_create(f32 x, f32 y, i32 width, i32 height, bool visible, BUTTON_STATE button_state_initial, SDL_Texture* spritesheet, void (*callback_func)(Button *self),
+Button* button_create(float x, float y, int width, int height, bool visible, BUTTON_STATE button_state_initial, SDL_Texture* spritesheet, void (*callback_func)(Button *self),
     void (*update_func)(Widget *self, Event event)
 )
 {
@@ -55,7 +54,6 @@ Button* button_create(f32 x, f32 y, i32 width, i32 height, bool visible, BUTTON_
     if (p_button == NULL){
         abort();
     }
-    arrsetlen(button.subscribers, BUTTON_INITAL_SUBSCRIBERS);
     *p_button = button;
     return p_button;
 }
@@ -91,7 +89,7 @@ void button_add_subscriber(Button *publisher, Widget* subscriber){
 }
 
 void button_notify_all(Button *publisher, Event event){
-    for (i32 i = 0; i < arrlen(publisher->subscribers); i++){
+    for (int i = 0; i < arrlen(publisher->subscribers); i++){
         publisher->subscribers[i]->update_func(publisher->subscribers[i], event);
     }
 }

@@ -16,7 +16,7 @@ Label* labels[NUMBER_OF_LABELS] = {
 };
 */
 
-Label* label_create(f32 x, f32 y, i32 width, i32 height, bool visible, TTF_Font* font, f32 font_size, 
+Label* label_create(float x, float y, int width, int height, bool visible, TTF_Font* font, float font_size, 
     void (*update_func)(Widget *self, Event event)
 )
 {
@@ -41,10 +41,10 @@ void label_update_dimensions(Label *label){
     TTF_GetStringSize(label->p_font, label->txt, 0, &(label->widget.width), &(label->widget.height));
 }
 
-void label_align_x(Label *label, f32 target_x){
+void label_align_x(Label *label, float target_x){
     label->widget.pos.x = target_x - (label->widget.width)/2.f;
 }
 
-void label_align_y(Label *label, f32 target_y){
+void label_align_y(Label *label, float target_y){
     label->widget.pos.y = target_y - (label->widget.height)/2.f;
 }

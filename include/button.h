@@ -29,8 +29,6 @@
 #define CHIP_BUTTON_Y(i) (CHIP_BUTTON_Y_ORIGIN + (i/5)*(CHIP_BUTTON_HEIGHT+CHIP_BUTTON_SEPARATION_Y) - 30*ABS(2-(i%5)) + 60)
 */
 
-#define BUTTON_INITAL_SUBSCRIBERS 4
-
 typedef enum {
     BUTTON_TYPE_ACTION,
     BUTTON_TYPE_VALUED,
@@ -55,7 +53,7 @@ typedef struct Button{
     Widget** subscribers;
 } Button;
 
-Button* button_create(f32 x, f32 y, i32 width, i32 height, bool visible, BUTTON_STATE button_state_initial, SDL_Texture* spritesheet, void (*callback_func)(Button *self),
+Button* button_create(float x, float y, int width, int height, bool visible, BUTTON_STATE button_state_initial, SDL_Texture* spritesheet, void (*callback_func)(Button *self),
     void (*update_func)(Widget *self, Event event));
 void button_destroy(Button *p_button);
 void set_state(Button *button, BUTTON_STATE state);
