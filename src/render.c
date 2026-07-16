@@ -6,6 +6,9 @@
 #include <SDL3/SDL_surface.h>
 
 #include "../include/stb_ds.h"
+#include "../include/widget.h"
+#include "../include/container.h"
+#include "../include/picbox.h"
 #include "../include/render.h"
 
 SDL_Texture* render_load_texture_from_png(SDL_Renderer *renderer, char* filepath){
@@ -29,8 +32,35 @@ void texture_map_destroy(render_hash* texture_map){
     hmfree(texture_map);
 }
 
-void render(SDL_Renderer *renderer, render_hash* texture_map){
-    SDL_RenderTexture(renderer, hmget(texture_map, 1), NULL, NULL);
+void render_picbox(SDL_Renderer *renderer, PictureBox *picbox){
+    SDL_FRect dst_rect = {
+        picbox->widget.pos.x,
+        picbox->widget.pos.y,
+        picbox->widget.width,
+        picbox->widget.height
+    };
+    SDL_RenderTexture(renderer, picbox->p_texture, NULL, &dst_rect);
+}
+
+void render_widgets(SDL_Renderer *renderer, Container *root){
+    Widget** children = container_get_children(root);
+    for (int i = 0; i < arrlen(children); i++){
+        if (children[i] == NULL) {return;}
+        switch(children[i]->wtype){
+            case WIDGET_CONTAINER:
+                render_widgets(renderer, (Container *)children[i]);
+                break;
+            case WIDGET_PICBOX:
+                render_picbox(renderer, (PictureBox *)children[i]);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void render(SDL_Renderer *renderer, Container *root){
+    render_widgets(renderer, root);
     SDL_RenderPresent(renderer);
 }
 

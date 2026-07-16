@@ -9,7 +9,6 @@ Container* container_create(float x, float y, int width, int height, bool visibl
     if (p_container == NULL){
         abort();
     }
-    arrsetlen(container.children, 16);
     *p_container = container;
     return p_container;
 }

@@ -63,18 +63,18 @@ bool app_state_initialize(AppState *as){
     return false;
 }
 
-void widgets_initialize(AppState *as, render_hash* texture_map){
+Container* widgets_initialize(render_hash* texture_map){
     Container *root = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
     PictureBox *bkg = picturebox_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true,
-        hmget(texture_map, 1),
-        NULL
+        hmget(texture_map, 1), NULL
     );
     container_add_widget(root, (Widget*)bkg);
+    return root;
 }
 
-void widgets_teardown(AppState *as){
-    picturebox_destroy((PictureBox *)as->root->children[0]);
-    container_destroy(as->root);
+void widgets_teardown(Container *root){
+    picturebox_destroy((PictureBox *)root->children[0]);
+    container_destroy(root);
 }
 
 /*
@@ -106,6 +106,7 @@ int main(int argc, char **argv){
     }
     *p_as = as;
     render_hash* texture_map = texture_map_create(p_as->renderer);
+    p_as->root = widgets_initialize(texture_map);
     /*
     allocate_memory();
     update_all_label_dimensions();
@@ -119,9 +120,10 @@ int main(int argc, char **argv){
     teardown();
     */
     while (!should_quit){
-        render(p_as->renderer, texture_map);
+        render(p_as->renderer, p_as->root);
         SDL_Delay(100);
     }
+    widgets_teardown(p_as->root);
     texture_map_destroy(texture_map);
     SDL_DestroyRenderer(p_as->renderer);
     SDL_DestroyWindow(p_as->window);

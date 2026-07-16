@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include "container.h"
 
 typedef struct render_hash_t {
     int key;
@@ -9,7 +10,7 @@ typedef struct render_hash_t {
 
 render_hash* texture_map_create(SDL_Renderer *renderer);
 void texture_map_destroy(render_hash* texture_map);
-void render(SDL_Renderer *renderer, render_hash* texture_map);
+void render(SDL_Renderer *renderer, Container *root);
 
 /*
 #define SPRITESHEET_SEP 2
