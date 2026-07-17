@@ -107,6 +107,7 @@ void widgets_teardown(Container *root){
         children[i] = NULL;
     }
     container_destroy(root);
+    root = NULL;
 }
 
 /*
