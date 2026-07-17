@@ -10,10 +10,12 @@
 #include "../include/stb_ds.h"
 
 #include "../include/constants.h"
+#include "../include/card_constants.h"
 #include "../include/main.h"
 #include "../include/widget.h"
 #include "../include/picbox.h"
 #include "../include/container.h"
+#include "../include/spritebox.h"
 #include "../include/render.h"
 /*
 #include "../include/input.h"
@@ -63,12 +65,20 @@ bool app_state_initialize(AppState *as){
     return false;
 }
 
+
 Container* widgets_initialize(render_hash* texture_map){
     Container *root = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
     PictureBox *bkg = picturebox_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true,
         hmget(texture_map, 1), NULL
     );
     container_add_widget(root, (Widget*)bkg);
+    Container *cards = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
+    for (int i = 0; i < 52; i++){
+        SpriteBox *card = spritebox_create(DECK_X_ORIGIN-(52-i), DECK_Y_ORIGIN+(52-i), CARD_WIDTH, CARD_HEIGHT, true,
+            hmget(texture_map, 2), 0, (CARD_HEIGHT+2)*4, NULL);
+        container_add_widget(cards, (Widget *)card);
+    }
+    container_add_widget(root, (Widget *)cards);
     return root;
 }
 

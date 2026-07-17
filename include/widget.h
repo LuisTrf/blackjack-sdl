@@ -8,7 +8,7 @@ typedef enum {
     WIDGET_BUTTON,
     WIDGET_PICBOX,
     WIDGET_CONTAINER,
-    _WIDGET_TYPE_COUNT
+    WIDGET_SPRITEBOX
 } WIDGET_TYPE;
 
 typedef enum {

@@ -9,6 +9,7 @@
 #include "../include/widget.h"
 #include "../include/container.h"
 #include "../include/picbox.h"
+#include "../include/spritebox.h"
 #include "../include/render.h"
 
 SDL_Texture* render_load_texture_from_png(SDL_Renderer *renderer, char* filepath){
@@ -21,6 +22,7 @@ SDL_Texture* render_load_texture_from_png(SDL_Renderer *renderer, char* filepath
 render_hash* texture_map_create(SDL_Renderer *renderer){
     render_hash* texture_map = NULL;
     hmput(texture_map, 1, render_load_texture_from_png(renderer, "../resources/bg.png"));
+    hmput(texture_map, 2, render_load_texture_from_png(renderer, "../resources/cards.png"));
     return texture_map;
 }
 
@@ -42,6 +44,22 @@ void render_picbox(SDL_Renderer *renderer, PictureBox *picbox){
     SDL_RenderTexture(renderer, picbox->p_texture, NULL, &dst_rect);
 }
 
+void render_spritebox(SDL_Renderer *renderer, SpriteBox *spritebox){
+    SDL_FRect src_rect = {
+        spritebox->spritesheet_x,
+        spritebox->spritesheet_y,
+        spritebox->widget.width,
+        spritebox->widget.height
+    };
+    SDL_FRect dst_rect = {
+        spritebox->widget.pos.x,
+        spritebox->widget.pos.y,
+        spritebox->widget.width,
+        spritebox->widget.height
+    };
+    SDL_RenderTexture(renderer, spritebox->p_spritesheet, &src_rect, &dst_rect);
+}
+
 void render_widgets(SDL_Renderer *renderer, Container *root){
     Widget** children = container_get_children(root);
     for (int i = 0; i < arrlen(children); i++){
@@ -53,6 +71,8 @@ void render_widgets(SDL_Renderer *renderer, Container *root){
             case WIDGET_PICBOX:
                 render_picbox(renderer, (PictureBox *)children[i]);
                 break;
+            case WIDGET_SPRITEBOX:
+                render_spritebox(renderer, (SpriteBox *)children[i]);
             default:
                 break;
         }
