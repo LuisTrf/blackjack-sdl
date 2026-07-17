@@ -106,8 +106,6 @@ void widgets_teardown(Container *root){
         }
         children[i] = NULL;
     }
-    picturebox_destroy((PictureBox *)root->children[0]);
-    container_destroy(root);
 }
 
 /*
