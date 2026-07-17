@@ -16,6 +16,8 @@
 #include "../include/picbox.h"
 #include "../include/container.h"
 #include "../include/spritebox.h"
+#include "../include/button.h"
+#include "../include/label.h"
 #include "../include/render.h"
 /*
 #include "../include/input.h"
@@ -83,6 +85,27 @@ Container* widgets_initialize(render_hash* texture_map){
 }
 
 void widgets_teardown(Container *root){
+    Widget** children = container_get_children(root);
+    for (int i = 0; i < arrlen(root->children); i++){
+        switch(children[i]->wtype){
+            case WIDGET_CONTAINER:
+                widgets_teardown((Container *)children[i]);
+                break;
+            case WIDGET_PICBOX:
+                picturebox_destroy((PictureBox *)children[i]);
+                break;
+            case WIDGET_BUTTON:
+                button_destroy((Button *)children[i]);
+                break;
+            case WIDGET_LABEL:
+                label_destroy((Label *)children[i]);
+                break;
+            case WIDGET_SPRITEBOX:
+                spritebox_destroy((SpriteBox *)children[i]);
+                break;
+        }
+        children[i] = NULL;
+    }
     picturebox_destroy((PictureBox *)root->children[0]);
     container_destroy(root);
 }
