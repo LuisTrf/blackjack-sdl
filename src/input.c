@@ -1,31 +1,45 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "../include/stb_ds.h"
 #include "../include/widget.h"
 #include "../include/button.h"
 #include "../include/input.h"
 
-static Widget** subscribers = NULL;
-
-void input_subscriber_add(Widget *widget){
-    arrput(subscribers, widget);
+void input_subscriber_add(InputContext *p_ic, Widget *widget){
+    arrput(p_ic->widget_subscribers, widget);
 }
 
-void input_subscriber_remove(Widget *widget){
-    for (int i = 0; i < arrlen(subscribers); i++){
-        if (subscribers[i] == widget){
-            arrdel(subscribers, i);
+void input_subscriber_remove(InputContext *p_ic, Widget *widget){
+    for (int i = 0; i < arrlen(p_ic->widget_subscribers); i++){
+        if (p_ic->widget_subscribers[i] == widget){
+            arrdel(p_ic->widget_subscribers, i);
         }
     }
 }
 
-void input_subscribers_notify_all(SDL_Event event){
+void input_subscribers_notify_all(Widget** widget_subscribers, SDL_Event event){
     App_SDL_Event ase = {.type=APP_EVENT_TYPE_SDL, .sdl=event};
     App_Event ae = {.sdl=ase};
-    for (int i = 0; i < arrlen(subscribers); i++){
-        subscribers[i]->update_func(subscribers[i], ae);
+    for (int i = 0; i < arrlen(widget_subscribers); i++){
+        widget_subscribers[i]->update_func(widget_subscribers[i], ae);
     }
+}
+
+InputContext* input_initialize(void){
+    InputContext ic = {NULL};
+    InputContext *p_ic = malloc(sizeof(InputContext));
+    if (p_ic == NULL){
+        abort();
+    }
+    *p_ic = ic;
+    return p_ic;
+}
+
+void input_teardown(InputContext *p_ic){
+    free(p_ic);
+    p_ic = NULL;
 }
 
 bool handle_quit(SDL_Event event){
@@ -79,12 +93,12 @@ void button_handle_mouse_events(Button *button, SDL_Event event){
     }
 }
 
-bool handle_input(void){
+bool handle_input(InputContext *p_ic){
     bool should_quit = false;
     SDL_Event event;
     while (SDL_PollEvent(&event)){
         should_quit = handle_quit(event);
-        input_subscribers_notify_all(event);
+        input_subscribers_notify_all(p_ic->widget_subscribers, event);
     }
     return should_quit;
 }
