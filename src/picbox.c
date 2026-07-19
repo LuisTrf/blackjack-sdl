@@ -4,7 +4,7 @@
 #include "../include/picbox.h"
 
 PictureBox* picturebox_create(float x, float y, int width, int height, bool visible, SDL_Texture *p_texture,
-    void (*update_func)(Widget *self, Event event)
+    void (*update_func)(Widget *self, App_Event event)
 ){
     PictureBox picbox = {{WIDGET_PICBOX, {x, y}, width, height, visible, update_func}, p_texture};
     PictureBox *p_picbox = malloc(sizeof(PictureBox));

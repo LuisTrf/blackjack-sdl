@@ -17,7 +17,7 @@ Label* labels[NUMBER_OF_LABELS] = {
 */
 
 Label* label_create(float x, float y, int width, int height, bool visible, TTF_Font* font, float font_size, 
-    void (*update_func)(Widget *self, Event event)
+    void (*update_func)(Widget *self, App_Event event)
 )
 {
     Label label = {{WIDGET_LABEL, {x, y}, width, height, visible, update_func}, 

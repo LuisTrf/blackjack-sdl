@@ -19,8 +19,8 @@
 #include "../include/button.h"
 #include "../include/label.h"
 #include "../include/render.h"
-/*
 #include "../include/input.h"
+/*
 #include "../include/update.h"
 #include "../include/animate.h"
 #include "../include/render.h"
@@ -153,6 +153,7 @@ int main(int argc, char **argv){
     teardown();
     */
     while (!should_quit){
+        should_quit = handle_input();
         render(p_as->renderer, p_as->root);
         SDL_Delay(100);
     }

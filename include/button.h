@@ -3,6 +3,7 @@
 #include <SDL3/SDL.h>
 #include <stdbool.h>
 #include "constants.h"
+#include "events.h"
 #include "widget.h"
 
 /*
@@ -54,9 +55,12 @@ typedef struct Button{
 } Button;
 
 Button* button_create(float x, float y, int width, int height, bool visible, BUTTON_STATE button_state_initial, SDL_Texture* spritesheet, void (*callback_func)(Button *self),
-    void (*update_func)(Widget *self, Event event));
+    void (*update_func)(Widget *self, App_Event event)
+);
 void button_destroy(Button *p_button);
-void set_state(Button *button, BUTTON_STATE state);
-BUTTON_STATE get_state(Button *button);
-BUTTON_STATE get_prev_state(Button *button);
-void restore_prev_state(Button *button);
+void button_set_state(Button *button, BUTTON_STATE state);
+BUTTON_STATE button_get_state(Button *button);
+BUTTON_STATE button_get_prev_state(Button *button);
+void button_restore_prev_state(Button *button);
+void button_add_subscriber(Button *publisher, Widget* subscriber);
+void button_notify_all(Button *publisher, App_Event event);

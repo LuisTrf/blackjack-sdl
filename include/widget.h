@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include "vec2.h"
+#include "events.h"
 
 typedef enum {
     WIDGET_LABEL,
@@ -11,15 +12,11 @@ typedef enum {
     WIDGET_SPRITEBOX
 } WIDGET_TYPE;
 
-typedef enum {
-    EVENT_EVENT
-} Event;
-
 typedef struct Widget {
     WIDGET_TYPE wtype;
     vec2 pos;
     int width;
     int height;
     bool visible;
-    void (*update_func)(struct Widget *self, Event event);
+    void (*update_func)(struct Widget *self, App_Event event);
 } Widget;

@@ -43,7 +43,7 @@ Button gold100k_button = {{{CHIP_BUTTON_X(9), CHIP_BUTTON_Y(9), CHIP_BUTTON_WIDT
 */
 
 Button* button_create(float x, float y, int width, int height, bool visible, BUTTON_STATE button_state_initial, SDL_Texture* spritesheet, void (*callback_func)(Button *self),
-    void (*update_func)(Widget *self, Event event)
+    void (*update_func)(Widget *self, App_Event event)
 )
 {
     Button button = {
@@ -88,7 +88,7 @@ void button_add_subscriber(Button *publisher, Widget* subscriber){
     arrput(publisher->subscribers, subscriber);
 }
 
-void button_notify_all(Button *publisher, Event event){
+void button_notify_all(Button *publisher, App_Event event){
     for (int i = 0; i < arrlen(publisher->subscribers); i++){
         publisher->subscribers[i]->update_func(publisher->subscribers[i], event);
     }

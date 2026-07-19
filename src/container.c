@@ -3,7 +3,9 @@
 #include "../include/container.h"
 #include "../include/stb_ds.h"
 
-Container* container_create(float x, float y, int width, int height, bool visible, void (*update_func)(Widget *self, Event event)){
+Container* container_create(float x, float y, int width, int height, bool visible, 
+    void (*update_func)(Widget *self, App_Event event)
+){
     Container container = {{WIDGET_CONTAINER, {x, y}, width, height, visible, update_func}, NULL};
     Container *p_container = malloc(sizeof(Container));
     if (p_container == NULL){
