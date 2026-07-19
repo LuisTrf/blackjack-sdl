@@ -4,6 +4,8 @@
 #include "../include/widget.h"
 #include "../include/button.h"
 #include "../include/stb_ds.h"
+#include "../include/events.h"
+#include "../include/input.h"
 
 /*
 Button deal_button = {{BUTTON_X_ORIGIN, BUTTON_Y_ORIGIN, BUTTON_WIDTH, BUTTON_HEIGHT, true},
@@ -91,5 +93,15 @@ void button_add_subscriber(Button *publisher, Widget* subscriber){
 void button_notify_all(Button *publisher, App_Event event){
     for (int i = 0; i < arrlen(publisher->subscribers); i++){
         publisher->subscribers[i]->update_func(publisher->subscribers[i], event);
+    }
+}
+
+void deal_update(Widget *self, App_Event event){
+    switch(event.type){
+        case APP_EVENT_TYPE_SDL:
+            button_handle_mouse_events((Button *)self, event.sdl.sdl);
+            break;
+        case APP_EVENT_TYPE_COMMON:
+            break;
     }
 }

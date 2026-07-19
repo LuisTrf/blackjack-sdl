@@ -10,6 +10,7 @@
 #include "../include/container.h"
 #include "../include/picbox.h"
 #include "../include/spritebox.h"
+#include "../include/button.h"
 #include "../include/render.h"
 
 SDL_Texture* render_load_texture_from_png(SDL_Renderer *renderer, char* filepath){
@@ -23,6 +24,7 @@ render_hash* texture_map_create(SDL_Renderer *renderer){
     render_hash* texture_map = NULL;
     hmput(texture_map, 1, render_load_texture_from_png(renderer, "../resources/bg.png"));
     hmput(texture_map, 2, render_load_texture_from_png(renderer, "../resources/cards.png"));
+    hmput(texture_map, 3, render_load_texture_from_png(renderer, "../resources/deal_spritesheet.png"));
     return texture_map;
 }
 
@@ -60,6 +62,41 @@ void render_spritebox(SDL_Renderer *renderer, SpriteBox *spritebox){
     SDL_RenderTexture(renderer, spritebox->p_spritesheet, &src_rect, &dst_rect);
 }
 
+void render_button(SDL_Renderer *renderer, Button *button){
+    if (!button->widget.visible || button->p_spritesheet==NULL) {return;}
+    int rel_offset_x, rel_offset_y;
+    SDL_FRect dst_rect = {
+        button->widget.pos.x,
+        button->widget.pos.y,
+        button->widget.width,
+        button->widget.height
+    };
+    switch (button_get_state(button)) {
+        case (_BUTTON_STATE_NONE):
+            break;
+        case (BUTTON_STATE_IDLE):
+            rel_offset_x=0, rel_offset_y=0;
+            break;
+        case (BUTTON_STATE_HOVERED): 
+        case (BUTTON_STATE_RELEASED):
+            rel_offset_x=0, rel_offset_y=1;
+            break;
+        case (BUTTON_STATE_PRESSED):
+            rel_offset_x=1, rel_offset_y=1;
+            break;
+        case (BUTTON_STATE_DISABLED):
+            rel_offset_x=1, rel_offset_y=0;
+            break;
+    }
+    SDL_FRect src_rect = {
+        (rel_offset_x)*(button->widget.width+2),
+        (rel_offset_y)*(button->widget.height+2),
+        button->widget.width,
+        button->widget.height
+    };
+    SDL_RenderTexture(renderer, button->p_spritesheet, &src_rect, &dst_rect);
+}
+
 void render_widgets(SDL_Renderer *renderer, Container *root){
     Widget** children = container_get_children(root);
     for (int i = 0; i < arrlen(children); i++){
@@ -73,6 +110,10 @@ void render_widgets(SDL_Renderer *renderer, Container *root){
                 break;
             case WIDGET_SPRITEBOX:
                 render_spritebox(renderer, (SpriteBox *)children[i]);
+                break;
+            case WIDGET_BUTTON:
+                render_button(renderer, (Button *)children[i]);
+                break;
             default:
                 break;
         }
@@ -184,41 +225,6 @@ void load_resources(void){
     load_button_spritesheets();
     load_font();
     load_label_textures();
-}
-
-void render_button(Button* button, int button_width, int button_height, int button_spritesheet_step_x, int button_spritesheet_step_y){
-    if (!button->obj.visible || button->spritesheet==NULL) {return;}
-    int rel_offset_x, rel_offset_y;
-    SDL_FRect button_rect = {
-        button->obj.x,
-        button->obj.y,
-        button->obj.width,
-        button->obj.height
-    };
-    switch (get_state(button)) {
-        case (_NONE_BUTTON_STATE):
-            break;
-        case (IDLE):
-            rel_offset_x=BUTTON_SPRITESHEET_IDLE_REL_OFFSET_X, rel_offset_y=BUTTON_SPRITESHEET_IDLE_REL_OFFSET_Y;
-            break;
-        case (HOVERED): 
-        case (RELEASED):
-            rel_offset_x=BUTTON_SPRITESHEET_HOVERED_REL_OFFSET_X, rel_offset_y=BUTTON_SPRITESHEET_HOVERED_REL_OFFSET_Y;
-            break;
-        case (PRESSED):
-            rel_offset_x=BUTTON_SPRITESHEET_PRESSED_REL_OFFSET_X, rel_offset_y=BUTTON_SPRITESHEET_PRESSED_REL_OFFSET_Y;
-            break;
-        case (DISABLED):
-            rel_offset_x=BUTTON_SPRITESHEET_DISABLED_REL_OFFSET_X, rel_offset_y=BUTTON_SPRITESHEET_DISABLED_REL_OFFSET_Y;
-            break;
-    }
-    SDL_FRect src_rect = {
-        rel_offset_x*button_spritesheet_step_x,
-        rel_offset_y*button_spritesheet_step_y,
-        button_width,
-        button_height
-    };
-    SDL_RenderTexture(renderer, button->spritesheet, &src_rect, &button_rect);
 }
 
 void render_background(void){

@@ -6,12 +6,11 @@
 #include "events.h"
 #include "widget.h"
 
-/*
 #define ACTION_BUTTON_WIDTH 168
 #define ACTION_BUTTON_HEIGHT 70
 #define ACTION_BUTTON_SEPARATION_X 20
 #define ACTION_BUTTON_STEP_X (ACTION_BUTTON_WIDTH + ACTION_BUTTON_SEPARATION_X)
-#define ACTION_BUTTON_X_ORIGIN (WINDOW_WIDTH/2.f - BUTTON_WIDTH/2.f)
+#define ACTION_BUTTON_X_ORIGIN (WINDOW_WIDTH/2.f - ACTION_BUTTON_WIDTH/2.f)
 #define ACTION_BUTTON_Y_ORIGIN (WINDOW_HEIGHT - 160)
 
 #define STACK_BUTTON_X_ORIGIN (WINDOW_WIDTH/2.f - CHIP_BUTTON_WIDTH/2.f)
@@ -28,7 +27,6 @@
 #define ABS(a) (((a) < 0) ? -(a) : (a))
 #define CHIP_BUTTON_X(i) (CHIP_BUTTON_X_ORIGIN + (i%5)*(CHIP_BUTTON_WIDTH+CHIP_BUTTON_SEPARATION_X))
 #define CHIP_BUTTON_Y(i) (CHIP_BUTTON_Y_ORIGIN + (i/5)*(CHIP_BUTTON_HEIGHT+CHIP_BUTTON_SEPARATION_Y) - 30*ABS(2-(i%5)) + 60)
-*/
 
 typedef enum {
     BUTTON_TYPE_ACTION,
@@ -64,3 +62,5 @@ BUTTON_STATE button_get_prev_state(Button *button);
 void button_restore_prev_state(Button *button);
 void button_add_subscriber(Button *publisher, Widget* subscriber);
 void button_notify_all(Button *publisher, App_Event event);
+
+void deal_update(Widget *self, App_Event event);

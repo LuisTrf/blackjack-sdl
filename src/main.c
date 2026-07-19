@@ -25,7 +25,6 @@
 #include "../include/animate.h"
 #include "../include/render.h"
 #include "../include/labels.h"
-#include "../include/events.h"
 */
 
 bool app_state_initialize(AppState *as){
@@ -70,10 +69,12 @@ bool app_state_initialize(AppState *as){
 
 Container* widgets_initialize(render_hash* texture_map){
     Container *root = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
+    
     PictureBox *bkg = picturebox_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true,
         hmget(texture_map, 1), NULL
     );
     container_add_widget(root, (Widget*)bkg);
+    
     Container *cards = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
     for (int i = 0; i < 52; i++){
         SpriteBox *card = spritebox_create(DECK_X_ORIGIN-(52-i), DECK_Y_ORIGIN+(52-i), CARD_WIDTH, CARD_HEIGHT, true,
@@ -81,6 +82,16 @@ Container* widgets_initialize(render_hash* texture_map){
         container_add_widget(cards, (Widget *)card);
     }
     container_add_widget(root, (Widget *)cards);
+    
+    Container *action_buttons = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
+    
+    Button *deal_button = button_create(ACTION_BUTTON_X_ORIGIN, ACTION_BUTTON_Y_ORIGIN, ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT,
+        true, BUTTON_STATE_IDLE, hmget(texture_map, 3), NULL, deal_update);
+    container_add_widget(action_buttons, (Widget *)deal_button);
+    input_subscriber_add((Widget *)deal_button);
+
+    container_add_widget(root, (Widget *)action_buttons);
+
     return root;
 }
 
