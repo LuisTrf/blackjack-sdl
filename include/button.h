@@ -30,7 +30,6 @@
 
 typedef enum {
     BUTTON_TYPE_ACTION,
-    BUTTON_TYPE_VALUED,
     BUTTON_TYPE_GENERIC,
 } BUTTON_TYPE;
 
@@ -45,6 +44,7 @@ typedef enum {
 
 typedef struct Button{
     Widget widget;
+    BUTTON_TYPE btype;
     BUTTON_STATE _state;
     BUTTON_STATE _prev_state;
     SDL_Texture *p_spritesheet;
@@ -52,10 +52,19 @@ typedef struct Button{
     Widget** subscribers;
 } Button;
 
-Button* button_create(float x, float y, int width, int height, bool visible, BUTTON_STATE button_state_initial, SDL_Texture* spritesheet, void (*callback_func)(Button *self),
+typedef struct ButtonContext {
+    Button** alive_action_buttons;
+} ButtonContext;
+
+Button* button_create(ButtonContext *bc,
+    float x, float y, int width, int height, bool visible, 
+    BUTTON_TYPE btype, BUTTON_STATE button_state_initial, SDL_Texture* spritesheet,
+    void (*callback_func)(Button *self),
     void (*update_func)(Widget *self, App_Event event)
 );
+ButtonContext* button_context_initialize(void);
 void button_destroy(Button *p_button);
+void button_context_teardown(ButtonContext *p_bc);
 void button_set_state(Button *button, BUTTON_STATE state);
 BUTTON_STATE button_get_state(Button *button);
 BUTTON_STATE button_get_prev_state(Button *button);
@@ -63,4 +72,4 @@ void button_restore_prev_state(Button *button);
 void button_add_subscriber(Button *publisher, Widget* subscriber);
 void button_notify_all(Button *publisher, App_Event event);
 
-void deal_update(Widget *self, App_Event event);
+void button_update_deal(Widget *self, App_Event event);

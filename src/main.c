@@ -67,7 +67,7 @@ bool app_state_initialize(AppState *as){
 }
 
 
-Container* widgets_initialize(InputContext* p_ic, render_hash* texture_map){
+Container* widgets_initialize(InputContext* p_ic, ButtonContext *p_bc, render_hash* texture_map){
     Container *root = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
     
     PictureBox *bkg = picturebox_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true,
@@ -85,8 +85,10 @@ Container* widgets_initialize(InputContext* p_ic, render_hash* texture_map){
     
     Container *action_buttons = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
     
-    Button *deal_button = button_create(ACTION_BUTTON_X_ORIGIN, ACTION_BUTTON_Y_ORIGIN, ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT,
-        true, BUTTON_STATE_IDLE, hmget(texture_map, 3), NULL, deal_update);
+    Button *deal_button = button_create(p_bc,
+        ACTION_BUTTON_X_ORIGIN, ACTION_BUTTON_Y_ORIGIN, ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT, true, 
+        BUTTON_TYPE_ACTION, BUTTON_STATE_IDLE, hmget(texture_map, 3), NULL, button_update_deal
+    );
     container_add_widget(action_buttons, (Widget *)deal_button);
     input_subscriber_add(p_ic, (Widget *)deal_button);
 
@@ -150,8 +152,9 @@ int main(int argc, char **argv){
     }
     *p_as = as;
     InputContext *p_ic = input_initialize();
+    ButtonContext* p_bc = button_context_initialize();
     render_hash* texture_map = texture_map_create(p_as->renderer);
-    p_as->root = widgets_initialize(p_ic, texture_map);
+    p_as->root = widgets_initialize(p_ic, p_bc, texture_map);
     /*
     allocate_memory();
     update_all_label_dimensions();
@@ -171,6 +174,7 @@ int main(int argc, char **argv){
     }
     widgets_teardown(p_as->root);
     texture_map_destroy(texture_map);
+    button_context_teardown(p_bc);
     input_teardown(p_ic);
     SDL_DestroyRenderer(p_as->renderer);
     SDL_DestroyWindow(p_as->window);

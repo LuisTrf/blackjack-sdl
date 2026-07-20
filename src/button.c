@@ -44,20 +44,41 @@ Button gold100k_button = {{{CHIP_BUTTON_X(9), CHIP_BUTTON_Y(9), CHIP_BUTTON_WIDT
     DISABLED, _NONE_BUTTON_STATE, NULL, on_valued_released}, HUNDRED_K};
 */
 
-Button* button_create(float x, float y, int width, int height, bool visible, BUTTON_STATE button_state_initial, SDL_Texture* spritesheet, void (*callback_func)(Button *self),
+Button* button_create(ButtonContext *bc, float x, float y, int width, int height, bool visible, 
+    BUTTON_TYPE btype, BUTTON_STATE button_state_initial, SDL_Texture* spritesheet, 
+    void (*callback_func)(Button *self),
     void (*update_func)(Widget *self, App_Event event)
 )
 {
     Button button = {
-        .widget={.wtype=WIDGET_BUTTON, .pos={.x=x, .y=y}, .width=width, .height=height, .visible=visible, .update_func=update_func}, 
-        ._state=button_state_initial, ._prev_state=_BUTTON_STATE_NONE, .p_spritesheet=spritesheet, .callback=callback_func, .subscribers=NULL
+        .widget={.wtype=WIDGET_BUTTON, .pos={.x=x, .y=y}, .width=width, .height=height, .visible=visible, 
+            .update_func=update_func}, 
+        .btype=btype, ._state=button_state_initial, ._prev_state=_BUTTON_STATE_NONE, 
+        .p_spritesheet=spritesheet, .callback=callback_func, .subscribers=NULL
     };
     Button *p_button = malloc(sizeof(Button));
     if (p_button == NULL){
         abort();
     }
     *p_button = button;
+    switch (p_button->btype){
+        case BUTTON_TYPE_ACTION:
+            arrput(bc->alive_action_buttons, p_button);
+            break;
+        default:
+            break;
+    }
     return p_button;
+}
+
+ButtonContext* button_context_initialize(void){
+    ButtonContext bc = {NULL};
+    ButtonContext *p_bc = malloc(sizeof(ButtonContext));
+    if (p_bc == NULL){
+        abort();
+    }
+    *p_bc = bc;
+    return p_bc;
 }
 
 void button_destroy(Button *p_button){
@@ -65,6 +86,13 @@ void button_destroy(Button *p_button){
     p_button->subscribers = NULL;
     free(p_button);
     p_button = NULL;
+}
+
+void button_context_teardown(ButtonContext *p_bc){
+    arrfree(p_bc->alive_action_buttons);
+    p_bc->alive_action_buttons = NULL;
+    free(p_bc);
+    p_bc = NULL;
 }
 
 void button_set_state(Button *button, BUTTON_STATE state){
@@ -96,7 +124,7 @@ void button_notify_all(Button *publisher, App_Event event){
     }
 }
 
-void deal_update(Widget *self, App_Event event){
+void button_update_deal(Widget *self, App_Event event){
     switch(event.type){
         case APP_EVENT_TYPE_SDL:
             button_handle_mouse_events((Button *)self, event.sdl.sdl);

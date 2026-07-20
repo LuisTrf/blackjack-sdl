@@ -38,6 +38,8 @@ InputContext* input_initialize(void){
 }
 
 void input_teardown(InputContext *p_ic){
+    arrfree(p_ic->widget_subscribers);
+    p_ic->widget_subscribers = NULL;
     free(p_ic);
     p_ic = NULL;
 }
