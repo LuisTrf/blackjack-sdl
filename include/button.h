@@ -56,7 +56,7 @@ typedef struct ButtonContext {
     Button** alive_action_buttons;
 } ButtonContext;
 
-Button* button_create(ButtonContext *bc,
+Button* button_create(ButtonContext *p_bc,
     float x, float y, int width, int height, bool visible, 
     BUTTON_TYPE btype, BUTTON_STATE button_state_initial, SDL_Texture* spritesheet,
     void (*callback_func)(Button *self),
@@ -71,5 +71,8 @@ BUTTON_STATE button_get_prev_state(Button *button);
 void button_restore_prev_state(Button *button);
 void button_add_subscriber(Button *publisher, Widget* subscriber);
 void button_notify_all(Button *publisher, App_Event event);
+int button_context_get_visible_action_buttons(ButtonContext *p_bc);
+void button_context_update_action_button_positions_from_visibilities(ButtonContext *p_bc);
 
 void button_update_deal(Widget *self, App_Event event);
+void button_update_hit(Widget *self, App_Event event);

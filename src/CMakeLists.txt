@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 find_package(SDL3 REQUIRED)
 find_package(SDL3_ttf REQUIRED)
-add_executable(main main.c render.c button.c label.c picbox.c container.c spritebox.c input.c)
+add_executable(main main.c render.c button.c label.c picbox.c container.c spritebox.c input.c update.c)
 target_include_directories(main PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(main PRIVATE SDL3::SDL3 SDL3_ttf::SDL3_ttf)

@@ -20,6 +20,7 @@
 #include "../include/label.h"
 #include "../include/render.h"
 #include "../include/input.h"
+#include "../include/update.h"
 /*
 #include "../include/update.h"
 #include "../include/animate.h"
@@ -91,6 +92,12 @@ Container* widgets_initialize(InputContext* p_ic, ButtonContext *p_bc, render_ha
     );
     container_add_widget(action_buttons, (Widget *)deal_button);
     input_subscriber_add(p_ic, (Widget *)deal_button);
+    Button *hit_button = button_create(p_bc,
+        ACTION_BUTTON_X_ORIGIN, ACTION_BUTTON_Y_ORIGIN, ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT, false, 
+        BUTTON_TYPE_ACTION, BUTTON_STATE_IDLE, hmget(texture_map, 4), NULL, button_update_hit
+    );
+    container_add_widget(action_buttons, (Widget *)hit_button);
+    input_subscriber_add(p_ic, (Widget *)hit_button);
 
     container_add_widget(root, (Widget *)action_buttons);
 
@@ -155,6 +162,7 @@ int main(int argc, char **argv){
     ButtonContext* p_bc = button_context_initialize();
     render_hash* texture_map = texture_map_create(p_as->renderer);
     p_as->root = widgets_initialize(p_ic, p_bc, texture_map);
+    UpdateContext *p_uc = update_context_initialize();
     /*
     allocate_memory();
     update_all_label_dimensions();
@@ -170,8 +178,9 @@ int main(int argc, char **argv){
     while (!should_quit){
         should_quit = handle_input(p_ic);
         render(p_as->renderer, p_as->root);
-        SDL_Delay(100);
+        update(p_uc, p_bc);
     }
+    update_context_teardown(p_uc);
     widgets_teardown(p_as->root);
     texture_map_destroy(texture_map);
     button_context_teardown(p_bc);

@@ -44,7 +44,7 @@ Button gold100k_button = {{{CHIP_BUTTON_X(9), CHIP_BUTTON_Y(9), CHIP_BUTTON_WIDT
     DISABLED, _NONE_BUTTON_STATE, NULL, on_valued_released}, HUNDRED_K};
 */
 
-Button* button_create(ButtonContext *bc, float x, float y, int width, int height, bool visible, 
+Button* button_create(ButtonContext *p_bc, float x, float y, int width, int height, bool visible, 
     BUTTON_TYPE btype, BUTTON_STATE button_state_initial, SDL_Texture* spritesheet, 
     void (*callback_func)(Button *self),
     void (*update_func)(Widget *self, App_Event event)
@@ -63,7 +63,7 @@ Button* button_create(ButtonContext *bc, float x, float y, int width, int height
     *p_button = button;
     switch (p_button->btype){
         case BUTTON_TYPE_ACTION:
-            arrput(bc->alive_action_buttons, p_button);
+            arrput(p_bc->alive_action_buttons, p_button);
             break;
         default:
             break;
@@ -124,7 +124,44 @@ void button_notify_all(Button *publisher, App_Event event){
     }
 }
 
+int button_context_get_visible_action_buttons(ButtonContext *p_bc){
+    int visible_action_button_count = 0;
+    for (int i = 0; i < arrlen(p_bc->alive_action_buttons); i++){
+        if (p_bc->alive_action_buttons[i]->widget.visible){
+            visible_action_button_count++;
+        }
+    }
+    return visible_action_button_count;
+}
+
+void button_context_update_action_button_positions_from_visibilities(ButtonContext *p_bc){
+    int visible_action_button_count = button_context_get_visible_action_buttons(p_bc);
+    int remaining_visible_action_button_count = visible_action_button_count;
+    for (int i = 0; i < arrlen(p_bc->alive_action_buttons); i++){
+        if (p_bc->alive_action_buttons[i]->widget.visible){
+            p_bc->alive_action_buttons[i]->widget.pos.x = 
+                ACTION_BUTTON_X_ORIGIN
+                + 0.5f * (visible_action_button_count-1) * ACTION_BUTTON_WIDTH
+                - 0.5f * (remaining_visible_action_button_count-1) * (ACTION_BUTTON_STEP_X + ACTION_BUTTON_WIDTH);
+            remaining_visible_action_button_count--;
+        }
+        else {
+            p_bc->alive_action_buttons[i]->widget.pos.x = ACTION_BUTTON_X_ORIGIN;
+        }
+    }
+}
+
 void button_update_deal(Widget *self, App_Event event){
+    switch(event.type){
+        case APP_EVENT_TYPE_SDL:
+            button_handle_mouse_events((Button *)self, event.sdl.sdl);
+            break;
+        case APP_EVENT_TYPE_COMMON:
+            break;
+    }
+}
+
+void button_update_hit(Widget *self, App_Event event){
     switch(event.type){
         case APP_EVENT_TYPE_SDL:
             button_handle_mouse_events((Button *)self, event.sdl.sdl);

@@ -25,6 +25,7 @@ render_hash* texture_map_create(SDL_Renderer *renderer){
     hmput(texture_map, 1, render_load_texture_from_png(renderer, "../resources/bg.png"));
     hmput(texture_map, 2, render_load_texture_from_png(renderer, "../resources/cards.png"));
     hmput(texture_map, 3, render_load_texture_from_png(renderer, "../resources/deal_spritesheet.png"));
+    hmput(texture_map, 4, render_load_texture_from_png(renderer, "../resources/hit_spritesheet.png"));
     return texture_map;
 }
 
