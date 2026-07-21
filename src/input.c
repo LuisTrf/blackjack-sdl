@@ -2,7 +2,6 @@
 #include <SDL3/SDL_events.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include "../include/stb_ds.h"
 #include "../include/widget.h"
 #include "../include/button.h"
@@ -21,8 +20,8 @@ void input_subscriber_remove(InputContext *p_ic, Widget *widget){
 }
 
 void input_subscribers_notify_all(Widget** widget_subscribers, SDL_Event event){
-    App_SDL_Event ase = {.type=APP_EVENT_TYPE_SDL, .event=event};
-    App_Event ae = {.sdl=ase};
+    EventTyped_SDL_Event ase = {.type=EVENT_TYPE_SDL, .event=event};
+    Event ae = {.sdl=ase};
     for (int i = 0; i < arrlen(widget_subscribers); i++){
         widget_subscribers[i]->update_func(widget_subscribers[i], ae);
     }

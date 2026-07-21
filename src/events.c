@@ -1,10 +1,10 @@
 #include <SDL3/SDL.h>
 #include "../include/events.h"
 
-App_Event event_app_common_event_create(Common_EventType event_type){
-    App_CommonEvent ace = {APP_EVENT_TYPE_COMMON, {event_type}};
-    App_Event ae = {.common=ace};
-    return ae;
+Event event_app_event_create(App_EventType event_type){
+    EventTyped_App_Event ae = {EVENT_TYPE_APP, {event_type}};
+    Event e = {.app=ae};
+    return e;
 }
 
 /*

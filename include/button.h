@@ -44,7 +44,7 @@ typedef enum {
 typedef struct Button{
     Widget widget;
     BUTTON_TYPE btype;
-    App_Event release_event;
+    Event release_event;
     BUTTON_STATE _state;
     BUTTON_STATE _prev_state;
     SDL_Texture *p_spritesheet;
@@ -59,10 +59,10 @@ typedef struct ButtonContext {
 Button* button_create(ButtonContext *p_bc,
     float x, float y, int width, int height, 
     bool visible, 
-    BUTTON_TYPE btype, App_Event release_event, BUTTON_STATE button_state_initial, 
+    BUTTON_TYPE btype, Event release_event, BUTTON_STATE button_state_initial, 
     SDL_Texture* spritesheet,
     void (*callback_func)(Button *self),
-    void (*update_func)(Widget *self, App_Event event)
+    void (*update_func)(Widget *self, Event event)
 );
 ButtonContext* button_context_initialize(void);
 void button_destroy(Button *p_button);
@@ -72,12 +72,12 @@ BUTTON_STATE button_get_state(Button *button);
 BUTTON_STATE button_get_prev_state(Button *button);
 void button_restore_prev_state(Button *button);
 void button_add_subscriber(Button *publisher, Widget* subscriber);
-void button_notify_all(Button *publisher, App_Event event);
+void button_notify_all(Button *publisher, Event event);
 int button_context_get_visible_action_buttons(ButtonContext *p_bc);
 void button_context_update_action_button_positions_from_visibilities(ButtonContext *p_bc);
 
-void button_update_deal(Widget *self, App_Event event);
-void button_update_hit(Widget *self, App_Event event);
+void button_update_deal(Widget *self, Event event);
+void button_update_hit(Widget *self, Event event);
 
 void button_deal_callback(Button *self);
 void button_hit_callback(Button *self);

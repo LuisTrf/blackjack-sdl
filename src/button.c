@@ -50,11 +50,11 @@ Button* button_create(
     float x, float y, int width, int height, 
     bool visible, 
     BUTTON_TYPE btype,
-    App_Event release_event,
+    Event release_event,
     BUTTON_STATE button_state_initial, 
     SDL_Texture* spritesheet, 
     void (*callback_func)(Button *self),
-    void (*update_func)(Widget *self, App_Event event)
+    void (*update_func)(Widget *self, Event event)
 )
 {
     Button button = {
@@ -125,7 +125,7 @@ void button_add_subscriber(Button *publisher, Widget* subscriber){
     arrput(publisher->subscribers, subscriber);
 }
 
-void button_notify_all(Button *publisher, App_Event event){
+void button_notify_all(Button *publisher, Event event){
     for (int i = 0; i < arrlen(publisher->subscribers); i++){
         publisher->subscribers[i]->update_func(publisher->subscribers[i], event);
     }
@@ -158,15 +158,15 @@ void button_context_update_action_button_positions_from_visibilities(ButtonConte
     }
 }
 
-void button_update_deal(Widget *self, App_Event event){
+void button_update_deal(Widget *self, Event event){
     if (button_get_state((Button *)self) == BUTTON_STATE_DISABLED) {return;}
     switch(event.type){
-        case APP_EVENT_TYPE_SDL:
+        case EVENT_TYPE_SDL:
             button_handle_mouse_events((Button *)self, event.sdl.event);
             break;
-        case APP_EVENT_TYPE_COMMON:
-            switch(event.common.event.type){
-                case EVENT_RELEASE_HIT:
+        case EVENT_TYPE_APP:
+            switch(event.app.event.type){
+                case BUTTON_EVENT_RELEASE_HIT:
                     printf("i, deal, called from hit release!\n");
                     break;
                 default:
@@ -175,15 +175,15 @@ void button_update_deal(Widget *self, App_Event event){
     }
 }
 
-void button_update_hit(Widget *self, App_Event event){
+void button_update_hit(Widget *self, Event event){
     if (button_get_state((Button *)self) == BUTTON_STATE_DISABLED) {return;}
     switch(event.type){
-        case APP_EVENT_TYPE_SDL:
+        case EVENT_TYPE_SDL:
             button_handle_mouse_events((Button *)self, event.sdl.event);
             break;
-        case APP_EVENT_TYPE_COMMON:
-            switch(event.common.event.type){
-                case EVENT_RELEASE_DEAL:
+        case EVENT_TYPE_APP:
+            switch(event.app.event.type){
+                case BUTTON_EVENT_RELEASE_DEAL:
                     printf("i, hit, called from deal release!\n");
                     break;
                 default:
