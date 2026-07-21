@@ -1,6 +1,7 @@
 #include <SDL3/SDL.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "../include/widget.h"
 #include "../include/button.h"
 #include "../include/stb_ds.h"
@@ -44,8 +45,14 @@ Button gold100k_button = {{{CHIP_BUTTON_X(9), CHIP_BUTTON_Y(9), CHIP_BUTTON_WIDT
     DISABLED, _NONE_BUTTON_STATE, NULL, on_valued_released}, HUNDRED_K};
 */
 
-Button* button_create(ButtonContext *p_bc, float x, float y, int width, int height, bool visible, 
-    BUTTON_TYPE btype, BUTTON_STATE button_state_initial, SDL_Texture* spritesheet, 
+Button* button_create(
+    ButtonContext *p_bc, 
+    float x, float y, int width, int height, 
+    bool visible, 
+    BUTTON_TYPE btype,
+    App_Event release_event,
+    BUTTON_STATE button_state_initial, 
+    SDL_Texture* spritesheet, 
     void (*callback_func)(Button *self),
     void (*update_func)(Widget *self, App_Event event)
 )
@@ -53,7 +60,7 @@ Button* button_create(ButtonContext *p_bc, float x, float y, int width, int heig
     Button button = {
         .widget={.wtype=WIDGET_BUTTON, .pos={.x=x, .y=y}, .width=width, .height=height, .visible=visible, 
             .update_func=update_func}, 
-        .btype=btype, ._state=button_state_initial, ._prev_state=_BUTTON_STATE_NONE, 
+        .btype=btype, .release_event=release_event, ._state=button_state_initial, ._prev_state=_BUTTON_STATE_NONE, 
         .p_spritesheet=spritesheet, .callback=callback_func, .subscribers=NULL
     };
     Button *p_button = malloc(sizeof(Button));
@@ -152,21 +159,43 @@ void button_context_update_action_button_positions_from_visibilities(ButtonConte
 }
 
 void button_update_deal(Widget *self, App_Event event){
+    if (button_get_state((Button *)self) == BUTTON_STATE_DISABLED) {return;}
     switch(event.type){
         case APP_EVENT_TYPE_SDL:
-            button_handle_mouse_events((Button *)self, event.sdl.sdl);
+            button_handle_mouse_events((Button *)self, event.sdl.event);
             break;
         case APP_EVENT_TYPE_COMMON:
-            break;
+            switch(event.common.event.type){
+                case EVENT_RELEASE_HIT:
+                    printf("i, deal, called from hit release!\n");
+                    break;
+                default:
+                    break;
+            }
     }
 }
 
 void button_update_hit(Widget *self, App_Event event){
+    if (button_get_state((Button *)self) == BUTTON_STATE_DISABLED) {return;}
     switch(event.type){
         case APP_EVENT_TYPE_SDL:
-            button_handle_mouse_events((Button *)self, event.sdl.sdl);
+            button_handle_mouse_events((Button *)self, event.sdl.event);
             break;
         case APP_EVENT_TYPE_COMMON:
-            break;
+            switch(event.common.event.type){
+                case EVENT_RELEASE_DEAL:
+                    printf("i, hit, called from deal release!\n");
+                    break;
+                default:
+                    break;
+            }
     }
+}
+
+void button_deal_callback(Button *self){
+    printf("i, deal, am released!\n");
+}
+
+void button_hit_callback(Button *self){
+    printf("i, hit, am released!\n");
 }

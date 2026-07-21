@@ -79,7 +79,6 @@ void render_button(SDL_Renderer *renderer, Button *button){
             rel_offset_x=0, rel_offset_y=0;
             break;
         case (BUTTON_STATE_HOVERED): 
-        case (BUTTON_STATE_RELEASED):
             rel_offset_x=0, rel_offset_y=1;
             break;
         case (BUTTON_STATE_PRESSED):

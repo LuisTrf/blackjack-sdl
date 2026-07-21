@@ -1,11 +1,13 @@
-#include <stdbool.h>
-#include <stdio.h>
-#include "../include/label.h"
-#include "../include/button.h"
-#include "../include/animate.h"
-#include "../include/game.h"
+#include <SDL3/SDL.h>
 #include "../include/events.h"
 
+App_Event event_app_common_event_create(Common_EventType event_type){
+    App_CommonEvent ace = {APP_EVENT_TYPE_COMMON, {event_type}};
+    App_Event ae = {.common=ace};
+    return ae;
+}
+
+/*
 static EventQueue event_queue;
 
 void initialize_event_queue(void){
@@ -184,3 +186,4 @@ void poll_events(void){
         switch_event(event);
     }
 }
+*/

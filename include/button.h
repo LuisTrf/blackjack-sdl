@@ -36,15 +36,15 @@ typedef enum {
 typedef enum {
     _BUTTON_STATE_NONE,
     BUTTON_STATE_IDLE,
+    BUTTON_STATE_DISABLED,
     BUTTON_STATE_HOVERED,
-    BUTTON_STATE_PRESSED,
-    BUTTON_STATE_RELEASED,
-    BUTTON_STATE_DISABLED
+    BUTTON_STATE_PRESSED
 } BUTTON_STATE;
 
 typedef struct Button{
     Widget widget;
     BUTTON_TYPE btype;
+    App_Event release_event;
     BUTTON_STATE _state;
     BUTTON_STATE _prev_state;
     SDL_Texture *p_spritesheet;
@@ -57,8 +57,10 @@ typedef struct ButtonContext {
 } ButtonContext;
 
 Button* button_create(ButtonContext *p_bc,
-    float x, float y, int width, int height, bool visible, 
-    BUTTON_TYPE btype, BUTTON_STATE button_state_initial, SDL_Texture* spritesheet,
+    float x, float y, int width, int height, 
+    bool visible, 
+    BUTTON_TYPE btype, App_Event release_event, BUTTON_STATE button_state_initial, 
+    SDL_Texture* spritesheet,
     void (*callback_func)(Button *self),
     void (*update_func)(Widget *self, App_Event event)
 );
@@ -76,3 +78,6 @@ void button_context_update_action_button_positions_from_visibilities(ButtonConte
 
 void button_update_deal(Widget *self, App_Event event);
 void button_update_hit(Widget *self, App_Event event);
+
+void button_deal_callback(Button *self);
+void button_hit_callback(Button *self);

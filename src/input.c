@@ -2,6 +2,7 @@
 #include <SDL3/SDL_events.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "../include/stb_ds.h"
 #include "../include/widget.h"
 #include "../include/button.h"
@@ -20,7 +21,7 @@ void input_subscriber_remove(InputContext *p_ic, Widget *widget){
 }
 
 void input_subscribers_notify_all(Widget** widget_subscribers, SDL_Event event){
-    App_SDL_Event ase = {.type=APP_EVENT_TYPE_SDL, .sdl=event};
+    App_SDL_Event ase = {.type=APP_EVENT_TYPE_SDL, .event=event};
     App_Event ae = {.sdl=ase};
     for (int i = 0; i < arrlen(widget_subscribers); i++){
         widget_subscribers[i]->update_func(widget_subscribers[i], ae);
@@ -66,7 +67,7 @@ void button_handle_mouse_events(Button *button, SDL_Event event){
         && y > button->widget.pos.y 
         && y < (button->widget.pos.y + button->widget.height)
     ){
-        if (button_get_state(button)!=BUTTON_STATE_DISABLED){
+        if (button_get_state(button) != BUTTON_STATE_DISABLED){
             switch (event.type) {
                 case SDL_EVENT_MOUSE_BUTTON_DOWN:
                     if (event.button.button == SDL_BUTTON_LEFT){
@@ -74,14 +75,18 @@ void button_handle_mouse_events(Button *button, SDL_Event event){
                     }
                     break;
                 case SDL_EVENT_MOUSE_BUTTON_UP:
-                    if (event.button.button == SDL_BUTTON_LEFT){
-                        button_set_state(button, BUTTON_STATE_RELEASED);
+                    if (
+                        button_get_state(button) == BUTTON_STATE_PRESSED 
+                        && event.button.button == SDL_BUTTON_LEFT
+                    )
+                    {
+                        button_restore_prev_state(button);
+                        button->callback(button);
+                        button_notify_all(button, button->release_event);
                     }
                     break;
                 default:
-                    if (button_get_state(button)!=BUTTON_STATE_PRESSED 
-                        && button_get_state(button)!=BUTTON_STATE_RELEASED
-                    ){
+                    if (button_get_state(button)!=BUTTON_STATE_PRESSED){
                         button_set_state(button, BUTTON_STATE_HOVERED);
                     }
                     break;

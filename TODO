@@ -1,8 +1,3 @@
 Consider changing to arrays of structs instead of arrays of struct pointers for more efficient memory access.
 
-Widget subscribe to another widget.
-When the publishers updates, it calls an notify_all(event) method on the subscribers.
-Pack struct members more efficiently to minimise padding.
-Create spritebox struct.
-
-Textures should get loaded into a hashmap.
+Update update_func the event enum int is 1 and not 0.
