@@ -2,7 +2,4 @@ Consider changing to arrays of structs instead of arrays of struct pointers for 
 
 Poll event queue in update method. 
 Input.c enqueues events to the event queue to update button subscribers and action button visibility.
-Create new event class ButtonEvent. Use SDL_Event as scaffolding for how to do this (make CommonEvent an union and rename
-to AppEvent, rename AppEvent to just event, the new AppEvent (CommonEvent) has a ButtonEvent field).
-Replace hashmap keys with strings.
 Rename InputContext subscribers field to widget_listeners.
