@@ -175,7 +175,7 @@ int main(int argc, char **argv){
     }
     *p_as = as;
     UpdateContext *p_uc = update_context_initialize();
-    InputContext *p_ic = input_initialize();
+    InputContext *p_ic = input_context_initialize();
     ButtonContext* p_bc = button_context_initialize();
     render_hash* texture_map = texture_map_create(p_as->renderer);
     p_as->root = widgets_initialize(p_ic, p_bc, texture_map);
@@ -187,7 +187,7 @@ int main(int argc, char **argv){
     widgets_teardown(p_as->root);
     texture_map_destroy(texture_map);
     button_context_teardown(p_bc);
-    input_teardown(p_ic);
+    input_context_teardown(p_ic);
     update_context_teardown(p_uc);
     SDL_DestroyRenderer(p_as->renderer);
     SDL_DestroyWindow(p_as->window);

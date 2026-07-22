@@ -156,7 +156,7 @@ void button_update_deal(Widget *self, Event event){
     if (button_get_state((Button *)self) == BUTTON_STATE_DISABLED) {return;}
     switch(event.type){
         case EVENT_TYPE_SDL:
-            button_handle_mouse_events((Button *)self, event.sdl.event);
+            input_handle_button_mouse_events((Button *)self, event.sdl.event);
             break;
         case EVENT_TYPE_APP:
             switch(event.app.event.type){
@@ -173,7 +173,7 @@ void button_update_hit(Widget *self, Event event){
     if (button_get_state((Button *)self) == BUTTON_STATE_DISABLED) {return;}
     switch(event.type){
         case EVENT_TYPE_SDL:
-            button_handle_mouse_events((Button *)self, event.sdl.event);
+            input_handle_button_mouse_events((Button *)self, event.sdl.event);
             break;
         case EVENT_TYPE_APP:
             switch(event.app.event.type){
