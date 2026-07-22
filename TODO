@@ -5,5 +5,4 @@ Input.c enqueues events to the event queue to update button subscribers and acti
 Rename InputContext subscribers field to widget_listeners.
 Update queue.c to use separate constructors and destructors for event queue and anim queue without pointers to events and
 animations structs.
-Decouple ButtonContext from the button constructor (remove buttontype member as well). Should create method to add
-button to ButtonContext dynamically_positioned_buttons.
+

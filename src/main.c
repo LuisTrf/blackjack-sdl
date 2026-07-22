@@ -174,33 +174,21 @@ int main(int argc, char **argv){
         abort();
     }
     *p_as = as;
+    UpdateContext *p_uc = update_context_initialize();
     InputContext *p_ic = input_initialize();
     ButtonContext* p_bc = button_context_initialize();
     render_hash* texture_map = texture_map_create(p_as->renderer);
     p_as->root = widgets_initialize(p_ic, p_bc, texture_map);
-    UpdateContext *p_uc = update_context_initialize();
-    /*
-    allocate_memory();
-    update_all_label_dimensions();
-    while (!should_quit){
-        running=handle_input();
-        update();
-        animate();
-        poll_events();
-        render();
-    }
-    teardown();
-    */
     while (!should_quit){
         should_quit = handle_input(p_ic);
-        render(p_as->renderer, p_as->root);
         update(p_uc, p_bc);
+        render(p_as->renderer, p_as->root);
     }
-    update_context_teardown(p_uc);
     widgets_teardown(p_as->root);
     texture_map_destroy(texture_map);
     button_context_teardown(p_bc);
     input_teardown(p_ic);
+    update_context_teardown(p_uc);
     SDL_DestroyRenderer(p_as->renderer);
     SDL_DestroyWindow(p_as->window);
     free(p_as);
