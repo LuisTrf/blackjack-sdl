@@ -30,5 +30,5 @@ void update_delta_time(UpdateContext *p_uc){
 
 void update(UpdateContext *p_uc, ButtonContext *p_bc){
     update_delta_time(p_uc);
-    button_context_update_action_button_positions_from_visibilities(p_bc);
+    button_context_update_dynamically_positioned_button_positions_from_visibilities(p_bc);
 }

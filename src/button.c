@@ -46,10 +46,8 @@ Button gold100k_button = {{{CHIP_BUTTON_X(9), CHIP_BUTTON_Y(9), CHIP_BUTTON_WIDT
 */
 
 Button* button_create(
-    ButtonContext *p_bc, 
     float x, float y, int width, int height, 
     bool visible, 
-    BUTTON_TYPE btype,
     Event release_event,
     BUTTON_STATE button_state_initial, 
     SDL_Texture* spritesheet, 
@@ -60,7 +58,7 @@ Button* button_create(
     Button button = {
         .widget={.wtype=WIDGET_BUTTON, .pos={.x=x, .y=y}, .width=width, .height=height, .visible=visible, 
             .update_func=update_func}, 
-        .btype=btype, .release_event=release_event, ._state=button_state_initial, ._prev_state=_BUTTON_STATE_NONE, 
+        .release_event=release_event, ._state=button_state_initial, ._prev_state=_BUTTON_STATE_NONE, 
         .p_spritesheet=spritesheet, .callback=callback_func, .subscribers=NULL
     };
     Button *p_button = malloc(sizeof(Button));
@@ -68,13 +66,6 @@ Button* button_create(
         abort();
     }
     *p_button = button;
-    switch (p_button->btype){
-        case BUTTON_TYPE_ACTION:
-            arrput(p_bc->alive_action_buttons, p_button);
-            break;
-        default:
-            break;
-    }
     return p_button;
 }
 
@@ -96,10 +87,13 @@ void button_destroy(Button *p_button){
 }
 
 void button_context_teardown(ButtonContext *p_bc){
-    arrfree(p_bc->alive_action_buttons);
-    p_bc->alive_action_buttons = NULL;
+    arrfree(p_bc->dynamically_positioned_buttons);
+    p_bc->dynamically_positioned_buttons = NULL;
     free(p_bc);
-    p_bc = NULL;
+}
+
+void button_context_add_dynamically_positioned_button(ButtonContext *p_bc, Button *button){
+    arrput(p_bc->dynamically_positioned_buttons, button);
 }
 
 void button_set_state(Button *button, BUTTON_STATE state){
@@ -131,29 +125,29 @@ void button_notify_all(Button *publisher, Event event){
     }
 }
 
-int button_context_get_visible_action_buttons(ButtonContext *p_bc){
-    int visible_action_button_count = 0;
-    for (int i = 0; i < arrlen(p_bc->alive_action_buttons); i++){
-        if (p_bc->alive_action_buttons[i]->widget.visible){
-            visible_action_button_count++;
+int button_context_get_visible_dynamically_positioned_buttons(ButtonContext *p_bc){
+    int visible_dynamically_positioned_button_count = 0;
+    for (int i = 0; i < arrlen(p_bc->dynamically_positioned_buttons); i++){
+        if (p_bc->dynamically_positioned_buttons[i]->widget.visible){
+            visible_dynamically_positioned_button_count++;
         }
     }
-    return visible_action_button_count;
+    return visible_dynamically_positioned_button_count;
 }
 
-void button_context_update_action_button_positions_from_visibilities(ButtonContext *p_bc){
-    int visible_action_button_count = button_context_get_visible_action_buttons(p_bc);
-    int remaining_visible_action_button_count = visible_action_button_count;
-    for (int i = 0; i < arrlen(p_bc->alive_action_buttons); i++){
-        if (p_bc->alive_action_buttons[i]->widget.visible){
-            p_bc->alive_action_buttons[i]->widget.pos.x = 
+void button_context_update_dynamically_positioned_button_positions_from_visibilities(ButtonContext *p_bc){
+    int visible_dynamically_positioned_button_count = button_context_get_visible_dynamically_positioned_buttons(p_bc);
+    int remaining_visible_action_button_count = visible_dynamically_positioned_button_count;
+    for (int i = 0; i < arrlen(p_bc->dynamically_positioned_buttons); i++){
+        if (p_bc->dynamically_positioned_buttons[i]->widget.visible){
+            p_bc->dynamically_positioned_buttons[i]->widget.pos.x = 
                 ACTION_BUTTON_X_ORIGIN
-                + 0.5f * (visible_action_button_count-1) * ACTION_BUTTON_WIDTH
+                + 0.5f * (visible_dynamically_positioned_button_count-1) * ACTION_BUTTON_WIDTH
                 - 0.5f * (remaining_visible_action_button_count-1) * (ACTION_BUTTON_STEP_X + ACTION_BUTTON_WIDTH);
             remaining_visible_action_button_count--;
         }
         else {
-            p_bc->alive_action_buttons[i]->widget.pos.x = ACTION_BUTTON_X_ORIGIN;
+            p_bc->dynamically_positioned_buttons[i]->widget.pos.x = ACTION_BUTTON_X_ORIGIN;
         }
     }
 }
@@ -192,10 +186,10 @@ void button_update_hit(Widget *self, Event event){
     }
 }
 
-void button_deal_callback(Button *self){
+void button_callback_deal(Button *self){
     printf("i, deal, am released!\n");
 }
 
-void button_hit_callback(Button *self){
+void button_callback_hit(Button *self){
     printf("i, hit, am released!\n");
 }

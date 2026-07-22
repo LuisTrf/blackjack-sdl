@@ -86,31 +86,31 @@ Container* widgets_initialize(InputContext* p_ic, ButtonContext *p_bc, render_ha
     
     Container *action_buttons = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
     
-    Button *deal_button = button_create(p_bc,
+    Button *deal_button = button_create(
         ACTION_BUTTON_X_ORIGIN, ACTION_BUTTON_Y_ORIGIN, ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT, 
-        true, 
-        BUTTON_TYPE_ACTION,
+        true,
         event_app_event_create(BUTTON_EVENT_RELEASE_DEAL),
         BUTTON_STATE_IDLE, 
         hmget(texture_map, 3), 
-        button_deal_callback,
+        button_callback_deal,
         button_update_deal
     );
     container_add_widget(action_buttons, (Widget *)deal_button);
     input_subscriber_add(p_ic, (Widget *)deal_button);
+    button_context_add_dynamically_positioned_button(p_bc, deal_button);
 
-    Button *hit_button = button_create(p_bc,
+    Button *hit_button = button_create(
         ACTION_BUTTON_X_ORIGIN, ACTION_BUTTON_Y_ORIGIN, ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT,
         true, 
-        BUTTON_TYPE_ACTION, 
         event_app_event_create(BUTTON_EVENT_RELEASE_HIT), 
         BUTTON_STATE_IDLE,
         hmget(texture_map, 4), 
-        button_hit_callback,
+        button_callback_hit,
         button_update_hit
     );
     container_add_widget(action_buttons, (Widget *)hit_button);
     input_subscriber_add(p_ic, (Widget *)hit_button);
+    button_context_add_dynamically_positioned_button(p_bc, hit_button);
 
     button_add_subscriber(hit_button, (Widget *)deal_button);
     button_add_subscriber(deal_button, (Widget *)hit_button);

@@ -29,11 +29,6 @@
 #define CHIP_BUTTON_Y(i) (CHIP_BUTTON_Y_ORIGIN + (i/5)*(CHIP_BUTTON_HEIGHT+CHIP_BUTTON_SEPARATION_Y) - 30*ABS(2-(i%5)) + 60)
 
 typedef enum {
-    BUTTON_TYPE_ACTION,
-    BUTTON_TYPE_GENERIC,
-} BUTTON_TYPE;
-
-typedef enum {
     _BUTTON_STATE_NONE,
     BUTTON_STATE_IDLE,
     BUTTON_STATE_DISABLED,
@@ -43,7 +38,6 @@ typedef enum {
 
 typedef struct Button{
     Widget widget;
-    BUTTON_TYPE btype;
     Event release_event;
     BUTTON_STATE _state;
     BUTTON_STATE _prev_state;
@@ -53,13 +47,14 @@ typedef struct Button{
 } Button;
 
 typedef struct ButtonContext {
-    Button** alive_action_buttons;
+    Button** dynamically_positioned_buttons;
 } ButtonContext;
 
-Button* button_create(ButtonContext *p_bc,
+Button* button_create(
     float x, float y, int width, int height, 
     bool visible, 
-    BUTTON_TYPE btype, Event release_event, BUTTON_STATE button_state_initial, 
+    Event release_event, 
+    BUTTON_STATE button_state_initial, 
     SDL_Texture* spritesheet,
     void (*callback_func)(Button *self),
     void (*update_func)(Widget *self, Event event)
@@ -73,11 +68,12 @@ BUTTON_STATE button_get_prev_state(Button *button);
 void button_restore_prev_state(Button *button);
 void button_add_subscriber(Button *publisher, Widget* subscriber);
 void button_notify_all(Button *publisher, Event event);
-int button_context_get_visible_action_buttons(ButtonContext *p_bc);
-void button_context_update_action_button_positions_from_visibilities(ButtonContext *p_bc);
+void button_context_add_dynamically_positioned_button(ButtonContext *p_bc, Button *button);
+int button_context_get_visible_dynamically_positioned_buttons(ButtonContext *p_bc);
+void button_context_update_dynamically_positioned_button_positions_from_visibilities(ButtonContext *p_bc);
 
 void button_update_deal(Widget *self, Event event);
 void button_update_hit(Widget *self, Event event);
 
-void button_deal_callback(Button *self);
-void button_hit_callback(Button *self);
+void button_callback_deal(Button *self);
+void button_callback_hit(Button *self);
