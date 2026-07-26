@@ -11,3 +11,7 @@ Create ButtonEvent under AppEvent, input.c pushes ButtonEvent to the event queue
 Use the _internal.h header file structure to encapsulate context struct fields.
 Create EventContext which holds event listeners and EventQueue instance.
 Update button constructor to take an App_EventType and construct a button event from inside the constructor.
+
+Rename input context and event context to managers.
+Add context/manager fields to AppState and pass AppState as an argument to core methods like handle_input(), update() and render() to
+avoid paramter bloat.

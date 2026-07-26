@@ -7,7 +7,6 @@
 #include "../include/stb_ds.h"
 #include "../include/events.h"
 #include "../include/input.h"
-#include "../include/game.h"
 
 /*
 Button deal_button = {{BUTTON_X_ORIGIN, BUTTON_Y_ORIGIN, BUTTON_WIDTH, BUTTON_HEIGHT, true},
@@ -52,7 +51,6 @@ Button* button_create(
     App_EventType release_eventtype,
     BUTTON_STATE button_state_initial, 
     SDL_Texture* spritesheet, 
-    void (*callback_func)(GameContext *gc, Button *self),
     Event (*notify_func)(Widget *self, Event event)
 )
 {
@@ -69,8 +67,6 @@ Button* button_create(
         ._state=button_state_initial, 
         ._prev_state=_BUTTON_STATE_NONE, 
         .p_spritesheet=spritesheet, 
-        .callback=callback_func, 
-        .subscribers=NULL
     };
     Button *p_button = malloc(sizeof(Button));
     if (p_button == NULL){
@@ -93,8 +89,6 @@ ButtonContext* button_context_initialize(void){
 }
 
 void button_destroy(Button *p_button){
-    arrfree(p_button->subscribers);
-    p_button->subscribers = NULL;
     free(p_button);
     p_button = NULL;
 }
@@ -128,16 +122,6 @@ void button_restore_prev_state(Button *button){
     button->_prev_state = temp;
 }
 
-void button_add_subscriber(Button *publisher, Widget* subscriber){
-    arrput(publisher->subscribers, subscriber);
-}
-
-void button_notify_all(Button *publisher, Event event){
-    for (int i = 0; i < arrlen(publisher->subscribers); i++){
-        publisher->subscribers[i]->notify_func(publisher->subscribers[i], event);
-    }
-}
-
 int button_context_get_visible_dynamically_positioned_buttons(ButtonContext *p_bc){
     int visible_dynamically_positioned_button_count = 0;
     for (int i = 0; i < arrlen(p_bc->dynamically_positioned_buttons); i++){
@@ -146,23 +130,6 @@ int button_context_get_visible_dynamically_positioned_buttons(ButtonContext *p_b
         }
     }
     return visible_dynamically_positioned_button_count;
-}
-
-void button_context_update_dynamically_positioned_button_positions_from_visibilities(ButtonContext *p_bc){
-    int visible_dynamically_positioned_button_count = button_context_get_visible_dynamically_positioned_buttons(p_bc);
-    int remaining_visible_action_button_count = visible_dynamically_positioned_button_count;
-    for (int i = 0; i < arrlen(p_bc->dynamically_positioned_buttons); i++){
-        if (p_bc->dynamically_positioned_buttons[i]->widget.visible){
-            p_bc->dynamically_positioned_buttons[i]->widget.pos.x = 
-                ACTION_BUTTON_X_ORIGIN
-                + 0.5f * (visible_dynamically_positioned_button_count-1) * ACTION_BUTTON_WIDTH
-                - 0.5f * (remaining_visible_action_button_count-1) * (ACTION_BUTTON_STEP_X + ACTION_BUTTON_WIDTH);
-            remaining_visible_action_button_count--;
-        }
-        else {
-            p_bc->dynamically_positioned_buttons[i]->widget.pos.x = ACTION_BUTTON_X_ORIGIN;
-        }
-    }
 }
 
 Event button_notify_deal(Widget *self, Event event){
@@ -209,12 +176,4 @@ Event button_notify_hit(Widget *self, Event event){
             }
     }
     return NULL_EVENT;
-}
-
-void button_callback_deal(GameContext *gc, Button *self){
-    printf("i, deal, am released!\n");
-}
-
-void button_callback_hit(GameContext *gc, Button *self){
-    printf("i, hit, am released!\n");
 }

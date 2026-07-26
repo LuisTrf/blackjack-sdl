@@ -1,5 +1,0 @@
-/home/luist/Documents/blackjack-sdl/build/CMakeFiles/edit_cache.dir
-/home/luist/Documents/blackjack-sdl/build/CMakeFiles/rebuild_cache.dir
-/home/luist/Documents/blackjack-sdl/build/src/CMakeFiles/main.dir
-/home/luist/Documents/blackjack-sdl/build/src/CMakeFiles/edit_cache.dir
-/home/luist/Documents/blackjack-sdl/build/src/CMakeFiles/rebuild_cache.dir

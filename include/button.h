@@ -43,8 +43,6 @@ typedef struct Button{
     BUTTON_STATE _state;
     BUTTON_STATE _prev_state;
     SDL_Texture *p_spritesheet;
-    void (*callback)(GameContext *gc, struct Button *self);
-    Widget** subscribers;
 } Button;
 
 typedef struct ButtonContext {
@@ -57,7 +55,6 @@ Button* button_create(
     App_EventType release_eventtype, 
     BUTTON_STATE button_state_initial, 
     SDL_Texture* spritesheet,
-    void (*callback_func)(GameContext *gc, Button *self),
     Event (*notify_func)(Widget *self, Event event)
 );
 ButtonContext* button_context_initialize(void);
@@ -67,11 +64,8 @@ void button_set_state(Button *button, BUTTON_STATE state);
 BUTTON_STATE button_get_state(Button *button);
 BUTTON_STATE button_get_prev_state(Button *button);
 void button_restore_prev_state(Button *button);
-void button_add_subscriber(Button *publisher, Widget* subscriber);
-void button_notify_all(Button *publisher, Event event);
 void button_context_add_dynamically_positioned_button(ButtonContext *p_bc, Button *button);
 int button_context_get_visible_dynamically_positioned_buttons(ButtonContext *p_bc);
-void button_context_update_dynamically_positioned_button_positions_from_visibilities(ButtonContext *p_bc);
 
 Event button_notify_deal(Widget *self, Event event);
 Event button_notify_hit(Widget *self, Event event);
