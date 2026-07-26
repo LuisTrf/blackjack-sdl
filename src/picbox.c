@@ -3,10 +3,26 @@
 #include <stdbool.h>
 #include "../include/picbox.h"
 
-PictureBox* picturebox_create(float x, float y, int width, int height, bool visible, SDL_Texture *p_texture,
-    Event (*notify_func)(Widget *self, Event event)
+PictureBox* picturebox_create(
+    float x, float y, 
+    int width, int height, 
+    bool visible, 
+    SDL_Texture *p_texture,
+    Event (*notify_func)(Widget *self, Event event),
+    Event (*input_func)(Widget *self, SDL_Event event)
 ){
-    PictureBox picbox = {{WIDGET_PICBOX, {x, y}, width, height, visible, notify_func}, p_texture};
+    PictureBox picbox = {
+        {
+            WIDGET_PICBOX, 
+            {x, y}, 
+            width, 
+            height, 
+            visible, 
+            notify_func,
+            input_func
+        }, 
+        p_texture
+    };
     PictureBox *p_picbox = malloc(sizeof(PictureBox));
     if (p_picbox==NULL){
         abort();

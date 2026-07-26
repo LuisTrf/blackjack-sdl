@@ -9,7 +9,12 @@ typedef struct PictureBox {
     SDL_Texture *p_texture;
 } PictureBox;
 
-PictureBox* picturebox_create(float x, float y, int width, int height, bool visible, SDL_Texture *p_texture, 
-    Event (*notify_func)(Widget *self, Event event)
+PictureBox* picturebox_create(
+    float x, float y, 
+    int width, int height, 
+    bool visible, 
+    SDL_Texture *p_texture, 
+    Event (*notify_func)(Widget *self, Event event),
+    Event (*input_func)(Widget *self, SDL_Event event)
 );
 void picturebox_destroy(PictureBox *p_picture_box);

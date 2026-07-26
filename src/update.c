@@ -61,20 +61,16 @@ void update(UpdateContext *p_uc, GameContext *p_gc, EventContext *p_ec, ButtonCo
     while (!event_queue_empty(p_ec->queue)){
         Event event = dequeue_event(p_ec->queue);
         switch (event.type){
-            case EVENT_TYPE_APP:
-                switch (event.app.event.type){
-                    case BUTTON_EVENT_RELEASE_DEAL:
-                        update_game_on_release_deal(p_gc);
-                        break;
-                    case BUTTON_EVENT_RELEASE_HIT:
-                        update_game_on_release_hit(p_gc);
-                        break;
-                }
-                event_context_widget_listeners_notify_all(p_ec, event);
+            case BUTTON_EVENT_RELEASE_DEAL:
+                update_game_on_release_deal(p_gc);
+                break;
+            case BUTTON_EVENT_RELEASE_HIT:
+                update_game_on_release_hit(p_gc);
                 break;
             default:
                 break;
         }
+        event_context_widget_listeners_notify_all(p_ec, event);
     }
     update_dynamically_positioned_button_positions_from_visibilities(p_bc);
 }

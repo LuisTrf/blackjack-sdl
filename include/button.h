@@ -52,10 +52,11 @@ typedef struct ButtonContext {
 Button* button_create(
     float x, float y, int width, int height, 
     bool visible, 
-    App_EventType release_eventtype, 
+    EventType release_eventtype, 
     BUTTON_STATE button_state_initial, 
     SDL_Texture* spritesheet,
-    Event (*notify_func)(Widget *self, Event event)
+    Event (*notify_func)(Widget *self, Event event),
+    Event (*input_func)(Widget *self, SDL_Event event)
 );
 ButtonContext* button_context_initialize(void);
 void button_destroy(Button *p_button);

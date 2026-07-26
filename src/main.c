@@ -71,16 +71,16 @@ bool app_state_initialize(AppState *as){
 
 PictureBox* widgets_initialize_bkg(render_hash* texture_map){
     PictureBox *bkg = picturebox_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true,
-        hmget(texture_map, TEXTURE_ID_BACKGROUND), NULL
+        hmget(texture_map, TEXTURE_ID_BACKGROUND), NULL, NULL
     );
     return bkg;
 }
 
 Container* widgets_initialize_cards(render_hash* texture_map){
-    Container *cards = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
+    Container *cards = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL, NULL);
     for (int i = 0; i < 52; i++){
         SpriteBox *card = spritebox_create(DECK_X_ORIGIN-(52-i), DECK_Y_ORIGIN+(52-i), CARD_WIDTH, CARD_HEIGHT, true,
-            hmget(texture_map, TEXTURE_ID_CARD_SPRITESHEET), 0, (CARD_HEIGHT+2)*4, NULL);
+            hmget(texture_map, TEXTURE_ID_CARD_SPRITESHEET), 0, (CARD_HEIGHT+2)*4, NULL, NULL);
         container_add_widget(cards, (Widget *)card);
     }
     return cards;
@@ -93,7 +93,8 @@ Button* widgets_initialize_deal_button(InputContext* p_ic, EventContext *p_ec, B
         BUTTON_EVENT_RELEASE_DEAL,
         BUTTON_STATE_IDLE, 
         hmget(texture_map, TEXTURE_ID_DEAL_BUTTON_SPRITESHEET), 
-        button_notify_deal
+        button_notify_deal,
+        input_handle_button_mouse_events
     );
     input_context_widget_listener_add(p_ic, (Widget *)deal_button);
     event_context_widget_listener_add(p_ec, (Widget *)deal_button);
@@ -108,7 +109,8 @@ Button* widgets_initialize_hit_button(InputContext* p_ic, EventContext *p_ec, Bu
         BUTTON_EVENT_RELEASE_HIT,
         BUTTON_STATE_IDLE,
         hmget(texture_map, TEXTURE_ID_HIT_BUTTON_SPRITESHEET), 
-        button_notify_hit
+        button_notify_hit,
+        input_handle_button_mouse_events
     );
     input_context_widget_listener_add(p_ic, (Widget *)hit_button);
     event_context_widget_listener_add(p_ec, (Widget *)hit_button);
@@ -120,6 +122,7 @@ Container* widgets_initialize_buttons(InputContext* p_ic, EventContext *p_ec, Bu
     Container *buttons = container_create(
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
         true,
+        NULL,
         NULL
     );
     Button* deal_button = widgets_initialize_deal_button(p_ic, p_ec, p_bc, texture_map);
@@ -131,7 +134,7 @@ Container* widgets_initialize_buttons(InputContext* p_ic, EventContext *p_ec, Bu
 }
 
 Container* widgets_initialize(InputContext* p_ic, EventContext *p_ec, ButtonContext *p_bc, render_hash* texture_map){
-    Container *root = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
+    Container *root = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL, NULL);
     
     PictureBox *bkg = widgets_initialize_bkg(texture_map);
     container_add_widget(root, (Widget*)bkg);

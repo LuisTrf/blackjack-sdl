@@ -16,12 +16,29 @@ Label* labels[NUMBER_OF_LABELS] = {
 };
 */
 
-Label* label_create(float x, float y, int width, int height, bool visible, TTF_Font* font, float font_size, 
-    Event (*notify_func)(Widget *self, Event event)
+Label* label_create(
+    float x, float y, 
+    int width, int height, 
+    bool visible, 
+    TTF_Font* font, float font_size, 
+    Event (*notify_func)(Widget *self, Event event),
+    Event (*input_func)(Widget *self, SDL_Event event)
 )
 {
-    Label label = {{WIDGET_LABEL, {x, y}, width, height, visible, notify_func}, 
-        font, NULL, font_size, ""
+    Label label = {
+        {
+            WIDGET_LABEL, 
+            {x, y}, 
+            width, 
+            height, 
+            visible, 
+            notify_func,
+            input_func
+        }, 
+        font, 
+        NULL, 
+        font_size, 
+        ""
     };
     Label* p_label = malloc(sizeof(Label));
     if (p_label==NULL){

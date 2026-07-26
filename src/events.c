@@ -3,18 +3,15 @@
 #include <stdio.h>
 #include "../include/events.h"
 
-Event eventtyped_common_event_create(App_EventType event_type){
+Event common_event_create(EventType event_type){
     Common_Event ce = {.type = event_type};
-    EventTyped_App_Event etae = {.type = EVENT_TYPE_APP, .event = {.common = ce}};
-    Event e = {.app = etae};
+    Event e = {.common = ce};
     return e;
 }
 
-Event eventtyped_button_event_create(App_EventType event_type, struct Button *button){
+Event button_event_create(EventType event_type, struct Button *button){
     Button_Event be = {.type = event_type, .button_obj = button};
-    App_Event ae = {.button = be};
-    EventTyped_App_Event etae = {EVENT_TYPE_APP, .event = ae};
-    Event e = {.app = etae};
+    Event e = {.button = be};
     return e;
 }
 

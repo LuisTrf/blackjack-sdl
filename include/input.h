@@ -15,4 +15,4 @@ void input_context_teardown(InputContext *p_ic);
 void input_context_widget_listener_add(InputContext *p_ic, Widget *widget);
 void input_context_widget_listener_remove(InputContext *p_ic, Widget *widget);
 bool handle_input(InputContext *p_ic, EventQueue *event_queue);
-Event input_handle_button_mouse_events(Button *button, SDL_Event event);
+Event input_handle_button_mouse_events(Widget *button, SDL_Event event);

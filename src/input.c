@@ -20,10 +20,8 @@ void input_context_widget_listener_remove(InputContext *p_ic, Widget *widget){
 }
 
 void input_widget_listeners_notify_all(EventQueue *event_queue, Widget** widget_listeners, SDL_Event event){
-    EventTyped_SDL_Event ase = {.type=EVENT_TYPE_SDL, .event=event};
-    Event ae = {.sdl=ase};
     for (int i = 0; i < arrlen(widget_listeners); i++){
-        Event e = widget_listeners[i]->notify_func(widget_listeners[i], ae);
+        Event e = widget_listeners[i]->input_func(widget_listeners[i], event);
         if (!event_is_null(e)){
             enqueue_event(event_queue, e);
         }
@@ -61,7 +59,8 @@ bool handle_quit(SDL_Event event){
     return false;
 }
 
-Event input_handle_button_mouse_events(Button *button, SDL_Event event){
+Event input_handle_button_mouse_events(Widget *widget, SDL_Event event){
+    Button *button = (Button *)widget;
     float x, y;
     SDL_MouseButtonFlags mflags = SDL_GetMouseState(&x, &y);
     if(x > button->widget.pos.x 

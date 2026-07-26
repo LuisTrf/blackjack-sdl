@@ -6,7 +6,6 @@
 #include "../include/button.h"
 #include "../include/stb_ds.h"
 #include "../include/events.h"
-#include "../include/input.h"
 
 /*
 Button deal_button = {{BUTTON_X_ORIGIN, BUTTON_Y_ORIGIN, BUTTON_WIDTH, BUTTON_HEIGHT, true},
@@ -48,10 +47,11 @@ Button gold100k_button = {{{CHIP_BUTTON_X(9), CHIP_BUTTON_Y(9), CHIP_BUTTON_WIDT
 Button* button_create(
     float x, float y, int width, int height, 
     bool visible, 
-    App_EventType release_eventtype,
+    EventType release_eventtype,
     BUTTON_STATE button_state_initial, 
     SDL_Texture* spritesheet, 
-    Event (*notify_func)(Widget *self, Event event)
+    Event (*notify_func)(Widget *self, Event event),
+    Event (*input_func)(Widget *self, SDL_Event event)
 )
 {
     Button button = {
@@ -61,7 +61,8 @@ Button* button_create(
             .width=width, 
             .height=height, 
             .visible=visible, 
-            .notify_func=notify_func
+            .notify_func=notify_func,
+            .input_func=input_func
         }, 
         .release_event=NULL_EVENT, 
         ._state=button_state_initial, 
@@ -72,7 +73,7 @@ Button* button_create(
     if (p_button == NULL){
         abort();
     }
-    Event release_event = eventtyped_button_event_create(release_eventtype, p_button);
+    Event release_event = button_event_create(release_eventtype, p_button);
     button.release_event = release_event;
     *p_button = button;
     return p_button;
@@ -135,22 +136,11 @@ int button_context_get_visible_dynamically_positioned_buttons(ButtonContext *p_b
 Event button_notify_deal(Widget *self, Event event){
     Event e;
     switch(event.type){
-        case EVENT_TYPE_NONE:
+        case BUTTON_EVENT_RELEASE_HIT:
+            printf("i, deal, called from hit release!\n");
             break;
-        case EVENT_TYPE_SDL:
-            e = input_handle_button_mouse_events((Button *)self, event.sdl.event);
-            if (!event_is_null(e)){
-                return e;
-            }
+        default:
             break;
-        case EVENT_TYPE_APP:
-            switch(event.app.event.type){
-                case BUTTON_EVENT_RELEASE_HIT:
-                    printf("i, deal, called from hit release!\n");
-                    break;
-                default:
-                    break;
-            }
     }
     return NULL_EVENT;
 }
@@ -158,22 +148,11 @@ Event button_notify_deal(Widget *self, Event event){
 Event button_notify_hit(Widget *self, Event event){
     Event e;
     switch(event.type){
-        case EVENT_TYPE_NONE:
+        case BUTTON_EVENT_RELEASE_DEAL:
+            printf("i, hit, called from deal release!\n");
             break;
-        case EVENT_TYPE_SDL:
-            e = input_handle_button_mouse_events((Button *)self, event.sdl.event);
-            if (!event_is_null(e)){
-                return e;
-            }
+        default:
             break;
-        case EVENT_TYPE_APP:
-            switch(event.app.event.type){
-                case BUTTON_EVENT_RELEASE_DEAL:
-                    printf("i, hit, called from deal release!\n");
-                    break;
-                default:
-                    break;
-            }
     }
     return NULL_EVENT;
 }

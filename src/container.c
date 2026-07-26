@@ -3,8 +3,12 @@
 #include "../include/container.h"
 #include "../include/stb_ds.h"
 
-Container* container_create(float x, float y, int width, int height, bool visible, 
-    Event (*notify_func)(Widget *self, Event event)
+Container* container_create(
+    float x, float y, 
+    int width, int height, 
+    bool visible, 
+    Event (*notify_func)(Widget *self, Event event),
+    Event (*input_func)(Widget *self, SDL_Event event)
 ){
     Container container = {
         .widget={
@@ -12,8 +16,9 @@ Container* container_create(float x, float y, int width, int height, bool visibl
             .pos={x, y}, 
             .width=width, 
             .height=height, 
-            visible=visible, 
-            .notify_func=notify_func
+            .visible=visible, 
+            .notify_func=notify_func,
+            .input_func=input_func
         }, 
         .children=NULL
     };
