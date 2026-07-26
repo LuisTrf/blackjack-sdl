@@ -153,8 +153,9 @@ void button_context_update_dynamically_positioned_button_positions_from_visibili
 }
 
 void button_update_deal(Widget *self, Event event){
-    if (button_get_state((Button *)self) == BUTTON_STATE_DISABLED) {return;}
     switch(event.type){
+        case EVENT_TYPE_NONE:
+            return;
         case EVENT_TYPE_SDL:
             input_handle_button_mouse_events((Button *)self, event.sdl.event);
             break;
@@ -162,7 +163,7 @@ void button_update_deal(Widget *self, Event event){
             switch(event.app.event.type){
                 case BUTTON_EVENT_RELEASE_HIT:
                     printf("i, deal, called from hit release!\n");
-                    break;
+                    return;
                 default:
                     break;
             }
@@ -170,8 +171,9 @@ void button_update_deal(Widget *self, Event event){
 }
 
 void button_update_hit(Widget *self, Event event){
-    if (button_get_state((Button *)self) == BUTTON_STATE_DISABLED) {return;}
     switch(event.type){
+        case EVENT_TYPE_NONE:
+            return;
         case EVENT_TYPE_SDL:
             input_handle_button_mouse_events((Button *)self, event.sdl.event);
             break;

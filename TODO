@@ -6,3 +6,4 @@ Rename InputContext subscribers field to widget_listeners.
 Update queue.c to use separate constructors and destructors for event queue and anim queue without pointers to events and
 animations structs.
 
+Create ButtonEvent under AppEvent, input.c pushes ButtonEvent to the event queue.

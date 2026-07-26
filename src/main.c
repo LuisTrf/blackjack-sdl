@@ -67,55 +67,81 @@ bool app_state_initialize(AppState *as){
     return false;
 }
 
+PictureBox* widgets_initialize_bkg(render_hash* texture_map){
+    PictureBox *bkg = picturebox_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true,
+        hmget(texture_map, TEXTURE_ID_BACKGROUND), NULL
+    );
+    return bkg;
+}
+
+Container* widgets_initialize_cards(render_hash* texture_map){
+    Container *cards = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
+    for (int i = 0; i < 52; i++){
+        SpriteBox *card = spritebox_create(DECK_X_ORIGIN-(52-i), DECK_Y_ORIGIN+(52-i), CARD_WIDTH, CARD_HEIGHT, true,
+            hmget(texture_map, TEXTURE_ID_CARD_SPRITESHEET), 0, (CARD_HEIGHT+2)*4, NULL);
+        container_add_widget(cards, (Widget *)card);
+    }
+    return cards;
+}
+
+Button* widgets_initialize_deal_button(InputContext* p_ic, ButtonContext *p_bc, render_hash* texture_map){
+    Button *deal_button = button_create(
+        ACTION_BUTTON_X_ORIGIN, ACTION_BUTTON_Y_ORIGIN, ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT, 
+        true,
+        eventtyped_app_event_create(BUTTON_EVENT_RELEASE_DEAL),
+        BUTTON_STATE_IDLE, 
+        hmget(texture_map, TEXTURE_ID_DEAL_BUTTON_SPRITESHEET), 
+        button_callback_deal,
+        button_update_deal
+    );
+    input_context_widget_listener_add(p_ic, (Widget *)deal_button);
+    button_context_add_dynamically_positioned_button(p_bc, deal_button);
+    return deal_button;
+}
+
+Button* widgets_initialize_hit_button(InputContext* p_ic, ButtonContext *p_bc, render_hash* texture_map){
+    Button *hit_button = button_create(
+        ACTION_BUTTON_X_ORIGIN, ACTION_BUTTON_Y_ORIGIN, ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT,
+        true, 
+        eventtyped_app_event_create(BUTTON_EVENT_RELEASE_HIT), 
+        BUTTON_STATE_IDLE,
+        hmget(texture_map, TEXTURE_ID_HIT_BUTTON_SPRITESHEET), 
+        button_callback_hit,
+        button_update_hit
+    );
+    input_context_widget_listener_add(p_ic, (Widget *)hit_button);
+    button_context_add_dynamically_positioned_button(p_bc, hit_button);
+    return hit_button;
+}
+
+Container* widgets_initialize_buttons(InputContext* p_ic, ButtonContext *p_bc, render_hash* texture_map){
+    Container *buttons = container_create(
+        0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
+        true,
+        NULL
+    );
+    Button* deal_button = widgets_initialize_deal_button(p_ic, p_bc, texture_map);
+    container_add_widget(buttons, (Widget *)deal_button);
+    Button* hit_button = widgets_initialize_hit_button(p_ic, p_bc, texture_map);
+    container_add_widget(buttons, (Widget *)hit_button);
+
+    button_add_subscriber(deal_button, (Widget *)hit_button);
+    button_add_subscriber(hit_button, (Widget *)deal_button);
+
+    return buttons;
+}
 
 Container* widgets_initialize(InputContext* p_ic, ButtonContext *p_bc, render_hash* texture_map){
     Container *root = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
     
-    PictureBox *bkg = picturebox_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true,
-        hmget(texture_map, 1), NULL
-    );
+    PictureBox *bkg = widgets_initialize_bkg(texture_map);
     container_add_widget(root, (Widget*)bkg);
     
-    Container *cards = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
-    for (int i = 0; i < 52; i++){
-        SpriteBox *card = spritebox_create(DECK_X_ORIGIN-(52-i), DECK_Y_ORIGIN+(52-i), CARD_WIDTH, CARD_HEIGHT, true,
-            hmget(texture_map, 2), 0, (CARD_HEIGHT+2)*4, NULL);
-        container_add_widget(cards, (Widget *)card);
-    }
+    Container *cards = widgets_initialize_cards(texture_map);
     container_add_widget(root, (Widget *)cards);
     
-    Container *action_buttons = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL);
-    
-    Button *deal_button = button_create(
-        ACTION_BUTTON_X_ORIGIN, ACTION_BUTTON_Y_ORIGIN, ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT, 
-        true,
-        event_app_event_create(BUTTON_EVENT_RELEASE_DEAL),
-        BUTTON_STATE_IDLE, 
-        hmget(texture_map, 3), 
-        button_callback_deal,
-        button_update_deal
-    );
-    container_add_widget(action_buttons, (Widget *)deal_button);
-    input_subscriber_add(p_ic, (Widget *)deal_button);
-    button_context_add_dynamically_positioned_button(p_bc, deal_button);
-
-    Button *hit_button = button_create(
-        ACTION_BUTTON_X_ORIGIN, ACTION_BUTTON_Y_ORIGIN, ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT,
-        true, 
-        event_app_event_create(BUTTON_EVENT_RELEASE_HIT), 
-        BUTTON_STATE_IDLE,
-        hmget(texture_map, 4), 
-        button_callback_hit,
-        button_update_hit
-    );
-    container_add_widget(action_buttons, (Widget *)hit_button);
-    input_subscriber_add(p_ic, (Widget *)hit_button);
-    button_context_add_dynamically_positioned_button(p_bc, hit_button);
-
-    button_add_subscriber(hit_button, (Widget *)deal_button);
-    button_add_subscriber(deal_button, (Widget *)hit_button);
-
-    container_add_widget(root, (Widget *)action_buttons);
+    Container *buttons = widgets_initialize_buttons(p_ic, p_bc, texture_map);
+    container_add_widget(root, (Widget *)buttons);
 
     return root;
 }

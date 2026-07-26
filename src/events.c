@@ -1,10 +1,86 @@
 #include <SDL3/SDL.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "../include/events.h"
 
-Event event_app_event_create(App_EventType event_type){
+Event eventtyped_app_event_create(App_EventType event_type){
     EventTyped_App_Event ae = {EVENT_TYPE_APP, {event_type}};
     Event e = {.app=ae};
     return e;
+}
+
+EventQueue* event_queue_create(int size){
+    Event* arr = calloc(size, sizeof(Event));
+    if (arr == NULL){
+        abort();
+    }
+    EventQueue queue = {.size=size, .head=0, .tail=0, .arr=arr};
+    EventQueue *p_queue = malloc(sizeof(queue));
+    if (p_queue == NULL){
+        abort();
+    }
+    *p_queue = queue;
+    return p_queue;
+}
+
+void event_queue_destroy(EventQueue *p_queue){
+    free(p_queue->arr);
+    p_queue->arr = NULL;
+    free(p_queue);
+}
+
+bool event_queue_full(EventQueue *queue){
+    if (
+        queue->head==queue->tail+1 
+        || (queue->head==0 && queue->tail==queue->size-1)
+    ){
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+bool event_queue_empty(EventQueue *queue){
+    if (queue->head==queue->tail) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+void enqueue_event(EventQueue *queue, Event event){
+    if (event_queue_full(queue)){
+        fprintf(stderr, "EVENT QUEUE OVERFLOW!");
+        return;
+    }
+    else{
+        queue->arr[queue->tail] = event;
+        if (queue->tail==queue->size-1){
+            queue->tail=0;
+        }
+        else {
+            queue->tail++;
+        }
+    }
+}
+
+Event dequeue_event(EventQueue *queue){
+    if (event_queue_empty(queue)){
+        fprintf(stderr, "EVENT QUEUE UNDERFLOW!");
+        return NULL_EVENT;
+    }
+    else {
+        Event e = queue->arr[queue->head];
+        if (queue->head==queue->size-1){
+            queue->head=0;
+        }
+        else {
+            queue->head++;
+        }
+        return e;
+    }
 }
 
 /*

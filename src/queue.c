@@ -17,8 +17,6 @@ Queue* queue_create(int size){
     return p_queue;
 }
 
-
-
 void queue_destroy(Queue* queue){
     free(queue->arr);
     queue->arr = NULL;
@@ -46,7 +44,7 @@ bool queue_empty(Queue *queue){
     }
 }
 
-void enqueue_event(Queue *queue, void* element){
+void enqueue(Queue *queue, void* element){
     if (queue_full(queue)){
         fprintf(stderr, "EVENT QUEUE OVERFLOW!");
         return;

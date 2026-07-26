@@ -58,7 +58,7 @@ bool handle_quit(SDL_Event event){
     return false;
 }
 
-void button_handle_mouse_events(Button *button, SDL_Event event){
+void input_handle_button_mouse_events(Button *button, SDL_Event event){
     float x, y;
     SDL_MouseButtonFlags mflags = SDL_GetMouseState(&x, &y);
     if(x > button->widget.pos.x 
@@ -93,7 +93,7 @@ void button_handle_mouse_events(Button *button, SDL_Event event){
         }  
     }
     else{
-        if (button_get_state(button)!=BUTTON_STATE_DISABLED){
+        if (button_get_state(button) != BUTTON_STATE_DISABLED){
             button_set_state(button, BUTTON_STATE_IDLE);
         }
     }

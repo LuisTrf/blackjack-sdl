@@ -3,8 +3,16 @@
 #include <SDL3/SDL.h>
 #include "container.h"
 
+typedef enum TextureID {
+    TEXTURE_ID_NULL,
+    TEXTURE_ID_BACKGROUND,
+    TEXTURE_ID_CARD_SPRITESHEET,
+    TEXTURE_ID_DEAL_BUTTON_SPRITESHEET,
+    TEXTURE_ID_HIT_BUTTON_SPRITESHEET
+} TextureID;
+
 typedef struct render_hash_t {
-    int key;
+    TextureID key;
     SDL_Texture* value;
 } render_hash;
 

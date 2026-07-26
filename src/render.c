@@ -22,10 +22,10 @@ SDL_Texture* render_load_texture_from_png(SDL_Renderer *renderer, char* filepath
 
 render_hash* texture_map_create(SDL_Renderer *renderer){
     render_hash* texture_map = NULL;
-    hmput(texture_map, 1, render_load_texture_from_png(renderer, "../resources/bg.png"));
-    hmput(texture_map, 2, render_load_texture_from_png(renderer, "../resources/cards.png"));
-    hmput(texture_map, 3, render_load_texture_from_png(renderer, "../resources/deal_spritesheet.png"));
-    hmput(texture_map, 4, render_load_texture_from_png(renderer, "../resources/hit_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_BACKGROUND, render_load_texture_from_png(renderer, "../resources/bg.png"));
+    hmput(texture_map, TEXTURE_ID_CARD_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/cards.png"));
+    hmput(texture_map, TEXTURE_ID_DEAL_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/deal_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_HIT_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/hit_spritesheet.png"));
     return texture_map;
 }
 
