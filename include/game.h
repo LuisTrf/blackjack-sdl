@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 typedef enum {
+    _GAME_STATE_NONE,
     GAME_STATE_NEW,
     GAME_STATE_BETTING,
     GAME_STATE_PLAYING
