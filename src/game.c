@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../include/game.h"
-#include "../include/game_internal.h"
 
 /*
 RULES

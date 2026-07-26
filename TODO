@@ -16,7 +16,5 @@ Rename input context and event context to managers.
 Add context/manager fields to AppState and pass AppState as an argument to core methods like handle_input(), update() and render() to
 avoid paramter bloat.
 
-Modify event queue to use AppEvents not Event structs
-remove Event struct.
-notify_func should take an AppEvent parameter not an Event struct param.
-input-taking widgets like buttons should have a separate function input_func to handle SDL_Events
+Improve the file structure; condense .h files and hide struct members to external files using _internal
+.h header file structure.

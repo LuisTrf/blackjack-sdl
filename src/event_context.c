@@ -16,17 +16,17 @@ EventContext* event_context_create(void){
 void event_context_destroy(EventContext *ec){
     event_queue_destroy(ec->queue);
     ec->queue = NULL;
-    arrfree(ec->widget_listeners);
-    ec->widget_listeners = NULL;
+    arrfree(ec->event_widget_listeners);
+    ec->event_widget_listeners = NULL;
     free(ec);
 }
 
-void event_context_widget_listeners_notify_all(EventContext *ec, Event event){
-    for (int i = 0; i < arrlen(ec->widget_listeners); i++){
-        ec->widget_listeners[i]->notify_func(ec->widget_listeners[i], event);
+void ec_widget_listeners_notify_all(EventContext *ec, Event event){
+    for (int i = 0; i < arrlen(ec->event_widget_listeners); i++){
+        ec->event_widget_listeners[i]->notify_func(ec->event_widget_listeners[i], event);
     }
 }
 
-void event_context_widget_listener_add(EventContext *ec, Widget *widget){
-    arrput(ec->widget_listeners, widget);
+void ec_widget_listener_register(EventContext *ec, Widget *widget){
+    arrput(ec->event_widget_listeners, widget);
 }

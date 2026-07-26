@@ -7,12 +7,12 @@
 #include "widget.h"
 #include "game.h"
 
-#define ACTION_BUTTON_WIDTH 168
-#define ACTION_BUTTON_HEIGHT 70
-#define ACTION_BUTTON_SEPARATION_X 20
-#define ACTION_BUTTON_STEP_X (ACTION_BUTTON_WIDTH + ACTION_BUTTON_SEPARATION_X)
-#define ACTION_BUTTON_X_ORIGIN (WINDOW_WIDTH/2.f - ACTION_BUTTON_WIDTH/2.f)
-#define ACTION_BUTTON_Y_ORIGIN (WINDOW_HEIGHT - 160)
+#define MOVE_BUTTON_WIDTH 168
+#define MOVE_BUTTON_HEIGHT 70
+#define MOVE_BUTTON_SEPARATION_X 20
+#define MOVE_BUTTON_STEP_X (MOVE_BUTTON_WIDTH + MOVE_BUTTON_SEPARATION_X)
+#define MOVE_BUTTON_X_ORIGIN (WINDOW_WIDTH/2.f - MOVE_BUTTON_WIDTH/2.f)
+#define MOVE_BUTTON_Y_ORIGIN (WINDOW_HEIGHT - 160)
 
 #define STACK_BUTTON_X_ORIGIN (WINDOW_WIDTH/2.f - CHIP_BUTTON_WIDTH/2.f)
 #define STACK_BUTTON_Y_ORIGIN (WINDOW_HEIGHT/2.f - CHIP_BUTTON_HEIGHT*2.2f)
@@ -46,7 +46,7 @@ typedef struct Button{
 } Button;
 
 typedef struct ButtonContext {
-    Button** dynamically_positioned_buttons;
+    Button** move_button_arr;
 } ButtonContext;
 
 Button* button_create(
@@ -58,18 +58,16 @@ Button* button_create(
     Event (*notify_func)(Widget *self, Event event),
     Event (*input_func)(Widget *self, SDL_Event event)
 );
-ButtonContext* button_context_initialize(void);
+ButtonContext* button_context_create(void);
 void button_destroy(Button *p_button);
-void button_context_teardown(ButtonContext *p_bc);
+void button_context_destroy(ButtonContext *p_bc);
 void button_set_state(Button *button, BUTTON_STATE state);
 BUTTON_STATE button_get_state(Button *button);
 BUTTON_STATE button_get_prev_state(Button *button);
 void button_restore_prev_state(Button *button);
-void button_context_add_dynamically_positioned_button(ButtonContext *p_bc, Button *button);
-int button_context_get_visible_dynamically_positioned_buttons(ButtonContext *p_bc);
+void bc_register_move_button(ButtonContext *p_bc, Button *button);
+int bc_get_visible_move_buttons(ButtonContext *p_bc);
+void bc_update_move_button_positions_from_visibilities(ButtonContext *p_bc);
 
 Event button_notify_deal(Widget *self, Event event);
 Event button_notify_hit(Widget *self, Event event);
-
-void button_callback_deal(GameContext *gc, Button *self);
-void button_callback_hit(GameContext *gc, Button *self);

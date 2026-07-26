@@ -79,7 +79,7 @@ Button* button_create(
     return p_button;
 }
 
-ButtonContext* button_context_initialize(void){
+ButtonContext* button_context_create(void){
     ButtonContext bc = {NULL};
     ButtonContext *p_bc = malloc(sizeof(ButtonContext));
     if (p_bc == NULL){
@@ -94,14 +94,14 @@ void button_destroy(Button *p_button){
     p_button = NULL;
 }
 
-void button_context_teardown(ButtonContext *p_bc){
-    arrfree(p_bc->dynamically_positioned_buttons);
-    p_bc->dynamically_positioned_buttons = NULL;
+void button_context_destroy(ButtonContext *p_bc){
+    arrfree(p_bc->move_button_arr);
+    p_bc->move_button_arr = NULL;
     free(p_bc);
 }
 
-void button_context_add_dynamically_positioned_button(ButtonContext *p_bc, Button *button){
-    arrput(p_bc->dynamically_positioned_buttons, button);
+void bc_register_move_button(ButtonContext *p_bc, Button *button){
+    arrput(p_bc->move_button_arr, button);
 }
 
 void button_set_state(Button *button, BUTTON_STATE state){
@@ -123,14 +123,31 @@ void button_restore_prev_state(Button *button){
     button->_prev_state = temp;
 }
 
-int button_context_get_visible_dynamically_positioned_buttons(ButtonContext *p_bc){
-    int visible_dynamically_positioned_button_count = 0;
-    for (int i = 0; i < arrlen(p_bc->dynamically_positioned_buttons); i++){
-        if (p_bc->dynamically_positioned_buttons[i]->widget.visible){
-            visible_dynamically_positioned_button_count++;
+int bc_get_visible_move_buttons(ButtonContext *p_bc){
+    int visible_move_button_count = 0;
+    for (int i = 0; i < arrlen(p_bc->move_button_arr); i++){
+        if (p_bc->move_button_arr[i]->widget.visible){
+            visible_move_button_count++;
         }
     }
-    return visible_dynamically_positioned_button_count;
+    return visible_move_button_count;
+}
+
+void bc_update_move_button_positions_from_visibilities(ButtonContext *p_bc){
+    int visible_move_button_count = bc_get_visible_move_buttons(p_bc);
+    int remaining_visible_move_button_count = visible_move_button_count;
+    for (int i = 0; i < arrlen(p_bc->move_button_arr); i++){
+        if (p_bc->move_button_arr[i]->widget.visible){
+            p_bc->move_button_arr[i]->widget.pos.x = 
+                MOVE_BUTTON_X_ORIGIN
+                + 0.5f * (visible_move_button_count-1) * MOVE_BUTTON_WIDTH
+                - 0.5f * (remaining_visible_move_button_count-1) * (MOVE_BUTTON_STEP_X + MOVE_BUTTON_WIDTH);
+            remaining_visible_move_button_count--;
+        }
+        else {
+            p_bc->move_button_arr[i]->widget.pos.x = MOVE_BUTTON_X_ORIGIN;
+        }
+    }
 }
 
 Event button_notify_deal(Widget *self, Event event){

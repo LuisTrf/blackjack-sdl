@@ -88,7 +88,7 @@ Container* widgets_initialize_cards(render_hash* texture_map){
 
 Button* widgets_initialize_deal_button(InputContext* p_ic, EventContext *p_ec, ButtonContext *p_bc, render_hash* texture_map){
     Button *deal_button = button_create(
-        ACTION_BUTTON_X_ORIGIN, ACTION_BUTTON_Y_ORIGIN, ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT, 
+        MOVE_BUTTON_X_ORIGIN, MOVE_BUTTON_Y_ORIGIN, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT, 
         true,
         BUTTON_EVENT_RELEASE_DEAL,
         BUTTON_STATE_IDLE, 
@@ -96,15 +96,15 @@ Button* widgets_initialize_deal_button(InputContext* p_ic, EventContext *p_ec, B
         button_notify_deal,
         input_handle_button_mouse_events
     );
-    input_context_widget_listener_add(p_ic, (Widget *)deal_button);
-    event_context_widget_listener_add(p_ec, (Widget *)deal_button);
-    button_context_add_dynamically_positioned_button(p_bc, deal_button);
+    ic_widget_listener_register(p_ic, (Widget *)deal_button);
+    ec_widget_listener_register(p_ec, (Widget *)deal_button);
+    bc_register_move_button(p_bc, deal_button);
     return deal_button;
 }
 
 Button* widgets_initialize_hit_button(InputContext* p_ic, EventContext *p_ec, ButtonContext *p_bc, render_hash* texture_map){
     Button *hit_button = button_create(
-        ACTION_BUTTON_X_ORIGIN, ACTION_BUTTON_Y_ORIGIN, ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT,
+        MOVE_BUTTON_X_ORIGIN, MOVE_BUTTON_Y_ORIGIN, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         true, 
         BUTTON_EVENT_RELEASE_HIT,
         BUTTON_STATE_IDLE,
@@ -112,9 +112,9 @@ Button* widgets_initialize_hit_button(InputContext* p_ic, EventContext *p_ec, Bu
         button_notify_hit,
         input_handle_button_mouse_events
     );
-    input_context_widget_listener_add(p_ic, (Widget *)hit_button);
-    event_context_widget_listener_add(p_ec, (Widget *)hit_button);
-    button_context_add_dynamically_positioned_button(p_bc, hit_button);
+    ic_widget_listener_register(p_ic, (Widget *)hit_button);
+    ec_widget_listener_register(p_ec, (Widget *)hit_button);
+    bc_register_move_button(p_bc, hit_button);
     return hit_button;
 }
 
@@ -202,24 +202,24 @@ int main(int argc, char **argv){
         abort();
     }
     *p_as = as;
-    UpdateContext *p_uc = update_context_initialize();
+    UpdateContext *p_uc = update_context_create();
     EventContext *p_ec = event_context_create();
     GameContext *p_gc = game_context_create();
-    InputContext *p_ic = input_context_initialize();
-    ButtonContext* p_bc = button_context_initialize();
+    InputContext *p_ic = input_context_create();
+    ButtonContext* p_bc = button_context_create();
     render_hash* texture_map = texture_map_create(p_as->renderer);
     p_as->root = widgets_initialize(p_ic, p_ec, p_bc, texture_map);
     while (!should_quit){
-        should_quit = handle_input(p_ic, p_ec->queue);
+        should_quit = input_handle(p_ic, p_ec->queue);
         update(p_uc, p_gc, p_ec, p_bc);
         render(p_as->renderer, p_as->root);
     }
     widgets_teardown(p_as->root);
     texture_map_destroy(texture_map);
-    button_context_teardown(p_bc);
+    button_context_destroy(p_bc);
     event_context_destroy(p_ec);
-    input_context_teardown(p_ic);
-    update_context_teardown(p_uc);
+    input_context_destroy(p_ic);
+    update_context_destroy(p_uc);
     SDL_DestroyRenderer(p_as->renderer);
     SDL_DestroyWindow(p_as->window);
     free(p_as);

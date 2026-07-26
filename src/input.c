@@ -7,44 +7,6 @@
 #include "../include/button.h"
 #include "../include/input.h"
 
-void input_context_widget_listener_add(InputContext *p_ic, Widget *widget){
-    arrput(p_ic->widget_listeners, widget);
-}
-
-void input_context_widget_listener_remove(InputContext *p_ic, Widget *widget){
-    for (int i = 0; i < arrlen(p_ic->widget_listeners); i++){
-        if (p_ic->widget_listeners[i] == widget){
-            arrdel(p_ic->widget_listeners, i);
-        }
-    }
-}
-
-void input_widget_listeners_notify_all(EventQueue *event_queue, Widget** widget_listeners, SDL_Event event){
-    for (int i = 0; i < arrlen(widget_listeners); i++){
-        Event e = widget_listeners[i]->input_func(widget_listeners[i], event);
-        if (!event_is_null(e)){
-            enqueue_event(event_queue, e);
-        }
-    }
-}
-
-InputContext* input_context_initialize(void){
-    InputContext ic = {NULL};
-    InputContext *p_ic = malloc(sizeof(InputContext));
-    if (p_ic == NULL){
-        abort();
-    }
-    *p_ic = ic;
-    return p_ic;
-}
-
-void input_context_teardown(InputContext *p_ic){
-    arrfree(p_ic->widget_listeners);
-    p_ic->widget_listeners = NULL;
-    free(p_ic);
-    p_ic = NULL;
-}
-
 bool handle_quit(SDL_Event event){
     switch(event.type){
         case SDL_EVENT_QUIT:
@@ -57,6 +19,44 @@ bool handle_quit(SDL_Event event){
             break;
     }
     return false;
+}
+
+InputContext* input_context_create(void){
+    InputContext ic = {NULL};
+    InputContext *p_ic = malloc(sizeof(InputContext));
+    if (p_ic == NULL){
+        abort();
+    }
+    *p_ic = ic;
+    return p_ic;
+}
+
+void input_context_destroy(InputContext *p_ic){
+    arrfree(p_ic->input_widget_listeners);
+    p_ic->input_widget_listeners = NULL;
+    free(p_ic);
+    p_ic = NULL;
+}
+
+void ic_widget_listener_register(InputContext *p_ic, Widget *widget){
+    arrput(p_ic->input_widget_listeners, widget);
+}
+
+void ic_widget_listener_remove(InputContext *p_ic, Widget *widget){
+    for (int i = 0; i < arrlen(p_ic->input_widget_listeners); i++){
+        if (p_ic->input_widget_listeners[i] == widget){
+            arrdel(p_ic->input_widget_listeners, i);
+        }
+    }
+}
+
+void ic_widget_listeners_notify_all(EventQueue *event_queue, Widget** widget_listeners, SDL_Event event){
+    for (int i = 0; i < arrlen(widget_listeners); i++){
+        Event e = widget_listeners[i]->input_func(widget_listeners[i], event);
+        if (!event_is_null(e)){
+            enqueue_event(event_queue, e);
+        }
+    }
 }
 
 Event input_handle_button_mouse_events(Widget *widget, SDL_Event event){
@@ -105,12 +105,16 @@ Event input_handle_button_mouse_events(Widget *widget, SDL_Event event){
     return NULL_EVENT;
 }
 
-bool handle_input(InputContext *p_ic, EventQueue *event_queue){
+bool input_handle(InputContext *p_ic, EventQueue *event_queue){
     bool should_quit = false;
     SDL_Event event;
     while (SDL_PollEvent(&event)){
         should_quit = handle_quit(event);
-        input_widget_listeners_notify_all(event_queue, p_ic->widget_listeners, event);
+        ic_widget_listeners_notify_all(
+            event_queue, 
+            p_ic->input_widget_listeners,
+            event
+        );
     }
     return should_quit;
 }
