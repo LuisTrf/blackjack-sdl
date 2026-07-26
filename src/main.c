@@ -88,11 +88,11 @@ Button* widgets_initialize_deal_button(InputContext* p_ic, ButtonContext *p_bc, 
     Button *deal_button = button_create(
         ACTION_BUTTON_X_ORIGIN, ACTION_BUTTON_Y_ORIGIN, ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT, 
         true,
-        eventtyped_app_event_create(BUTTON_EVENT_RELEASE_DEAL),
+        BUTTON_EVENT_RELEASE_DEAL,
         BUTTON_STATE_IDLE, 
         hmget(texture_map, TEXTURE_ID_DEAL_BUTTON_SPRITESHEET), 
         button_callback_deal,
-        button_update_deal
+        button_notify_deal
     );
     input_context_widget_listener_add(p_ic, (Widget *)deal_button);
     button_context_add_dynamically_positioned_button(p_bc, deal_button);
@@ -103,11 +103,11 @@ Button* widgets_initialize_hit_button(InputContext* p_ic, ButtonContext *p_bc, r
     Button *hit_button = button_create(
         ACTION_BUTTON_X_ORIGIN, ACTION_BUTTON_Y_ORIGIN, ACTION_BUTTON_WIDTH, ACTION_BUTTON_HEIGHT,
         true, 
-        eventtyped_app_event_create(BUTTON_EVENT_RELEASE_HIT), 
+        BUTTON_EVENT_RELEASE_HIT,
         BUTTON_STATE_IDLE,
         hmget(texture_map, TEXTURE_ID_HIT_BUTTON_SPRITESHEET), 
         button_callback_hit,
-        button_update_hit
+        button_notify_hit
     );
     input_context_widget_listener_add(p_ic, (Widget *)hit_button);
     button_context_add_dynamically_positioned_button(p_bc, hit_button);
@@ -202,17 +202,19 @@ int main(int argc, char **argv){
     *p_as = as;
     UpdateContext *p_uc = update_context_initialize();
     InputContext *p_ic = input_context_initialize();
+    EventQueue *p_eq = event_queue_create(32);
     ButtonContext* p_bc = button_context_initialize();
     render_hash* texture_map = texture_map_create(p_as->renderer);
     p_as->root = widgets_initialize(p_ic, p_bc, texture_map);
     while (!should_quit){
-        should_quit = handle_input(p_ic);
-        update(p_uc, p_bc);
+        should_quit = handle_input(p_ic, p_eq);
+        update(p_uc, p_eq, p_bc);
         render(p_as->renderer, p_as->root);
     }
     widgets_teardown(p_as->root);
     texture_map_destroy(texture_map);
     button_context_teardown(p_bc);
+    event_queue_destroy(p_eq);
     input_context_teardown(p_ic);
     update_context_teardown(p_uc);
     SDL_DestroyRenderer(p_as->renderer);

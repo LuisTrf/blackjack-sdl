@@ -3,9 +3,18 @@
 #include <stdio.h>
 #include "../include/events.h"
 
-Event eventtyped_app_event_create(App_EventType event_type){
-    EventTyped_App_Event ae = {EVENT_TYPE_APP, {event_type}};
-    Event e = {.app=ae};
+Event eventtyped_common_event_create(App_EventType event_type){
+    Common_Event ce = {.type = event_type};
+    EventTyped_App_Event etae = {.type = EVENT_TYPE_APP, .event = {.common = ce}};
+    Event e = {.app = etae};
+    return e;
+}
+
+Event eventtyped_button_event_create(App_EventType event_type, struct Button *button){
+    Button_Event be = {.type = event_type, .button_obj = button};
+    App_Event ae = {.button = be};
+    EventTyped_App_Event etae = {EVENT_TYPE_APP, .event = ae};
+    Event e = {.app = etae};
     return e;
 }
 
@@ -80,6 +89,15 @@ Event dequeue_event(EventQueue *queue){
             queue->head++;
         }
         return e;
+    }
+}
+
+bool event_is_null(Event event){
+    if (event.type == NULL_EVENT.type){
+        return true;
+    }
+    else {
+        return false;
     }
 }
 

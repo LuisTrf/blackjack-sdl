@@ -4,9 +4,19 @@
 #include "../include/stb_ds.h"
 
 Container* container_create(float x, float y, int width, int height, bool visible, 
-    void (*update_func)(Widget *self, Event event)
+    Event (*notify_func)(Widget *self, Event event)
 ){
-    Container container = {{WIDGET_CONTAINER, {x, y}, width, height, visible, update_func}, NULL};
+    Container container = {
+        .widget={
+            .wtype=WIDGET_CONTAINER, 
+            .pos={x, y}, 
+            .width=width, 
+            .height=height, 
+            visible=visible, 
+            .notify_func=notify_func
+        }, 
+        .children=NULL
+    };
     Container *p_container = malloc(sizeof(Container));
     if (p_container == NULL){
         abort();

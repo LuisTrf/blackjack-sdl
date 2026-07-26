@@ -19,11 +19,14 @@ void input_context_widget_listener_remove(InputContext *p_ic, Widget *widget){
     }
 }
 
-void input_widget_listeners_notify_all(Widget** widget_listeners, SDL_Event event){
+void input_widget_listeners_notify_all(EventQueue *event_queue, Widget** widget_listeners, SDL_Event event){
     EventTyped_SDL_Event ase = {.type=EVENT_TYPE_SDL, .event=event};
     Event ae = {.sdl=ase};
     for (int i = 0; i < arrlen(widget_listeners); i++){
-        widget_listeners[i]->update_func(widget_listeners[i], ae);
+        Event e = widget_listeners[i]->notify_func(widget_listeners[i], ae);
+        if (!event_is_null(e)){
+            enqueue_event(event_queue, e);
+        }
     }
 }
 
@@ -58,7 +61,7 @@ bool handle_quit(SDL_Event event){
     return false;
 }
 
-void input_handle_button_mouse_events(Button *button, SDL_Event event){
+Event input_handle_button_mouse_events(Button *button, SDL_Event event){
     float x, y;
     SDL_MouseButtonFlags mflags = SDL_GetMouseState(&x, &y);
     if(x > button->widget.pos.x 
@@ -80,8 +83,11 @@ void input_handle_button_mouse_events(Button *button, SDL_Event event){
                     )
                     {
                         button_restore_prev_state(button);
+                        return button->release_event;
+                        /*
                         button->callback(button);
                         button_notify_all(button, button->release_event);
+                        */
                     }
                     break;
                 default:
@@ -97,14 +103,15 @@ void input_handle_button_mouse_events(Button *button, SDL_Event event){
             button_set_state(button, BUTTON_STATE_IDLE);
         }
     }
+    return NULL_EVENT;
 }
 
-bool handle_input(InputContext *p_ic){
+bool handle_input(InputContext *p_ic, EventQueue *event_queue){
     bool should_quit = false;
     SDL_Event event;
     while (SDL_PollEvent(&event)){
         should_quit = handle_quit(event);
-        input_widget_listeners_notify_all(p_ic->widget_listeners, event);
+        input_widget_listeners_notify_all(event_queue, p_ic->widget_listeners, event);
     }
     return should_quit;
 }

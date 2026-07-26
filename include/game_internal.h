@@ -19,11 +19,3 @@ typedef struct Dealer{
     unsigned char cards_in_hand;
     unsigned char aces_in_hand_worth_11;
 } Dealer;
-
-typedef struct GameContext {
-    GAME_STATE game_state;
-    GAME_STATE prev_game_state;
-    Card** deck;
-    Player *player;
-    Dealer *dealer;
-} GameContext;

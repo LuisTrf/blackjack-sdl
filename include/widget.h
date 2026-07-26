@@ -18,5 +18,5 @@ typedef struct Widget {
     int width;
     int height;
     bool visible;
-    void (*update_func)(struct Widget *self, Event event);
+    Event (*notify_func)(struct Widget *self, Event event);
 } Widget;

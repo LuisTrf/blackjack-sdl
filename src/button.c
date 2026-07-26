@@ -7,6 +7,7 @@
 #include "../include/stb_ds.h"
 #include "../include/events.h"
 #include "../include/input.h"
+#include "../include/game.h"
 
 /*
 Button deal_button = {{BUTTON_X_ORIGIN, BUTTON_Y_ORIGIN, BUTTON_WIDTH, BUTTON_HEIGHT, true},
@@ -48,23 +49,35 @@ Button gold100k_button = {{{CHIP_BUTTON_X(9), CHIP_BUTTON_Y(9), CHIP_BUTTON_WIDT
 Button* button_create(
     float x, float y, int width, int height, 
     bool visible, 
-    Event release_event,
+    App_EventType release_eventtype,
     BUTTON_STATE button_state_initial, 
     SDL_Texture* spritesheet, 
-    void (*callback_func)(Button *self),
-    void (*update_func)(Widget *self, Event event)
+    void (*callback_func)(GameContext *gc, Button *self),
+    Event (*notify_func)(Widget *self, Event event)
 )
 {
     Button button = {
-        .widget={.wtype=WIDGET_BUTTON, .pos={.x=x, .y=y}, .width=width, .height=height, .visible=visible, 
-            .update_func=update_func}, 
-        .release_event=release_event, ._state=button_state_initial, ._prev_state=_BUTTON_STATE_NONE, 
-        .p_spritesheet=spritesheet, .callback=callback_func, .subscribers=NULL
+        .widget={
+            .wtype=WIDGET_BUTTON, 
+            .pos={.x=x, .y=y}, 
+            .width=width, 
+            .height=height, 
+            .visible=visible, 
+            .notify_func=notify_func
+        }, 
+        .release_event=NULL_EVENT, 
+        ._state=button_state_initial, 
+        ._prev_state=_BUTTON_STATE_NONE, 
+        .p_spritesheet=spritesheet, 
+        .callback=callback_func, 
+        .subscribers=NULL
     };
     Button *p_button = malloc(sizeof(Button));
     if (p_button == NULL){
         abort();
     }
+    Event release_event = eventtyped_button_event_create(release_eventtype, p_button);
+    button.release_event = release_event;
     *p_button = button;
     return p_button;
 }
@@ -121,7 +134,7 @@ void button_add_subscriber(Button *publisher, Widget* subscriber){
 
 void button_notify_all(Button *publisher, Event event){
     for (int i = 0; i < arrlen(publisher->subscribers); i++){
-        publisher->subscribers[i]->update_func(publisher->subscribers[i], event);
+        publisher->subscribers[i]->notify_func(publisher->subscribers[i], event);
     }
 }
 
@@ -152,30 +165,39 @@ void button_context_update_dynamically_positioned_button_positions_from_visibili
     }
 }
 
-void button_update_deal(Widget *self, Event event){
+Event button_notify_deal(Widget *self, Event event){
+    Event e;
     switch(event.type){
         case EVENT_TYPE_NONE:
-            return;
+            break;
         case EVENT_TYPE_SDL:
-            input_handle_button_mouse_events((Button *)self, event.sdl.event);
+            e = input_handle_button_mouse_events((Button *)self, event.sdl.event);
+            if (!event_is_null(e)){
+                return e;
+            }
             break;
         case EVENT_TYPE_APP:
             switch(event.app.event.type){
                 case BUTTON_EVENT_RELEASE_HIT:
                     printf("i, deal, called from hit release!\n");
-                    return;
+                    break;
                 default:
                     break;
             }
     }
+    return NULL_EVENT;
 }
 
-void button_update_hit(Widget *self, Event event){
+Event button_notify_hit(Widget *self, Event event){
+    Event e;
     switch(event.type){
         case EVENT_TYPE_NONE:
-            return;
+            break;
         case EVENT_TYPE_SDL:
-            input_handle_button_mouse_events((Button *)self, event.sdl.event);
+            e = input_handle_button_mouse_events((Button *)self, event.sdl.event);
+            if (!event_is_null(e)){
+                return e;
+            }
             break;
         case EVENT_TYPE_APP:
             switch(event.app.event.type){
@@ -186,12 +208,13 @@ void button_update_hit(Widget *self, Event event){
                     break;
             }
     }
+    return NULL_EVENT;
 }
 
-void button_callback_deal(Button *self){
+void button_callback_deal(GameContext *gc, Button *self){
     printf("i, deal, am released!\n");
 }
 
-void button_callback_hit(Button *self){
+void button_callback_hit(GameContext *gc, Button *self){
     printf("i, hit, am released!\n");
 }

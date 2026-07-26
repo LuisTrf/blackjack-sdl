@@ -2,18 +2,22 @@
 
 #include <stdbool.h>
 
-typedef enum {
-    _GAME_STATE_NONE,
-    GAME_STATE_NEW,
-    GAME_STATE_BETTING,
-    GAME_STATE_PLAYING
-} GAME_STATE;
+#define PLAYER_MAXIMUM_HAND_SIZE 5
+#define DEALER_MAXIMUM_HAND_SIZE 10
+#define MAXIMUM_BETTED_CHIPS 256
 
 typedef enum {
     CARD_LOCATION_DECK,
     CARD_LOCATION_PLAYER_HAND,
     CARD_LOCATION_DEALER_HAND
 } CARD_LOCATION;
+
+typedef enum {
+    _GAME_STATE_NONE,
+    GAME_STATE_NEW,
+    GAME_STATE_BETTING,
+    GAME_STATE_PLAYING
+} GAME_STATE;
 
 typedef enum {
     _CHIP_VALUE_NONE = 0,
@@ -37,9 +41,14 @@ typedef struct Card {
     bool face_down;
 } Card;
 
-#define PLAYER_MAXIMUM_HAND_SIZE 5
-#define DEALER_MAXIMUM_HAND_SIZE 10
-#define MAXIMUM_BETTED_CHIPS 256
+typedef struct GameContext {
+    GAME_STATE game_state;
+    GAME_STATE prev_game_state;
+    Card** deck;
+    struct Player *player;
+    struct Dealer *dealer;
+} GameContext;
+
 #define PLAYER_BEGINNING_MONEY 100000.00
 #define STANDARD_BET_PAYOUT 2.f
 #define PLAYER_BLACKJACK_BET_PAYOUT 1.5f

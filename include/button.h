@@ -5,6 +5,7 @@
 #include "constants.h"
 #include "events.h"
 #include "widget.h"
+#include "game.h"
 
 #define ACTION_BUTTON_WIDTH 168
 #define ACTION_BUTTON_HEIGHT 70
@@ -42,7 +43,7 @@ typedef struct Button{
     BUTTON_STATE _state;
     BUTTON_STATE _prev_state;
     SDL_Texture *p_spritesheet;
-    void (*callback)(struct Button *self);
+    void (*callback)(GameContext *gc, struct Button *self);
     Widget** subscribers;
 } Button;
 
@@ -53,11 +54,11 @@ typedef struct ButtonContext {
 Button* button_create(
     float x, float y, int width, int height, 
     bool visible, 
-    Event release_event, 
+    App_EventType release_eventtype, 
     BUTTON_STATE button_state_initial, 
     SDL_Texture* spritesheet,
-    void (*callback_func)(Button *self),
-    void (*update_func)(Widget *self, Event event)
+    void (*callback_func)(GameContext *gc, Button *self),
+    Event (*notify_func)(Widget *self, Event event)
 );
 ButtonContext* button_context_initialize(void);
 void button_destroy(Button *p_button);
@@ -72,8 +73,8 @@ void button_context_add_dynamically_positioned_button(ButtonContext *p_bc, Butto
 int button_context_get_visible_dynamically_positioned_buttons(ButtonContext *p_bc);
 void button_context_update_dynamically_positioned_button_positions_from_visibilities(ButtonContext *p_bc);
 
-void button_update_deal(Widget *self, Event event);
-void button_update_hit(Widget *self, Event event);
+Event button_notify_deal(Widget *self, Event event);
+Event button_notify_hit(Widget *self, Event event);
 
-void button_callback_deal(Button *self);
-void button_callback_hit(Button *self);
+void button_callback_deal(GameContext *gc, Button *self);
+void button_callback_hit(GameContext *gc, Button *self);

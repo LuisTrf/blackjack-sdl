@@ -4,9 +4,9 @@
 #include "../include/spritebox.h"
 
 SpriteBox* spritebox_create(float x, float y, int width, int height, bool visible, SDL_Texture *p_spritesheet, int spritesheet_x, int spritesheet_y,
-    void (*update_func)(Widget *self, Event event)
+    Event (*notify_func)(Widget *self, Event event)
 ){
-    SpriteBox spritebox = {{WIDGET_SPRITEBOX, {x, y}, width, height, visible, update_func}, 
+    SpriteBox spritebox = {{WIDGET_SPRITEBOX, {x, y}, width, height, visible, notify_func}, 
         p_spritesheet, spritesheet_x, spritesheet_y
     };
     SpriteBox *p_spritebox = malloc(sizeof(SpriteBox));

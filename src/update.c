@@ -28,7 +28,7 @@ void update_delta_time(UpdateContext *p_uc){
     p_uc->previous_frame_time = SDL_GetTicks();
 }
 
-void update(UpdateContext *p_uc, ButtonContext *p_bc){
+void update(UpdateContext *p_uc, EventQueue *p_eq, ButtonContext *p_bc){
     update_delta_time(p_uc);
     button_context_update_dynamically_positioned_button_positions_from_visibilities(p_bc);
 }

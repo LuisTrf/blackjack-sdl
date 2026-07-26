@@ -8,7 +8,7 @@ typedef struct Container {
 } Container;
 
 Container* container_create(float x, float y, int width, int height, bool visible, 
-    void (*update_func)(Widget *self, Event event)
+    Event (*notify_func)(Widget *self, Event event)
 );
 void container_destroy(Container *p_container);
 Widget** container_get_children(Container *p_container);
