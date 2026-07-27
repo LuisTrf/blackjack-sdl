@@ -23,7 +23,10 @@ void event_context_destroy(EventContext *ec){
 
 void ec_widget_listeners_notify_all(EventContext *ec, Event event){
     for (int i = 0; i < arrlen(ec->event_widget_listeners); i++){
-        ec->event_widget_listeners[i]->notify_func(ec->event_widget_listeners[i], event);
+        Event e = ec->event_widget_listeners[i]->notify_func(ec->event_widget_listeners[i], event);
+        if (!event_is_null(e)){
+            enqueue_event(ec->queue, e);
+        }
     }
 }
 

@@ -15,6 +15,18 @@ Event button_event_create(EventType event_type, struct Button *button){
     return e;
 }
 
+Event vec2anim_event_create_with_vec2_dst(EventType event_type, vec2 *tgt, vec2 dst){
+    Vec2Anim_Event ve = {.type = event_type, .tgt=tgt, .dst=dst};
+    Event e = {.v2anim = ve};
+    return e;
+}
+
+Event vec2anim_event_create_with_float_dst_coords(EventType event_type, vec2 *tgt, float dst_x, float dst_y){
+    Vec2Anim_Event ve = {.type = event_type, .tgt=tgt, .dst={.x=dst_x, .y=dst_y}};
+    Event e = {.v2anim = ve};
+    return e;
+}
+
 EventQueue* event_queue_create(int size){
     Event* arr = calloc(size, sizeof(Event));
     if (arr == NULL){

@@ -18,3 +18,12 @@ avoid paramter bloat.
 
 Improve the file structure; condense .h files and hide struct members to external files using _internal
 .h header file structure.
+
+HashMap of arraylists to link EventType to Widget list of event listener widgets
+Spriteboxes from deck are taken from the bottom instead of top on a draw.
+
+Cards should be face down when drawing until in correct position.
+Only shift the spritebox in container children arr when the animation begins.
+Try to create a generalised Animation struct to add support for vec2 and sprite animations.
+
+!!! FIX THE FILE STRUCTURE/ORGANISATION !!! its like a jungle

@@ -18,3 +18,5 @@ void container_destroy(Container *p_container);
 Widget** container_get_children(Container *p_container);
 void container_add_widget(Container *p_container, Widget *p_widget);
 Widget* container_remove_widget(Container *p_container, Widget *p_widget);
+
+Event container_notify_cards(Widget *self, Event event);

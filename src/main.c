@@ -76,13 +76,20 @@ PictureBox* widgets_initialize_bkg(render_hash* texture_map){
     return bkg;
 }
 
-Container* widgets_initialize_cards(render_hash* texture_map){
-    Container *cards = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL, NULL);
+Container* widgets_initialize_cards(EventContext *p_ec, render_hash* texture_map){
+    Container *cards = container_create(
+        0, 0, 
+        WINDOW_WIDTH, WINDOW_HEIGHT, 
+        true, 
+        container_notify_cards, 
+        NULL
+    );
     for (int i = 0; i < 52; i++){
         SpriteBox *card = spritebox_create(DECK_X_ORIGIN-(52-i), DECK_Y_ORIGIN+(52-i), CARD_WIDTH, CARD_HEIGHT, true,
             hmget(texture_map, TEXTURE_ID_CARD_SPRITESHEET), 0, (CARD_HEIGHT+2)*4, NULL, NULL);
         container_add_widget(cards, (Widget *)card);
     }
+    ec_widget_listener_register(p_ec, (Widget *)cards);
     return cards;
 }
 
@@ -118,6 +125,22 @@ Button* widgets_initialize_hit_button(InputContext* p_ic, EventContext *p_ec, Bu
     return hit_button;
 }
 
+Button* widgets_initialize_stand_button(InputContext* p_ic, EventContext *p_ec, ButtonContext *p_bc, render_hash* texture_map){
+    Button *stand_button = button_create(
+        MOVE_BUTTON_X_ORIGIN, MOVE_BUTTON_Y_ORIGIN, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        true, 
+        BUTTON_EVENT_RELEASE_STAND,
+        BUTTON_STATE_IDLE,
+        hmget(texture_map, TEXTURE_ID_STAND_BUTTON_SPRITESHEET), 
+        button_notify_stand,
+        input_handle_button_mouse_events
+    );
+    ic_widget_listener_register(p_ic, (Widget *)stand_button);
+    ec_widget_listener_register(p_ec, (Widget *)stand_button);
+    bc_register_move_button(p_bc, stand_button);
+    return stand_button;
+}
+
 Container* widgets_initialize_buttons(InputContext* p_ic, EventContext *p_ec, ButtonContext *p_bc, render_hash* texture_map){
     Container *buttons = container_create(
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
@@ -129,7 +152,8 @@ Container* widgets_initialize_buttons(InputContext* p_ic, EventContext *p_ec, Bu
     container_add_widget(buttons, (Widget *)deal_button);
     Button* hit_button = widgets_initialize_hit_button(p_ic, p_ec, p_bc, texture_map);
     container_add_widget(buttons, (Widget *)hit_button);
-
+    Button *stand_button = widgets_initialize_stand_button(p_ic, p_ec, p_bc, texture_map);
+    container_add_widget(buttons, (Widget *)stand_button);
     return buttons;
 }
 
@@ -139,7 +163,7 @@ Container* widgets_initialize(InputContext* p_ic, EventContext *p_ec, ButtonCont
     PictureBox *bkg = widgets_initialize_bkg(texture_map);
     container_add_widget(root, (Widget*)bkg);
     
-    Container *cards = widgets_initialize_cards(texture_map);
+    Container *cards = widgets_initialize_cards(p_ec, texture_map);
     container_add_widget(root, (Widget *)cards);
     
     Container *buttons = widgets_initialize_buttons(p_ic, p_ec, p_bc, texture_map);
@@ -204,6 +228,7 @@ int main(int argc, char **argv){
     *p_as = as;
     UpdateContext *p_uc = update_context_create();
     EventContext *p_ec = event_context_create();
+    AnimationContext *p_ac = animation_context_create();
     GameContext *p_gc = game_context_create();
     InputContext *p_ic = input_context_create();
     ButtonContext* p_bc = button_context_create();
@@ -211,12 +236,13 @@ int main(int argc, char **argv){
     p_as->root = widgets_initialize(p_ic, p_ec, p_bc, texture_map);
     while (!should_quit){
         should_quit = input_handle(p_ic, p_ec->queue);
-        update(p_uc, p_gc, p_ec, p_bc);
+        update(p_uc, p_gc, p_ec, p_ac, p_bc);
         render(p_as->renderer, p_as->root);
     }
     widgets_teardown(p_as->root);
     texture_map_destroy(texture_map);
     button_context_destroy(p_bc);
+    animation_context_destroy(p_ac);
     event_context_destroy(p_ec);
     input_context_destroy(p_ic);
     update_context_destroy(p_uc);

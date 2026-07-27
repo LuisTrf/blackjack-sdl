@@ -145,6 +145,18 @@ Card* game_draw_random_card(Card **deck){
     return c;
 }
 
+char game_get_card_suit(Card *card){
+    return card->suit;
+}
+
+char game_get_card_rank(Card *card){
+    return card->rank;
+}
+
+CARD_LOCATION game_get_card_location(Card *card){
+    return card->location;
+}
+
 void game_dealer_reset(Dealer *dealer){
     for (;dealer->cards_in_hand > 0; dealer->cards_in_hand--){
         dealer->hand[dealer->cards_in_hand-1]->location = CARD_LOCATION_DECK;

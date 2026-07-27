@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "../include/update.h"
 #include "../include/animate.h"
+#include "../include/animation_context.h"
 #include "../include/events.h"
 
 static const Animation NULL_ANIMATION = {NULL, 0, 0, 0, 0, false, false, NULL};

@@ -71,3 +71,4 @@ void bc_update_move_button_positions_from_visibilities(ButtonContext *p_bc);
 
 Event button_notify_deal(Widget *self, Event event);
 Event button_notify_hit(Widget *self, Event event);
+Event button_notify_stand(Widget *self, Event event);

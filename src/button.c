@@ -1,7 +1,6 @@
 #include <SDL3/SDL.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include "../include/widget.h"
 #include "../include/button.h"
 #include "../include/stb_ds.h"
@@ -140,8 +139,8 @@ void bc_update_move_button_positions_from_visibilities(ButtonContext *p_bc){
         if (p_bc->move_button_arr[i]->widget.visible){
             p_bc->move_button_arr[i]->widget.pos.x = 
                 MOVE_BUTTON_X_ORIGIN
-                + 0.5f * (visible_move_button_count-1) * MOVE_BUTTON_WIDTH
-                - 0.5f * (remaining_visible_move_button_count-1) * (MOVE_BUTTON_STEP_X + MOVE_BUTTON_WIDTH);
+                + 0.5f * (visible_move_button_count - 1) * MOVE_BUTTON_WIDTH
+                - 0.5f * (remaining_visible_move_button_count - 1) * (MOVE_BUTTON_STEP_X + MOVE_BUTTON_WIDTH);
             remaining_visible_move_button_count--;
         }
         else {
@@ -151,10 +150,10 @@ void bc_update_move_button_positions_from_visibilities(ButtonContext *p_bc){
 }
 
 Event button_notify_deal(Widget *self, Event event){
-    Event e;
     switch(event.type){
-        case BUTTON_EVENT_RELEASE_HIT:
-            printf("i, deal, called from hit release!\n");
+        case BUTTON_EVENT_RELEASE_DEAL:
+            button_set_state((Button *)self, BUTTON_STATE_DISABLED);
+            self->visible = false;
             break;
         default:
             break;
@@ -163,10 +162,22 @@ Event button_notify_deal(Widget *self, Event event){
 }
 
 Event button_notify_hit(Widget *self, Event event){
-    Event e;
     switch(event.type){
         case BUTTON_EVENT_RELEASE_DEAL:
-            printf("i, hit, called from deal release!\n");
+            button_set_state((Button *)self, BUTTON_STATE_IDLE);
+            self->visible = true;
+            break;
+        default:
+            break;
+    }
+    return NULL_EVENT;
+}
+
+Event button_notify_stand(Widget *self, Event event){
+    switch(event.type){
+        case BUTTON_EVENT_RELEASE_DEAL:
+            button_set_state((Button *)self, BUTTON_STATE_IDLE);
+            self->visible = true;
             break;
         default:
             break;

@@ -26,6 +26,7 @@ render_hash* texture_map_create(SDL_Renderer *renderer){
     hmput(texture_map, TEXTURE_ID_CARD_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/cards.png"));
     hmput(texture_map, TEXTURE_ID_DEAL_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/deal_spritesheet.png"));
     hmput(texture_map, TEXTURE_ID_HIT_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/hit_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_STAND_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/stand_spritesheet.png"));
     return texture_map;
 }
 
