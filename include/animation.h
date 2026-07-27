@@ -5,23 +5,18 @@
 #include "event_context.h"
 #include "update_context.h"
 
-typedef enum AnimationType {
-    ANIMATION_TYPE_NONE,
-    ANIMATION_TYPE_VEC2,
-} AnimationType;
-
 typedef enum AnimationState {
+    _ANIMATION_STATE_NONE,
     ANIMATION_STATE_WAITING,
     ANIMATION_STATE_PLAYING,
     ANIMATION_STATE_COMPLETED
 } AnimationState;
 
 typedef struct Animation {
-    AnimationType type;
-    AnimationState state;
     vec2 *target;
     vec2 src;
     vec2 dst;
+    AnimationState state;
     Event (*anim_func)(struct Animation *self, float delta_time);
 } Animation;
 
@@ -33,17 +28,16 @@ typedef struct AnimationQueue {
 } AnimationQueue;
 
 static const Animation NULL_ANIMATION = {
-    ANIMATION_TYPE_NONE, 
-    ANIMATION_STATE_WAITING,
     NULL,
     {0, 0},
     {0, 0},
+    _ANIMATION_STATE_NONE,
     NULL
 };
 
 typedef struct AnimationContext AnimationContext;
 
-Animation vec2_animation_create(vec2 *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time));
+Animation animation_create(vec2 *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time));
 AnimationQueue* anim_queue_create(int size);
 void anim_queue_destroy(AnimationQueue *p_queue);
 bool anim_queue_full(AnimationQueue *queue);

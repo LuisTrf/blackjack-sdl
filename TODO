@@ -25,5 +25,6 @@ Spriteboxes from deck are taken from the bottom instead of top on a draw.
 Cards should be face down when drawing until in correct position.
 Only shift the spritebox in container children arr when the animation begins.
 Try to create a generalised Animation struct to add support for vec2 and sprite animations.
+^ DO THIS ONLY IF YOU WANT TO ADD SPRITESHEET ANIMATIONS.
 
 !!! FIX THE FILE STRUCTURE/ORGANISATION !!! its like a jungle

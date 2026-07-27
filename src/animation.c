@@ -5,16 +5,15 @@
 #include "../include/event_context.h"
 #include "../include/animation_context.h"
 
-Animation vec2_animation_create(vec2 *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time)){
-    Animation vec2_anim = {
-        .type = ANIMATION_TYPE_VEC2,
-        .state = ANIMATION_STATE_WAITING,
+Animation animation_create(vec2 *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time)){
+    Animation anim = {
         .target = target,
         .src = *target,
         .dst = dst,
+        .state = ANIMATION_STATE_WAITING,
         .anim_func = anim_func,
     };
-    return vec2_anim;
+    return anim;
 }
 
 AnimationQueue* anim_queue_create(int size){
@@ -116,7 +115,15 @@ Animation dequeue_anim(AnimationQueue *queue){
 }
 
 bool anim_is_null(Animation anim){
-    if (anim.type == NULL_ANIMATION.type){
+    if (
+        anim.target == NULL_ANIMATION.target
+        && anim.dst.x == NULL_ANIMATION.dst.x
+        && anim.dst.y == NULL_ANIMATION.dst.y
+        && anim.src.x == NULL_ANIMATION.src.x
+        && anim.src.y == NULL_ANIMATION.src.y
+        && anim.state == NULL_ANIMATION.state
+        && anim.anim_func == NULL_ANIMATION.anim_func
+    ){
         return true;
     }
     else {
@@ -124,7 +131,7 @@ bool anim_is_null(Animation anim){
     }
 }
 
-void animation_vec2_translate_in_fixed_time(float delta_time, vec2 *target, vec2 src, vec2 dst, float time){
+void vec2_translate_in_fixed_time(float delta_time, vec2 *target, vec2 src, vec2 dst, float time){
     if (target->x > dst.x){
         if ((target->x - dst.x) < (delta_time/time) * (src.x - dst.x)){
             target->x = dst.x;
@@ -161,7 +168,7 @@ void animation_vec2_translate_in_fixed_time(float delta_time, vec2 *target, vec2
 }
 
 Event animation_draw_card(Animation *self, float delta_time){
-    animation_vec2_translate_in_fixed_time(
+    vec2_translate_in_fixed_time(
         delta_time,
         self->target,
         self->src,
@@ -179,12 +186,7 @@ void animate_from_queue(AnimationContext *p_ac, EventContext *p_ec, UpdateContex
     if (!anim_queue_empty(p_ac->queue) && anim_is_null(*p_ac->playing_blocking_anim)){
         printf("trying to dequeue!\n");
         *p_ac->playing_blocking_anim = dequeue_anim(p_ac->queue);
-        switch (p_ac->playing_blocking_anim->type){
-            case ANIMATION_TYPE_VEC2:
-                p_ac->playing_blocking_anim->state = ANIMATION_STATE_PLAYING;
-            default:
-                break;
-        }
+        p_ac->playing_blocking_anim->state = ANIMATION_STATE_PLAYING;
     }
     else if (!anim_is_null(*p_ac->playing_blocking_anim)){
         if (p_ac->playing_blocking_anim->state == ANIMATION_STATE_COMPLETED){
@@ -195,16 +197,10 @@ void animate_from_queue(AnimationContext *p_ac, EventContext *p_ec, UpdateContex
             }
         }
         else{
-            switch (p_ac->playing_blocking_anim->type){
-                case ANIMATION_TYPE_VEC2:
-                    p_ac->playing_blocking_anim->anim_func(
-                        p_ac->playing_blocking_anim,
-                        p_uc->delta_time
-                    );
-                    break;
-                default:
-                    break;
-            }
+            p_ac->playing_blocking_anim->anim_func(
+                p_ac->playing_blocking_anim,
+                p_uc->delta_time
+            );
         }
     }
 }

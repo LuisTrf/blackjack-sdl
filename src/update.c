@@ -75,7 +75,7 @@ void update(UpdateContext *p_uc, GameContext *p_gc, EventContext *p_ec, Animatio
                 printf("queued anim\n");
                 enqueue_anim(
                     p_ac->queue,
-                    vec2_animation_create(
+                    animation_create(
                         event.v2anim.tgt,
                         event.v2anim.dst, 
                         animation_draw_card
