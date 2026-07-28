@@ -28,3 +28,9 @@ Try to create a generalised Animation struct to add support for vec2 and sprite 
 ^ DO THIS ONLY IF YOU WANT TO ADD SPRITESHEET ANIMATIONS.
 
 !!! FIX THE FILE STRUCTURE/ORGANISATION !!! its like a jungle
+
+Separate methods to render widgets and card game objects.
+Add game object struct; cards should be game objects with vec2 pos, w, h, vis.
+The deck shouldn't be spriteboxes but instead rendered cards, remove the card container widget.
+Deck should be a stack of Card structs. When hitting pop from the stack. When starting new game push all to stack and
+shuffle all Card pointers in the deck arr.

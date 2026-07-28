@@ -176,7 +176,6 @@ Event animation_draw_card(Animation *self, float delta_time){
         0.3f
     );
     if (self->state == ANIMATION_STATE_PLAYING && self->target->x == self->dst.x && self->target->y == self->dst.y){
-        printf("completed!\n");
         self->state = ANIMATION_STATE_COMPLETED;
     }
     return NULL_EVENT;
@@ -184,7 +183,6 @@ Event animation_draw_card(Animation *self, float delta_time){
 
 void animate_from_queue(AnimationContext *p_ac, EventContext *p_ec, UpdateContext *p_uc){
     if (!anim_queue_empty(p_ac->queue) && anim_is_null(*p_ac->playing_blocking_anim)){
-        printf("trying to dequeue!\n");
         *p_ac->playing_blocking_anim = dequeue_anim(p_ac->queue);
         p_ac->playing_blocking_anim->state = ANIMATION_STATE_PLAYING;
     }
