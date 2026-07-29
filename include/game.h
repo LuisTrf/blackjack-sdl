@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include "gameobj.h"
 
 #define PLAYER_MAXIMUM_HAND_SIZE 5
 #define DEALER_MAXIMUM_HAND_SIZE 10
@@ -34,12 +35,18 @@ typedef enum {
 } CHIP_VALUE;
 
 typedef struct Card {
+    GameObject obj;
     CARD_LOCATION location;
     char suit;
     char rank;
     int rank_value;
     bool face_down;
 } Card;
+
+typedef struct Deck {
+    int top;
+    Card** arr;
+} Deck;
 
 typedef struct Player {
     Card *hand[PLAYER_MAXIMUM_HAND_SIZE];
@@ -48,8 +55,8 @@ typedef struct Player {
     unsigned char aces_in_hand_worth_11;
     float money;
     float bet;
-    CHIP_VALUE bet_history[MAXIMUM_BETTED_CHIPS];
     int betted_chips;
+    CHIP_VALUE bet_history[MAXIMUM_BETTED_CHIPS];
 } Player;
 
 typedef struct Dealer{
@@ -62,9 +69,9 @@ typedef struct Dealer{
 typedef struct GameContext {
     GAME_STATE game_state;
     GAME_STATE prev_game_state;
-    Card** deck;
-    struct Player *player;
-    struct Dealer *dealer;
+    Deck *deck;
+    Player *player;
+    Dealer *dealer;
 } GameContext;
 
 #define PLAYER_BEGINNING_MONEY 100000.00
@@ -81,13 +88,12 @@ void game_context_destroy(GameContext *p_gc);
 GAME_STATE game_context_get_game_state(GameContext *p_gc);
 GAME_STATE game_context_get_prev_game_state(GameContext *p_gc);
 void game_context_set_game_state(GameContext *p_gc, GAME_STATE state);
-void game_shuffle_deck(Card **deck);
+void game_shuffle_deck(Deck *deck);
 char game_get_card_suit(Card *card);
 char game_get_card_rank(Card *card);
 CARD_LOCATION game_get_card_location(Card *card);
-Card* game_draw_random_card(Card **deck);
-void game_dealer_reset(struct Dealer *dealer);
-void game_player_reset(struct Player *player);
+Card* game_draw_random_card(Deck *deck);
+void game_reset(Deck *deck, Dealer *dealer, Player *player);
 void game_participants_reset(struct Dealer *dealer, struct Player *player);
 bool game_dealer_bust(struct Dealer *dealer);
 bool game_player_bust(struct Player *player);
@@ -97,8 +103,8 @@ bool game_dealer_can_hit(struct Dealer *dealer);
 bool game_player_can_hit(struct Player *player);
 bool game_dealer_is_hiding_second_card(struct Dealer *dealer);
 void game_dealer_reveal_second_card(struct Dealer *dealer);
-Card* game_dealer_hit(Card** deck, struct Dealer *dealer);
-Card* game_player_hit(Card **deck, struct Player *player);
+Card* game_dealer_hit(Deck* deck, struct Dealer *dealer);
+Card* game_player_hit(Deck *deck, struct Player *player);
 Card** game_dealer_get_hand(struct Dealer *dealer);
 Card** game_player_get_hand(struct Player *player);
 int game_dealer_get_hand_value(struct Dealer *dealer);

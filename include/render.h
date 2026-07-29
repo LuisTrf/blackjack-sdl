@@ -19,7 +19,7 @@ typedef struct render_hash_t {
 
 render_hash* texture_map_create(SDL_Renderer *renderer);
 void texture_map_destroy(render_hash* texture_map);
-void render(SDL_Renderer *renderer, Container *root);
+void render(SDL_Renderer *renderer, render_hash *texture_map, Container *root, struct GameContext *p_gc);
 
 /*
 #define SPRITESHEET_SEP 2

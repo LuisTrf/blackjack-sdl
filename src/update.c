@@ -36,24 +36,27 @@ void update_delta_time(UpdateContext *p_uc){
 void update_game_on_release_deal(GameContext *gc, EventQueue *queue){
     game_context_set_game_state(gc, GAME_STATE_PLAYING);
 
+    game_shuffle_deck(gc->deck);
+
     Card* dc1 = game_dealer_hit(gc->deck, gc->dealer);
-    Event e1 = {.card={CARD_EVENT_CARD_DRAWN, dc1, gc->dealer->cards_in_hand, gc->player->cards_in_hand}};
+    Event e1 = {.common={EVENT_CARD_DRAWN}};
     enqueue_event(queue, e1);
     Card* dc2 = game_dealer_hit(gc->deck, gc->dealer);
-    Event e2 = {.card={CARD_EVENT_CARD_DRAWN, dc2, gc->dealer->cards_in_hand, gc->player->cards_in_hand}};
+    Event e2 = {.common={EVENT_CARD_DRAWN}};
     enqueue_event(queue, e2);
 
     Card *pc1 = game_player_hit(gc->deck, gc->player);
-    Event e3 = {.card={CARD_EVENT_CARD_DRAWN, pc1, gc->dealer->cards_in_hand, gc->player->cards_in_hand}};
+    Event e3 = {.common={EVENT_CARD_DRAWN}};
     enqueue_event(queue, e3);
     Card *pc2 = game_player_hit(gc->deck, gc->player);
-    Event e4 = {.card={CARD_EVENT_CARD_DRAWN, pc2, gc->dealer->cards_in_hand, gc->player->cards_in_hand}};
+    Event e4 = {.common={EVENT_CARD_DRAWN}};
     enqueue_event(queue, e4);
 
     if (game_dealer_is_blackjack(gc->dealer)){
-        Event e5 = {.game={GAME_EVENT_NEW_GAME, gc->dealer, gc->player}};
+        printf("ran!\n");
+        Event e5 = {.common={EVENT_NEW_GAME}};
         enqueue_event(queue, e5);
-        game_participants_reset(gc->dealer, gc->player);
+        game_reset(gc->deck, gc->dealer, gc->player);
     }
 }
 
@@ -71,20 +74,6 @@ void update(UpdateContext *p_uc, GameContext *p_gc, EventContext *p_ec, Animatio
             case BUTTON_EVENT_RELEASE_HIT:
                 update_game_on_release_hit(p_gc);
                 break;
-            case VEC2ANIM_EVENT_CREATE_NEW:
-                printf("queued anim\n");
-                enqueue_anim(
-                    p_ac->queue,
-                    animation_create(
-                        event.v2anim.tgt,
-                        event.v2anim.dst, 
-                        animation_draw_card
-                    )
-                );
-                /*
-                event.v2anim.anim_tgt->x = event.v2anim.dst.x;
-                event.v2anim.anim_tgt->y = event.v2anim.dst.y;
-                */
             default:
                 break;
         }

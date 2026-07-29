@@ -6,12 +6,15 @@
 #include <SDL3/SDL_surface.h>
 
 #include "../include/stb_ds.h"
+#include "../include/card_constants.h"
 #include "../include/widget.h"
 #include "../include/container.h"
 #include "../include/picbox.h"
 #include "../include/spritebox.h"
 #include "../include/button.h"
 #include "../include/render.h"
+
+#include <stdio.h>
 
 SDL_Texture* render_load_texture_from_png(SDL_Renderer *renderer, char* filepath){
     SDL_Surface *p_surface = SDL_LoadPNG(filepath);
@@ -121,79 +124,65 @@ void render_widgets(SDL_Renderer *renderer, Container *root){
     }
 }
 
-void render(SDL_Renderer *renderer, Container *root){
+void render_card(SDL_Renderer *renderer, render_hash *texture_map, Card *card){
+    if (!card->obj.visible) {return;}
+    SDL_FRect dst_rect = {
+        card->obj.pos.x,
+        card->obj.pos.y,
+        card->obj.width,
+        card->obj.height
+    };
+    int rel_offset_x = 0, rel_offset_y = 0;
+    if (card->face_down){
+        rel_offset_x = 0;
+        rel_offset_y = 4;
+    }
+    else {
+        for (int i=0; i<13; i++){
+            if (card->rank==ranks[i]){
+                rel_offset_x = i;
+                break;
+            }
+        }
+        for (int j=0; j<4; j++){
+            if (card->suit==suits[j]){
+                rel_offset_y=j;
+                break;
+            }
+        }
+    }
+    SDL_FRect src_rect = {
+        rel_offset_x*(CARD_WIDTH+2),
+        rel_offset_y*(CARD_HEIGHT+2),
+        CARD_WIDTH,
+        CARD_HEIGHT
+    };
+    SDL_RenderTexture(renderer, hmget(texture_map, TEXTURE_ID_CARD_SPRITESHEET), &src_rect, &dst_rect);
+}
+
+void render_game_objects(SDL_Renderer *renderer, render_hash* texture_map, GameContext *p_gc){
+    int deck_card_count = p_gc->deck->top + 1;
+    for (int i = 0; i < deck_card_count; i++){
+        render_card(renderer, texture_map, p_gc->deck->arr[i]);
+    }
+    Card** player_hand = game_player_get_hand(p_gc->player);
+    for (int i = 0; i < game_player_get_cards_in_hand(p_gc->player); i++){
+        render_card(renderer, texture_map, player_hand[i]);
+    }
+    Card** dealer_hand = game_dealer_get_hand(p_gc->dealer);
+    for (int i = 0; i < game_dealer_get_cards_in_hand(p_gc->dealer); i++){
+        render_card(renderer, texture_map, dealer_hand[i]);
+    }
+}
+
+void render(SDL_Renderer *renderer, render_hash *texture_map, Container *root, GameContext *p_gc){
+    SDL_RenderTexture(renderer, hmget(texture_map, TEXTURE_ID_BACKGROUND), NULL, NULL);
+    render_game_objects(renderer, texture_map, p_gc);
     render_widgets(renderer, root);
     SDL_RenderPresent(renderer);
 }
 
 /*
-void load_background_texture(void){
-    SDL_Surface *bkg_surface = SDL_LoadPNG("../resources/bg.png");
-    background = SDL_CreateTextureFromSurface(renderer, bkg_surface);
-    SDL_DestroySurface(bkg_surface);
-}
-
-void load_button_spritesheets(void){
-    SDL_Surface *deal_button_spritesheet_surface = SDL_LoadPNG("../resources/deal_spritesheet.png");
-    SDL_Surface *bet_button_spritesheet_surface = SDL_LoadPNG("../resources/bet_spritesheet.png");
-    SDL_Surface *hit_button_spritesheet_surface = SDL_LoadPNG("../resources/hit_spritesheet.png");
-    SDL_Surface *stand_button_spritesheet_surface = SDL_LoadPNG("../resources/stand_spritesheet.png");
-    SDL_Surface *insurance_button_spritesheet_surface = SDL_LoadPNG("../resources/insurance_spritesheet.png");
-    SDL_Surface *double_down_button_spritesheet_surface = SDL_LoadPNG("../resources/doubledown_spritesheet.png");
-
-    deal_button.spritesheet = SDL_CreateTextureFromSurface(renderer, deal_button_spritesheet_surface);
-    bet_button.spritesheet = SDL_CreateTextureFromSurface(renderer, bet_button_spritesheet_surface);
-    hit_button.spritesheet = SDL_CreateTextureFromSurface(renderer, hit_button_spritesheet_surface);
-    stand_button.spritesheet = SDL_CreateTextureFromSurface(renderer, stand_button_spritesheet_surface);
-    insurance_button.spritesheet = SDL_CreateTextureFromSurface(renderer, insurance_button_spritesheet_surface);
-    double_down_button.spritesheet = SDL_CreateTextureFromSurface(renderer, double_down_button_spritesheet_surface);
-
-    SDL_DestroySurface(deal_button_spritesheet_surface);
-    SDL_DestroySurface(bet_button_spritesheet_surface);
-    SDL_DestroySurface(hit_button_spritesheet_surface);
-    SDL_DestroySurface(stand_button_spritesheet_surface);
-    SDL_DestroySurface(insurance_button_spritesheet_surface);
-    SDL_DestroySurface(double_down_button_spritesheet_surface);
-
-    SDL_Surface *white1_button_spritesheet_surface = SDL_LoadPNG("../resources/white1_spritesheet.png");
-    SDL_Surface *red5_button_spritesheet_surface = SDL_LoadPNG("../resources/red5_spritesheet.png");
-    SDL_Surface *blue10_button_spritesheet_surface = SDL_LoadPNG("../resources/blue10_spritesheet.png");
-    SDL_Surface *green25_button_spritesheet_surface = SDL_LoadPNG("../resources/green25_spritesheet.png");
-    SDL_Surface *black100_button_spritesheet_surface = SDL_LoadPNG("../resources/black100_spritesheet.png");
-    SDL_Surface *purple500_button_spritesheet_surface = SDL_LoadPNG("../resources/purple500_spritesheet.png");
-    SDL_Surface *yellow1k_button_spritesheet_surface = SDL_LoadPNG("../resources/yellow1k_spritesheet.png");
-    SDL_Surface *orange5k_button_spritesheet_surface = SDL_LoadPNG("../resources/orange5k_spritesheet.png");
-    SDL_Surface *redblue25k_button_spritesheet_surface = SDL_LoadPNG("../resources/redblue25k_spritesheet.png");
-    SDL_Surface *gold100k_button_spritesheet_surface = SDL_LoadPNG("../resources/gold100k_spritesheet.png");
-    
-    white1_button.button.spritesheet = SDL_CreateTextureFromSurface(renderer, white1_button_spritesheet_surface);
-    red5_button.button.spritesheet = SDL_CreateTextureFromSurface(renderer, red5_button_spritesheet_surface);
-    blue10_button.button.spritesheet = SDL_CreateTextureFromSurface(renderer, blue10_button_spritesheet_surface);
-    green25_button.button.spritesheet = SDL_CreateTextureFromSurface(renderer, green25_button_spritesheet_surface);
-    black100_button.button.spritesheet = SDL_CreateTextureFromSurface(renderer, black100_button_spritesheet_surface);
-    purple500_button.button.spritesheet = SDL_CreateTextureFromSurface(renderer, purple500_button_spritesheet_surface);
-    yellow1k_button.button.spritesheet = SDL_CreateTextureFromSurface(renderer, yellow1k_button_spritesheet_surface);
-    orange5k_button.button.spritesheet = SDL_CreateTextureFromSurface(renderer, orange5k_button_spritesheet_surface);
-    redblue25k_button.button.spritesheet = SDL_CreateTextureFromSurface(renderer, redblue25k_button_spritesheet_surface);
-    gold100k_button.button.spritesheet = SDL_CreateTextureFromSurface(renderer, gold100k_button_spritesheet_surface);
-
-    SDL_DestroySurface(white1_button_spritesheet_surface);
-    SDL_DestroySurface(red5_button_spritesheet_surface);
-    SDL_DestroySurface(blue10_button_spritesheet_surface);
-    SDL_DestroySurface(green25_button_spritesheet_surface);
-    SDL_DestroySurface(black100_button_spritesheet_surface);
-    SDL_DestroySurface(purple500_button_spritesheet_surface);
-    SDL_DestroySurface(yellow1k_button_spritesheet_surface);
-    SDL_DestroySurface(orange5k_button_spritesheet_surface);
-    SDL_DestroySurface(redblue25k_button_spritesheet_surface);
-    SDL_DestroySurface(gold100k_button_spritesheet_surface);
-}
-
-void load_card_spritesheet(void){
-    SDL_Surface *card_spritesheet_surface = SDL_LoadPNG("../resources/cards.png");
-    card_spritesheet = SDL_CreateTextureFromSurface(renderer, card_spritesheet_surface);
-    SDL_DestroySurface(card_spritesheet_surface);
-}
 
 void load_font(void){
     font = TTF_OpenFont("../resources/OpenSans-VariableFont_wdth,wght.ttf", 32.0f);
@@ -220,18 +209,6 @@ void load_label_textures(void){
     }
 }
 
-void load_resources(void){
-    load_background_texture();
-    load_card_spritesheet();
-    load_button_spritesheets();
-    load_font();
-    load_label_textures();
-}
-
-void render_background(void){
-    SDL_RenderTexture(renderer, background, NULL, NULL);
-}
-
 void render_deck(){
     SDL_FRect src_rect = {
         0,
@@ -256,43 +233,6 @@ void render_deck(){
         SDL_RenderTexture(renderer, card_spritesheet, &src_rect, &deck_rect);
     };
 }
-
-void render_card(Card *card){
-    if (!card->obj.visible) {return;}
-    SDL_FRect card_sdl_frect = {
-        card->obj.x,
-        card->obj.y,
-        card->obj.width,
-        card->obj.height
-    };
-    int rel_offset_x = 0, rel_offset_y = 0;
-    if (card->face_down){
-        rel_offset_x = 0;
-        rel_offset_y = 4;
-    }
-    else {
-        for (int i=0; i<13; i++){
-            if (card->rank==ranks[i]){
-                rel_offset_x = i;
-                break;
-            }
-        }
-        for (int j=0; j<4; j++){
-            if (card->suit==suits[j]){
-                rel_offset_y=j;
-                break;
-            }
-        }
-    }
-    SDL_FRect src_rect = {
-        rel_offset_x*(CARD_WIDTH+SPRITESHEET_SEP),
-        rel_offset_y*(CARD_HEIGHT+SPRITESHEET_SEP),
-        CARD_WIDTH,
-        CARD_HEIGHT
-    };
-    SDL_RenderTexture(renderer, card_spritesheet, &src_rect, &card_sdl_frect);
-}
-
 
 void render_player_hand(void){
     Card** player_hand = get_player_hand();

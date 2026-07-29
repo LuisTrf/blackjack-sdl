@@ -10,7 +10,6 @@
 #include "../include/stb_ds.h"
 
 #include "../include/constants.h"
-#include "../include/card_constants.h"
 #include "../include/main.h"
 #include "../include/widget.h"
 #include "../include/picbox.h"
@@ -67,30 +66,6 @@ bool app_state_initialize(AppState *as){
         exit(1);
     }
     return false;
-}
-
-PictureBox* widgets_initialize_bkg(render_hash* texture_map){
-    PictureBox *bkg = picturebox_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true,
-        hmget(texture_map, TEXTURE_ID_BACKGROUND), NULL, NULL
-    );
-    return bkg;
-}
-
-Container* widgets_initialize_cards(EventContext *p_ec, render_hash* texture_map){
-    Container *cards = container_create(
-        0, 0, 
-        WINDOW_WIDTH, WINDOW_HEIGHT, 
-        true, 
-        container_notify_cards, 
-        NULL
-    );
-    for (int i = 0; i < 52; i++){
-        SpriteBox *card = spritebox_create(DECK_X_ORIGIN-(52-i), DECK_Y_ORIGIN+(52-i), CARD_WIDTH, CARD_HEIGHT, true,
-            hmget(texture_map, TEXTURE_ID_CARD_SPRITESHEET), 0, (CARD_HEIGHT+2)*4, NULL, NULL);
-        container_add_widget(cards, (Widget *)card);
-    }
-    ec_widget_listener_register(p_ec, (Widget *)cards);
-    return cards;
 }
 
 Button* widgets_initialize_deal_button(InputContext* p_ic, EventContext *p_ec, ButtonContext *p_bc, render_hash* texture_map){
@@ -159,12 +134,6 @@ Container* widgets_initialize_buttons(InputContext* p_ic, EventContext *p_ec, Bu
 
 Container* widgets_initialize(InputContext* p_ic, EventContext *p_ec, ButtonContext *p_bc, render_hash* texture_map){
     Container *root = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL, NULL);
-    
-    PictureBox *bkg = widgets_initialize_bkg(texture_map);
-    container_add_widget(root, (Widget*)bkg);
-    
-    Container *cards = widgets_initialize_cards(p_ec, texture_map);
-    container_add_widget(root, (Widget *)cards);
     
     Container *buttons = widgets_initialize_buttons(p_ic, p_ec, p_bc, texture_map);
     container_add_widget(root, (Widget *)buttons);
@@ -237,7 +206,7 @@ int main(int argc, char **argv){
     while (!should_quit){
         should_quit = input_handle(p_ic, p_ec->queue);
         update(p_uc, p_gc, p_ec, p_ac, p_bc);
-        render(p_as->renderer, p_as->root);
+        render(p_as->renderer, texture_map, p_as->root, p_gc);
     }
     widgets_teardown(p_as->root);
     texture_map_destroy(texture_map);

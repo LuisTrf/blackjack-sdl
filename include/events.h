@@ -9,12 +9,11 @@ SDL_Event docs
 typedef enum EventType {
     EVENT_NONE,
     EVENT_ANIM_QUEUE_FINISHED,
+    EVENT_CARD_DRAWN,
+    EVENT_NEW_GAME,
     BUTTON_EVENT_RELEASE_DEAL,
     BUTTON_EVENT_RELEASE_HIT,
     BUTTON_EVENT_RELEASE_STAND,
-    GAME_EVENT_NEW_GAME,
-    CARD_EVENT_CARD_DRAWN,
-    VEC2ANIM_EVENT_CREATE_NEW
 } EventType;
 
 typedef struct Common_Event {
@@ -26,33 +25,17 @@ typedef struct Button_Event {
     struct Button *button_obj;
 } Button_Event;
 
-typedef struct Card_Event {
-    EventType type;
-    struct Card *card;
-    int dcih;
-    int pcih;
-} Card_Event;
-
 typedef struct Game_Event {
     EventType type;
     struct Dealer *dealer;
     struct Player *player;
 } Game_Event;
 
-typedef struct Vec2Anim_Event {
-    EventType type;
-    vec2 *tgt;
-    vec2 dst;
-} Vec2Anim_Event;
-
 typedef union Event {
     EventType type;
     Common_Event common;
     Button_Event button;
-    Card_Event card;
-    Game_Event game;
-    Vec2Anim_Event v2anim;
-} Event;
+    Game_Event game;} Event;
 
 typedef struct EventQueue {
     int size;
