@@ -1,0 +1,12 @@
+#pragma once
+
+#include "../constants.h"
+
+#define CARD_WIDTH 150
+#define CARD_HEIGHT 210
+#define CARD_STEP_X 25
+#define HAND_ORIGIN_X (WINDOW_WIDTH/2.f - CARD_WIDTH/2.f - CARD_STEP_X*2.f)
+#define HAND_ORIGIN_Y_DEALER 60
+#define HAND_ORIGIN_Y_PLAYER 300
+#define DECK_ORIGIN_X 120
+#define DECK_ORIGIN_Y (HAND_ORIGIN_Y_DEALER/2.f + HAND_ORIGIN_Y_PLAYER/2.f)

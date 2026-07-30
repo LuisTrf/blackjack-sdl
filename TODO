@@ -34,3 +34,5 @@ Add game object struct; cards should be game objects with vec2 pos, w, h, vis.
 The deck shouldn't be spriteboxes but instead rendered cards, remove the card container widget.
 Deck should be a stack of Card structs. When hitting pop from the stack. When starting new game push all to stack and
 shuffle all Card pointers in the deck arr.
+
+Create a UI_Context object to hold root and Button_Context. This does not need to be an opaque structure.

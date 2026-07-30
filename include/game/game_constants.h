@@ -1,0 +1,13 @@
+#pragma once
+
+#define PLAYER_MAXIMUM_HAND_SIZE 5
+#define DEALER_MAXIMUM_HAND_SIZE 10
+#define MAXIMUM_BETTED_CHIPS 256
+
+#define PLAYER_BEGINNING_MONEY 100000.00
+#define STANDARD_BET_PAYOUT 2.f
+#define PLAYER_BLACKJACK_BET_PAYOUT 1.5f
+
+extern const char SUITS[4];
+extern const char RANKS[13];
+extern const int RANK_VALUES[13];
