@@ -1,4 +1,4 @@
-Make Context structs consistently opaque.
+Undo opaque structs.
 Update the CMakeLists.txt so that it uses many CMakeLists.txt in included directories (I need to learn more CMake first;
 this does the job for now).
 
