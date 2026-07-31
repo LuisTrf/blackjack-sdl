@@ -33,7 +33,6 @@ Event_Context* event_context_create(void);
 void event_context_destroy(Event_Context *ec);
 void ec_widget_listeners_notify_all(Event_Context *ec, Event event);
 void ec_widget_listener_register(Event_Context *ec, Widget *widget);
-EventQueue* ec_get_queue(Event_Context *ec);
 /*
 #define MAXIMUM_POLLED_EVENTS 32
 typedef struct EventQueue {

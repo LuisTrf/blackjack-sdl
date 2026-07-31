@@ -12,15 +12,21 @@ typedef enum WIDGET_TYPE {
     WIDGET_SPRITEBOX
 } WIDGET_TYPE;
 
-typedef struct Widget Widget;
+#include <SDL3/SDL.h>
+#include <stdbool.h>
+#include "widget.h"
+#include "../event/event_types.h"
+#include "../vec2.h"
+
+typedef struct Widget {
+    WIDGET_TYPE wtype;
+    vec2 pos;
+    int width;
+    int height;
+    bool visible;
+    Event (*notify_func)(struct Widget *self, Event event);
+    Event (*input_func)(struct Widget *self, SDL_Event event);
+} Widget;
 
 Event widget_notify(Widget *widget, Event event);
 Event widget_input(Widget *widget, SDL_Event event);
-WIDGET_TYPE widget_get_type(Widget* widget);
-vec2* widget_get_pos(Widget *widget);
-float widget_get_x(Widget *widget);
-float widget_get_y(Widget *widget);
-int widget_get_width(Widget *widget);
-int widget_get_height(Widget *widget);
-bool widget_is_visible(Widget *widget);
-void widget_set_visibility(Widget *widget, bool visibility);

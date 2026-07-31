@@ -13,8 +13,17 @@ typedef enum BUTTON_STATE{
     BUTTON_STATE_PRESSED
 } BUTTON_STATE;
 
-typedef struct Button Button;
-typedef struct Button_Context Button_Context;
+typedef struct Button {
+    Widget widget;
+    Event release_event;
+    BUTTON_STATE _state;
+    BUTTON_STATE _prev_state;
+    SDL_Texture *p_spritesheet;
+} Button;
+
+typedef struct Button_Context{
+    Button** moveb_refs;
+} Button_Context;
 
 Button* button_create(
     float x, float y, 
@@ -35,8 +44,6 @@ void button_set_state(Button *button, BUTTON_STATE state);
 BUTTON_STATE button_get_state(Button *button);
 BUTTON_STATE button_get_prev_state(Button *button);
 void button_restore_prev_state(Button *button);
-Event button_get_release_event(Button *button);
-SDL_Texture* button_get_spritesheet(Button *button);
 
 void bc_register_move_button(Button_Context *p_bc, Button *button);
 int bc_get_visible_move_buttons(Button_Context *p_bc);

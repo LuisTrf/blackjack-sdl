@@ -4,7 +4,8 @@
 
 #include "../../include/vec2.h"
 #include "../../include/ui/button_constants.h"
-#include "../../include/ui/button_internal.h"
+#include "../../include/event/event.h"
+#include "../../include/ui/button.h"
 #include "../../include/stb_ds.h"
 
 /*
@@ -101,19 +102,28 @@ void button_context_destroy(Button_Context *p_bc){
     free(p_bc);
 }
 
-Event button_get_release_event(Button *button){return button->release_event;}
-BUTTON_STATE button_get_state(Button *button){return button->_state;}
+Event button_get_release_event(Button *button){
+    return button->release_event;
+}
+
+BUTTON_STATE button_get_state(Button *button){
+    return button->_state;
+}
+
 void button_set_state(Button *button, BUTTON_STATE state){
     button->_prev_state = button->_state;
     button->_state = state;
 }
-BUTTON_STATE button_get_prev_state(Button *button){return button->_prev_state;}
+
+BUTTON_STATE button_get_prev_state(Button *button){
+    return button->_prev_state;
+}
+
 void button_restore_prev_state(Button *button){
     BUTTON_STATE temp = button->_state;
     button->_state = button->_prev_state;
     button->_prev_state = temp;
 }
-SDL_Texture* button_get_spritesheet(Button *button){return button->p_spritesheet;}
 
 void bc_register_move_button(Button_Context *p_bc, Button *button){
     arrput(p_bc->moveb_refs, button);

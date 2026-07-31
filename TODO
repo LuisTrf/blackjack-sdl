@@ -1,6 +1,7 @@
-Undo opaque structs.
 Update the CMakeLists.txt so that it uses many CMakeLists.txt in included directories (I need to learn more CMake first;
 this does the job for now).
 
 Think of a workaround so that I can render the 1st drawn card above the 2nd drawn card during the
 deal animation.
+
+Rename contexts in AppState like input_ctx.

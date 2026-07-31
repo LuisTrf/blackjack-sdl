@@ -4,9 +4,15 @@
 #include <SDL3/SDL.h>
 #include <stdbool.h>
 #include "widget.h"
-#include "../event/event.h"
+#include "../event/event_types.h"
 
-typedef struct Label Label;
+typedef struct Label {
+    Widget widget;
+    TTF_Font *p_font;
+    SDL_Texture *p_texture;
+    float font_size;
+    char txt[32];
+} Label;
 
 Label* label_create(
     float x, float y, 

@@ -65,10 +65,10 @@ void ic_widget_listeners_notify_all(Event_Context *ec, Input_Context* ic, SDL_Ev
 Event input_handle_button_mouse_events(Widget *widget, SDL_Event event){
     Button *button = (Button *)widget;
     float x, y;
-    float bx = widget_get_x((Widget *)button); 
-    float by = widget_get_y((Widget *)button);
-    int bwidth = widget_get_width((Widget *)button); 
-    int bheight = widget_get_height((Widget *)button);
+    float bx = button->widget.pos.x; 
+    float by = button->widget.pos.y;
+    int bwidth = button->widget.width; 
+    int bheight = button->widget.height;
     SDL_MouseButtonFlags mflags = SDL_GetMouseState(&x, &y);
     if(x > bx
         && x < (bx + bwidth)
@@ -89,7 +89,7 @@ Event input_handle_button_mouse_events(Widget *widget, SDL_Event event){
                     )
                     {
                         button_restore_prev_state(button);
-                        return button_get_release_event(button);
+                        return button->release_event;
                     }
                     break;
                 default:

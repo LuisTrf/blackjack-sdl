@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
-#include "../../include/ui/container_internal.h"
+#include "../../include/ui/container.h"
 #include "../../include/stb_ds.h"
 
 #include <stdio.h>

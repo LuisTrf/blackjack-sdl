@@ -12,7 +12,6 @@
 #include "../../include/ui/spritebox.h"
 #include "../../include/ui/button.h"
 #include "../../include/game/game.h"
-#include "../../include/game/card_constants.h"
 #include "../../include/game/game_constants.h"
 #include "../../include/render/render.h"
 #include "../../include/main.h"
@@ -45,50 +44,42 @@ void texture_map_destroy(texture_hash* texture_map){
 }
 
 void render_picbox(SDL_Renderer *renderer, PictureBox *picbox){
-    if (!widget_is_visible((Widget *)picbox)) {return;}
+    if (!picbox->widget.visible) {return;}
     SDL_FRect dst_rect = {
-        widget_get_x((Widget *)picbox),
-        widget_get_y((Widget *)picbox),
-        widget_get_width((Widget *)picbox),
-        widget_get_height((Widget *)picbox)
+        picbox->widget.pos.x,
+        picbox->widget.pos.y,
+        picbox->widget.width,
+        picbox->widget.height
     };
-    SDL_RenderTexture(renderer, picbox_get_texture(picbox), NULL, &dst_rect);
+    SDL_RenderTexture(renderer, picbox->p_texture, NULL, &dst_rect);
 }
 
 void render_spritebox(SDL_Renderer *renderer, SpriteBox *spritebox){
-    if (!widget_is_visible((Widget *)spritebox)) {return;}
+    if (!spritebox->widget.visible) {return;}
     SDL_FRect src_rect = {
-        spritebox_get_spritesheet_x(spritebox),
-        spritebox_get_spritesheet_y(spritebox),
-        widget_get_width((Widget *)spritebox),
-        widget_get_height((Widget *)spritebox)
+        spritebox->spritesheet_x,
+        spritebox->spritesheet_y,
+        spritebox->widget.width,
+        spritebox->widget.height
     };
     SDL_FRect dst_rect = {
-        widget_get_x((Widget *)spritebox),
-        widget_get_y((Widget *)spritebox),
-        widget_get_width((Widget *)spritebox),
-        widget_get_height((Widget *)spritebox)
+        spritebox->widget.pos.x,
+        spritebox->widget.pos.y,
+        spritebox->widget.width,
+        spritebox->widget.height
     };
-    SDL_RenderTexture(renderer, spritebox_get_spritesheet(spritebox), &src_rect, &dst_rect);
+    SDL_RenderTexture(renderer, spritebox->p_spritesheet, &src_rect, &dst_rect);
 }
 
 void render_button(SDL_Renderer *renderer, Button *button){
-    if (!widget_is_visible((Widget *)button)) {return;}
+    if (!button->widget.visible) {return;}
     int rel_offset_x, rel_offset_y;
-    int b_width = widget_get_width((Widget *)button);
-    int b_height = widget_get_height((Widget *)button);
     SDL_FRect dst_rect = {
-        widget_get_x((Widget *)button),
-        widget_get_y((Widget *)button),
-        b_width,
-        b_height
+        button->widget.pos.x,
+        button->widget.pos.y,
+        button->widget.width,
+        button->widget.height
     };
-    printf("x: %f, y: %f, w: %d, h: %d\n", 
-        widget_get_x((Widget *)button),
-        widget_get_y((Widget *)button),
-        widget_get_width((Widget *)button),
-        widget_get_height((Widget *)button)
-    );
     switch (button_get_state(button)) {
         case (_BUTTON_STATE_NONE):
             break;
@@ -106,19 +97,19 @@ void render_button(SDL_Renderer *renderer, Button *button){
             break;
     }
     SDL_FRect src_rect = {
-        (rel_offset_x)*(b_width + 2),
-        (rel_offset_y)*(b_height + 2),
-        b_width,
-        b_height
+        (rel_offset_x)*(button->widget.width + 2),
+        (rel_offset_y)*(button->widget.height + 2),
+        button->widget.width,
+        button->widget.height
     };
-    SDL_RenderTexture(renderer, button_get_spritesheet(button), &src_rect, &dst_rect);
+    SDL_RenderTexture(renderer, button->p_spritesheet, &src_rect, &dst_rect);
 }
 
 void render_widgets(SDL_Renderer *renderer, Container *root){
     Widget** children = container_get_children(root);
     for (int i = 0; i < arrlen(children); i++){
         if (children[i] == NULL) {return;}
-        switch(widget_get_type(children[i])){
+        switch(children[i]->wtype){
             case WIDGET_CONTAINER:
                 render_widgets(renderer, (Container *)children[i]);
                 break;
@@ -138,57 +129,52 @@ void render_widgets(SDL_Renderer *renderer, Container *root){
 }
 
 void render_card(SDL_Renderer *renderer, texture_hash *texture_map, Card *card){
-    if (!obj_is_visible((GameObject *)card)) {return;}
+    if (!card->obj.visible) {return;}
     SDL_FRect dst_rect = {
-        obj_get_x((GameObject *)card),
-        obj_get_y((GameObject *)card),
-        obj_get_width((GameObject *)card),
-        obj_get_height((GameObject *)card)
+        card->obj.pos.x,
+        card->obj.pos.y,
+        card->obj.width,
+        card->obj.height
     };
     int rel_offset_x = 0, rel_offset_y = 0;
-    if (card_is_face_down(card)){
+    if (card->face_down){
         rel_offset_x = 0;
         rel_offset_y = 4;
     }
     else {
-        char crank = card_get_rank(card);
-        char csuit = card_get_suit(card);
         for (int i=0; i<13; i++){
-            if (crank == RANKS[i]){
+            if (card->rank == RANKS[i]){
                 rel_offset_x = i;
                 break;
             }
         }
         for (int j=0; j<4; j++){
-            if (csuit == SUITS[j]){
-                rel_offset_y=j;
+            if (card->suit == SUITS[j]){
+                rel_offset_y = j;
                 break;
             }
         }
     }
     SDL_FRect src_rect = {
-        rel_offset_x*(CARD_WIDTH + 2),
-        rel_offset_y*(CARD_HEIGHT + 2),
-        CARD_WIDTH,
-        CARD_HEIGHT
+        rel_offset_x*(card->obj.width + 2),
+        rel_offset_y*(card->obj.height + 2),
+        card->obj.width,
+        card->obj.height
     };
     SDL_RenderTexture(renderer, hmget(texture_map, TEXTURE_ID_CARD_SPRITESHEET), &src_rect, &dst_rect);
 }
 
-void render_game_objects(SDL_Renderer *renderer, texture_hash* texture_map, Game_Context *gc){
-    Deck *deck = gc_get_deck(gc);
-    Dealer *dealer = gc_get_dealer(gc);
-    Player *player = gc_get_player(gc);
-    int deck_card_count = deck_get_card_count(deck);
+void render_game_objects(SDL_Renderer *renderer, texture_hash* texture_map, Game_Context *game_ctx){
+    int deck_card_count = deck_get_card_count(game_ctx->deck);
     for (int i = 0; i < deck_card_count; i++){
-        render_card(renderer, texture_map, deck_get_card_i(deck, i));
+        render_card(renderer, texture_map, game_ctx->deck->arr[i]);
     }
-    Card** player_hand = game_player_get_hand(player);
-    for (int i = 0; i < game_player_get_cards_in_hand(player); i++){
+    Card** player_hand = game_player_get_hand(game_ctx->player);
+    for (int i = 0; i < game_player_get_cards_in_hand(game_ctx->player); i++){
         render_card(renderer, texture_map, player_hand[i]);
     }
-    Card** dealer_hand = game_dealer_get_hand(dealer);
-    for (int i = 0; i < game_dealer_get_cards_in_hand(dealer); i++){
+    Card** dealer_hand = game_dealer_get_hand(game_ctx->dealer);
+    for (int i = 0; i < game_dealer_get_cards_in_hand(game_ctx->dealer); i++){
         render_card(renderer, texture_map, dealer_hand[i]);
     }
 }

@@ -3,9 +3,12 @@
 #include <SDL3/SDL.h>
 #include <stdbool.h>
 #include "widget.h"
-#include "../event/event.h"
+#include "../event/event_types.h"
 
-typedef struct Container Container;
+typedef struct Container {
+    Widget widget;
+    Widget** children;
+} Container;
 
 Container* container_create(
     float x, float y, 
@@ -20,5 +23,3 @@ Widget** container_get_children(Container *p_container);
 
 void container_add_widget(Container *p_container, Widget *p_widget);
 Widget* container_remove_widget(Container *p_container, Widget *p_widget);
-
-Event container_notify_cards(Widget *self, Event event);

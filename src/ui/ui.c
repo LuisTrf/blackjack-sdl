@@ -88,7 +88,7 @@ Container* ui_root_initialize(texture_hash *texture_map, Input_Context *ic, Even
 void widgets_teardown(Container *root){
     Widget** children = container_get_children(root);
     for (int i = 0; i < arrlen(children); i++){
-        switch(widget_get_type(children[i])){
+        switch(children[i]->wtype){
             case WIDGET_CONTAINER:
                 widgets_teardown((Container *)children[i]);
                 break;

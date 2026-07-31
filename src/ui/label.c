@@ -1,6 +1,6 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <stdlib.h>
-#include "../../include/ui/label_internal.h"
+#include "../../include/ui/label.h"
 
 /*
 Label player_money_label = {{PLAYER_MONEY_LABEL_X, PLAYER_MONEY_LABEL_Y, 0, 0, true}, NULL, NULL, FONT_SIZE, 
