@@ -19,4 +19,4 @@ typedef struct texture_hash_t {
 
 texture_hash* texture_map_create(SDL_Renderer *renderer);
 void texture_map_destroy(texture_hash* texture_map);
-void render(App_State *as);
+void render(AppState *as);

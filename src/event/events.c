@@ -6,7 +6,7 @@
 #include "../../include/event/event.h"
 
 Event common_event_create(EventType event_type){
-    Common_Event ce = {.type = event_type};
+    CommonEvent ce = {.type = event_type};
     Event e = {.common = ce};
     return e;
 }
@@ -25,10 +25,10 @@ EventQueue* event_queue_create(int size){
     return p_queue;
 }
 
-void event_queue_destroy(EventQueue *p_queue){
-    free(p_queue->arr);
-    p_queue->arr = NULL;
-    free(p_queue);
+void event_queue_destroy(EventQueue *queue){
+    free(queue->arr);
+    queue->arr = NULL;
+    free(queue);
 }
 
 bool event_queue_full(EventQueue *queue){
@@ -52,7 +52,7 @@ bool event_queue_empty(EventQueue *queue){
     }
 }
 
-void enqueue_event(EventQueue *queue, Event event){
+void event_enqueue(EventQueue *queue, Event event){
     if (event_queue_full(queue)){
         fprintf(stderr, "EVENT QUEUE OVERFLOW!");
         return;
@@ -68,7 +68,7 @@ void enqueue_event(EventQueue *queue, Event event){
     }
 }
 
-Event dequeue_event(EventQueue *queue){
+Event event_dequeue(EventQueue *queue){
     if (event_queue_empty(queue)){
         fprintf(stderr, "EVENT QUEUE UNDERFLOW!");
         return NULL_EVENT;
@@ -94,36 +94,36 @@ bool event_is_null(Event event){
     }
 }
 
-Event_Context* event_context_create(void){
+EventContext* event_context_create(void){
     EventQueue *queue = event_queue_create(32);
-    Event_Context ec = {queue, NULL};
-    Event_Context *p_ec = malloc(sizeof(Event_Context));
-    if (p_ec == NULL){
+    EventContext event_ctx = {queue, NULL};
+    EventContext *p_event_ctx = malloc(sizeof(EventContext));
+    if (p_event_ctx == NULL){
         abort();
     }
-    *p_ec = ec;
-    return p_ec;
+    *p_event_ctx = event_ctx;
+    return p_event_ctx;
 }
 
-void event_context_destroy(Event_Context *ec){
-    event_queue_destroy(ec->queue);
-    ec->queue = NULL;
-    arrfree(ec->event_widget_listeners);
-    ec->event_widget_listeners = NULL;
-    free(ec);
+void event_context_destroy(EventContext *event_ctx){
+    event_queue_destroy(event_ctx->queue);
+    event_ctx->queue = NULL;
+    arrfree(event_ctx->event_widget_listeners);
+    event_ctx->event_widget_listeners = NULL;
+    free(event_ctx);
 }
 
-void ec_widget_listeners_notify_all(Event_Context *ec, Event event){
-    for (int i = 0; i < arrlen(ec->event_widget_listeners); i++){
-        Event e = widget_notify(ec->event_widget_listeners[i], event);
+void event_ctx_widget_listeners_notify_all(EventContext *event_ctx, Event event){
+    for (int i = 0; i < arrlen(event_ctx->event_widget_listeners); i++){
+        Event e = widget_notify(event_ctx->event_widget_listeners[i], event);
         if (!event_is_null(e)){
-            enqueue_event(ec->queue, e);
+            event_enqueue(event_ctx->queue, e);
         }
     }
 }
 
-void ec_widget_listener_register(Event_Context *ec, Widget *widget){
-    arrput(ec->event_widget_listeners, widget);
+void event_ctx_widget_listener_register(EventContext *event_ctx, Widget *widget){
+    arrput(event_ctx->event_widget_listeners, widget);
 }
 
 /*

@@ -11,15 +11,15 @@
 #include "update/animation.h"
 #include "ui/ui.h"
 
-typedef struct App_State {
+typedef struct AppState {
     SDL_Window *window;
     SDL_Renderer *renderer;
-    Input_Context *ic;
-    Update_Context *uc;
+    InputContext *input_ctx;
+    UpdateContext *update_ctx;
     texture_hash* texture_map;
-    Game_Context *gc;
-    Event_Context *ec;
-    Animation_Context *ac;
-    UI_Context *uic;
+    GameContext *game_ctx;
+    EventContext *event_ctx;
+    AnimationContext *anim_ctx;
+    UIContext *ui_ctx;
     bool should_quit;
-} App_State;
+} AppState;

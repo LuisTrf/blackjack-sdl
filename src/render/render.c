@@ -43,15 +43,15 @@ void texture_map_destroy(texture_hash* texture_map){
     hmfree(texture_map);
 }
 
-void render_picbox(SDL_Renderer *renderer, PictureBox *picbox){
-    if (!picbox->widget.visible) {return;}
+void render_picturebox(SDL_Renderer *renderer, PictureBox *picturebox){
+    if (!picturebox->widget.visible) {return;}
     SDL_FRect dst_rect = {
-        picbox->widget.pos.x,
-        picbox->widget.pos.y,
-        picbox->widget.width,
-        picbox->widget.height
+        picturebox->widget.pos.x,
+        picturebox->widget.pos.y,
+        picturebox->widget.width,
+        picturebox->widget.height
     };
-    SDL_RenderTexture(renderer, picbox->p_texture, NULL, &dst_rect);
+    SDL_RenderTexture(renderer, picturebox->texture, NULL, &dst_rect);
 }
 
 void render_spritebox(SDL_Renderer *renderer, SpriteBox *spritebox){
@@ -68,7 +68,7 @@ void render_spritebox(SDL_Renderer *renderer, SpriteBox *spritebox){
         spritebox->widget.width,
         spritebox->widget.height
     };
-    SDL_RenderTexture(renderer, spritebox->p_spritesheet, &src_rect, &dst_rect);
+    SDL_RenderTexture(renderer, spritebox->spritesheet, &src_rect, &dst_rect);
 }
 
 void render_button(SDL_Renderer *renderer, Button *button){
@@ -102,7 +102,7 @@ void render_button(SDL_Renderer *renderer, Button *button){
         button->widget.width,
         button->widget.height
     };
-    SDL_RenderTexture(renderer, button->p_spritesheet, &src_rect, &dst_rect);
+    SDL_RenderTexture(renderer, button->spritesheet, &src_rect, &dst_rect);
 }
 
 void render_widgets(SDL_Renderer *renderer, Container *root){
@@ -114,7 +114,7 @@ void render_widgets(SDL_Renderer *renderer, Container *root){
                 render_widgets(renderer, (Container *)children[i]);
                 break;
             case WIDGET_PICBOX:
-                render_picbox(renderer, (PictureBox *)children[i]);
+                render_picturebox(renderer, (PictureBox *)children[i]);
                 break;
             case WIDGET_SPRITEBOX:
                 render_spritebox(renderer, (SpriteBox *)children[i]);
@@ -164,25 +164,27 @@ void render_card(SDL_Renderer *renderer, texture_hash *texture_map, Card *card){
     SDL_RenderTexture(renderer, hmget(texture_map, TEXTURE_ID_CARD_SPRITESHEET), &src_rect, &dst_rect);
 }
 
-void render_game_objects(SDL_Renderer *renderer, texture_hash* texture_map, Game_Context *game_ctx){
+void render_cards(SDL_Renderer *renderer, texture_hash* texture_map, GameContext *game_ctx){
     int deck_card_count = deck_get_card_count(game_ctx->deck);
     for (int i = 0; i < deck_card_count; i++){
         render_card(renderer, texture_map, game_ctx->deck->arr[i]);
     }
-    Card** player_hand = game_player_get_hand(game_ctx->player);
-    for (int i = 0; i < game_player_get_cards_in_hand(game_ctx->player); i++){
-        render_card(renderer, texture_map, player_hand[i]);
+    for (int i = 0; i < game_ctx->player->cards_in_hand; i++){
+        render_card(renderer, texture_map, game_ctx->player->hand[i]);
     }
-    Card** dealer_hand = game_dealer_get_hand(game_ctx->dealer);
-    for (int i = 0; i < game_dealer_get_cards_in_hand(game_ctx->dealer); i++){
-        render_card(renderer, texture_map, dealer_hand[i]);
+    for (int i = 0; i < game_ctx->dealer->cards_in_hand; i++){
+        render_card(renderer, texture_map, game_ctx->dealer->hand[i]);
     }
 }
 
-void render(App_State *as){
-    SDL_RenderTexture(as->renderer, hmget(as->texture_map, TEXTURE_ID_BACKGROUND), NULL, NULL);
-    render_game_objects(as->renderer, as->texture_map, as->gc);
-    render_widgets(as->renderer, as->uic->root);
+void render(AppState *as){
+    SDL_RenderTexture(
+        as->renderer, 
+        hmget(as->texture_map, TEXTURE_ID_BACKGROUND), 
+        NULL, 
+        NULL);
+    render_cards(as->renderer, as->texture_map, as->game_ctx);
+    render_widgets(as->renderer, as->ui_ctx->root);
     SDL_RenderPresent(as->renderer);
 }
 

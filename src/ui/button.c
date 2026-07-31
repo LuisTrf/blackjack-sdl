@@ -69,7 +69,7 @@ Button* button_create(
         .release_event=NULL_EVENT, 
         ._state=button_state_initial, 
         ._prev_state=_BUTTON_STATE_NONE, 
-        .p_spritesheet=spritesheet, 
+        .spritesheet=spritesheet, 
     };
     Button *p_button = malloc(sizeof(Button));
     if (p_button == NULL){
@@ -81,14 +81,14 @@ Button* button_create(
     return p_button;
 }
 
-Button_Context* button_context_create(void){
-    Button_Context bc = {NULL};
-    Button_Context *p_bc = malloc(sizeof(Button_Context));
-    if (p_bc == NULL){
+ButtonContext* button_context_create(void){
+    ButtonContext button_ctx = {NULL};
+    ButtonContext *p_button_ctx = malloc(sizeof(ButtonContext));
+    if (p_button_ctx == NULL){
         abort();
     }
-    *p_bc = bc;
-    return p_bc;
+    *p_button_ctx = button_ctx;
+    return p_button_ctx;
 }
 
 void button_destroy(Button *p_button){
@@ -96,10 +96,10 @@ void button_destroy(Button *p_button){
     p_button = NULL;
 }
 
-void button_context_destroy(Button_Context *p_bc){
-    arrfree(p_bc->moveb_refs);
-    p_bc->moveb_refs = NULL;
-    free(p_bc);
+void button_context_destroy(ButtonContext *button_ctx){
+    arrfree(button_ctx->moveb_refs);
+    button_ctx->moveb_refs = NULL;
+    free(button_ctx);
 }
 
 Event button_get_release_event(Button *button){
@@ -125,33 +125,33 @@ void button_restore_prev_state(Button *button){
     button->_prev_state = temp;
 }
 
-void bc_register_move_button(Button_Context *p_bc, Button *button){
-    arrput(p_bc->moveb_refs, button);
+void button_ctx_register_move_button(ButtonContext *button_ctx, Button *button){
+    arrput(button_ctx->moveb_refs, button);
 }
 
-int bc_get_visible_move_buttons(Button_Context *p_bc){
+int button_ctx_get_visible_move_buttons(ButtonContext *button_ctx){
     int visible_move_button_count = 0;
-    for (int i = 0; i < arrlen(p_bc->moveb_refs); i++){
-        if (p_bc->moveb_refs[i]->widget.visible){
+    for (int i = 0; i < arrlen(button_ctx->moveb_refs); i++){
+        if (button_ctx->moveb_refs[i]->widget.visible){
             visible_move_button_count++;
         }
     }
     return visible_move_button_count;
 }
 
-void bc_update_move_button_positions_from_visibilities(Button_Context *p_bc){
-    int visible_move_button_count = bc_get_visible_move_buttons(p_bc);
+void button_ctx_reposition_visible_move_buttons(ButtonContext *button_ctx){
+    int visible_move_button_count = button_ctx_get_visible_move_buttons(button_ctx);
     int remaining_visible_move_button_count = visible_move_button_count;
-    for (int i = 0; i < arrlen(p_bc->moveb_refs); i++){
-        if (p_bc->moveb_refs[i]->widget.visible){
-            p_bc->moveb_refs[i]->widget.pos.x = 
+    for (int i = 0; i < arrlen(button_ctx->moveb_refs); i++){
+        if (button_ctx->moveb_refs[i]->widget.visible){
+            button_ctx->moveb_refs[i]->widget.pos.x = 
                 MOVE_BUTTON_ORIGIN_X
                 + 0.5f * (visible_move_button_count - 1) * MOVE_BUTTON_WIDTH
                 - 0.5f * (remaining_visible_move_button_count - 1) * (MOVE_BUTTON_STEP_X + MOVE_BUTTON_WIDTH);
             remaining_visible_move_button_count--;
         }
         else {
-            p_bc->moveb_refs[i]->widget.pos.x = MOVE_BUTTON_ORIGIN_X;
+            button_ctx->moveb_refs[i]->widget.pos.x = MOVE_BUTTON_ORIGIN_X;
         }
     }
 }

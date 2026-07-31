@@ -7,7 +7,7 @@
 
 typedef struct SpriteBox {
     Widget widget;
-    SDL_Texture *p_spritesheet;
+    SDL_Texture *spritesheet;
     int spritesheet_x;
     int spritesheet_y;
 } SpriteBox;
@@ -16,9 +16,9 @@ SpriteBox* spritebox_create(
     float x, float y, 
     int width, int height, 
     bool visible, 
-    SDL_Texture *p_spritesheet, 
+    SDL_Texture *spritesheet, 
     int spritesheet_x, int spritesheet_y,
     Event (*notify_func)(Widget *self, Event event),
-    Event (*input_func)(Widget *self, SDL_Event event)
+    Event (*input_func)(Widget *self, SDL_Event sdl_event)
 );
-void spritebox_destroy(SpriteBox *p_spritebox);
+void spritebox_destroy(SpriteBox *spritebox);

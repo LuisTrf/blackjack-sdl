@@ -1,3 +1,3 @@
 #pragma once
 
-typedef struct Input_Context Input_Context;
+typedef struct InputContext InputContext;

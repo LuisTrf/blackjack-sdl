@@ -1,3 +1,3 @@
 #pragma once
 
-typedef struct Animation_Context Animation_Context;
+typedef struct AnimationContext AnimationContext;

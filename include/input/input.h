@@ -6,13 +6,13 @@
 #include "../event/event.h"
 #include "../app_state.h"
 
-typedef struct Input_Context {
+typedef struct InputContext {
     Widget** input_widget_listeners;
-} Input_Context;
+} InputContext;
 
-Input_Context* input_context_create(void);
-void input_context_destroy(Input_Context *p_ic);
-void ic_widget_listener_register(Input_Context *p_ic, Widget *widget);
-void ic_widget_listener_remove(Input_Context *p_ic, Widget *widget);
-bool input_handle(App_State *as);
-Event input_handle_button_mouse_events(Widget *button, SDL_Event event);
+InputContext* input_context_create(void);
+void input_context_destroy(InputContext *input_ctx);
+void input_ctx_widget_listener_register(InputContext *input_ctx, Widget *widget);
+void input_ctx_widget_listener_remove(InputContext *input_ctx, Widget *widget);
+bool input_handle(AppState *as);
+Event input_handle_button_mouse_events(Widget *button, SDL_Event sdl_event);

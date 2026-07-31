@@ -15,11 +15,11 @@ Container* container_create(
     int width, int height, 
     bool visible, 
     Event (*notify_func)(Widget *self, Event event),
-    Event (*input_func)(Widget *self, SDL_Event event)
+    Event (*input_func)(Widget *self, SDL_Event sdl_event)
 );
-void container_destroy(Container *p_container);
+void container_destroy(Container *container);
 
-Widget** container_get_children(Container *p_container);
+Widget** container_get_children(Container *container);
 
-void container_add_widget(Container *p_container, Widget *p_widget);
-Widget* container_remove_widget(Container *p_container, Widget *p_widget);
+void container_add_widget(Container *container, Widget *widget);
+Widget* container_remove_widget(Container *container, Widget *widget);

@@ -1,3 +1,3 @@
 #pragma once
 
-typedef struct Event_Context Event_Context;
+typedef struct EventContext EventContext;

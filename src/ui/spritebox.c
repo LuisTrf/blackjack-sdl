@@ -7,7 +7,7 @@ SpriteBox* spritebox_create(
     float x, float y, 
     int width, int height, 
     bool visible, 
-    SDL_Texture *p_spritesheet, 
+    SDL_Texture *spritesheet, 
     int spritesheet_x, int spritesheet_y,
     Event (*notify_func)(Widget *self, Event event),
     Event (*input_func)(Widget *self, SDL_Event event)
@@ -22,7 +22,7 @@ SpriteBox* spritebox_create(
             notify_func,
             input_func
         }, 
-        p_spritesheet, 
+        spritesheet, 
         spritesheet_x, 
         spritesheet_y
     };

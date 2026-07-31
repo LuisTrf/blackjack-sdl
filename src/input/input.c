@@ -10,13 +10,13 @@
 #include "../../include/input/input.h"
 #include "../../include/main.h"
 
-bool handle_quit(SDL_Event event){
-    switch(event.type){
+bool handle_quit(SDL_Event sdl_event){
+    switch(sdl_event.type){
         case SDL_EVENT_QUIT:
             return true;
             break;
         case SDL_EVENT_KEY_DOWN:
-            if (event.key.key == SDLK_ESCAPE){
+            if (sdl_event.key.key == SDLK_ESCAPE){
                 return true;
             }
             break;
@@ -24,45 +24,44 @@ bool handle_quit(SDL_Event event){
     return false;
 }
 
-Input_Context* input_context_create(void){
-    Input_Context ic = {NULL};
-    Input_Context *p_ic = malloc(sizeof(Input_Context));
-    if (p_ic == NULL){
+InputContext* input_context_create(void){
+    InputContext input_ctx = {NULL};
+    InputContext *p_input_ctx = malloc(sizeof(InputContext));
+    if (p_input_ctx == NULL){
         abort();
     }
-    *p_ic = ic;
-    return p_ic;
+    *p_input_ctx = input_ctx;
+    return p_input_ctx;
 }
 
-void input_context_destroy(Input_Context *p_ic){
-    arrfree(p_ic->input_widget_listeners);
-    p_ic->input_widget_listeners = NULL;
-    free(p_ic);
-    p_ic = NULL;
+void input_context_destroy(InputContext *input_ctx){
+    arrfree(input_ctx->input_widget_listeners);
+    input_ctx->input_widget_listeners = NULL;
+    free(input_ctx);
 }
 
-void ic_widget_listener_register(Input_Context *p_ic, Widget *widget){
-    arrput(p_ic->input_widget_listeners, widget);
+void input_ctx_widget_listener_register(InputContext *input_ctx, Widget *widget){
+    arrput(input_ctx->input_widget_listeners, widget);
 }
 
-void ic_widget_listener_remove(Input_Context *p_ic, Widget *widget){
-    for (int i = 0; i < arrlen(p_ic->input_widget_listeners); i++){
-        if (p_ic->input_widget_listeners[i] == widget){
-            arrdel(p_ic->input_widget_listeners, i);
+void input_ctx_widget_listener_remove(InputContext *input_ctx, Widget *widget){
+    for (int i = 0; i < arrlen(input_ctx->input_widget_listeners); i++){
+        if (input_ctx->input_widget_listeners[i] == widget){
+            arrdel(input_ctx->input_widget_listeners, i);
         }
     }
 }
 
-void ic_widget_listeners_notify_all(Event_Context *ec, Input_Context* ic, SDL_Event event){;
-    for (int i = 0; i < arrlen(ic->input_widget_listeners); i++){
-        Event e = widget_input(ic->input_widget_listeners[i], event);
+void input_ctx_widget_listeners_notify_all(EventContext *event_ctx, InputContext* input_ctx, SDL_Event sdl_event){;
+    for (int i = 0; i < arrlen(input_ctx->input_widget_listeners); i++){
+        Event e = widget_input(input_ctx->input_widget_listeners[i], sdl_event);
         if (!event_is_null(e)){
-            enqueue_event(ec->queue, e);
+            event_enqueue(event_ctx->queue, e);
         }
     }
 }
 
-Event input_handle_button_mouse_events(Widget *widget, SDL_Event event){
+Event input_handle_button_mouse_events(Widget *widget, SDL_Event sdl_event){
     Button *button = (Button *)widget;
     float x, y;
     float bx = button->widget.pos.x; 
@@ -76,16 +75,16 @@ Event input_handle_button_mouse_events(Widget *widget, SDL_Event event){
         && y < (by + bheight)
     ){
         if (button_get_state(button) != BUTTON_STATE_DISABLED){
-            switch (event.type) {
+            switch (sdl_event.type) {
                 case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                    if (event.button.button == SDL_BUTTON_LEFT){
+                    if (sdl_event.button.button == SDL_BUTTON_LEFT){
                         button_set_state(button, BUTTON_STATE_PRESSED);
                     }
                     break;
                 case SDL_EVENT_MOUSE_BUTTON_UP:
                     if (
                         button_get_state(button) == BUTTON_STATE_PRESSED 
-                        && event.button.button == SDL_BUTTON_LEFT
+                        && sdl_event.button.button == SDL_BUTTON_LEFT
                     )
                     {
                         button_restore_prev_state(button);
@@ -108,15 +107,15 @@ Event input_handle_button_mouse_events(Widget *widget, SDL_Event event){
     return NULL_EVENT;
 }
 
-bool input_handle(App_State *as){
+bool input_handle(AppState *as){
     bool should_quit = false;
-    SDL_Event event;
-    while (SDL_PollEvent(&event)){
-        should_quit = handle_quit(event);
-        ic_widget_listeners_notify_all(
-            as->ec, 
-            as->ic,
-            event
+    SDL_Event sdl_event;
+    while (SDL_PollEvent(&sdl_event)){
+        should_quit = handle_quit(sdl_event);
+        input_ctx_widget_listeners_notify_all(
+            as->event_ctx, 
+            as->input_ctx,
+            sdl_event
         );
     }
     return should_quit;

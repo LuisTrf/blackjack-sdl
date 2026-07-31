@@ -34,10 +34,10 @@ typedef struct AnimationQueue {
     Animation* arr;
 } AnimationQueue;
 
-typedef struct Animation_Context {
+typedef struct AnimationContext {
     AnimationQueue *queue;
     Animation *playing_blocking_anim;
-} Animation_Context;
+} AnimationContext;
 
 Animation animation_create(vec2 *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time));
 AnimationQueue* anim_queue_create(int size);
@@ -47,10 +47,11 @@ bool anim_queue_empty(AnimationQueue *queue);
 void enqueue_anim(AnimationQueue *queue, Animation anim);
 Animation dequeue_anim(AnimationQueue *queue);
 bool anim_is_null(Animation anim);
+
 Event animation_draw_card(Animation *self, float delta_time);
 
-Animation_Context* animation_context_create(void);
-void animation_context_destroy(Animation_Context *p_ac);
+AnimationContext* animation_context_create(void);
+void animation_context_destroy(AnimationContext *anim_ctx);
 
-void animate_from_queue(Animation_Context *p_ac, Event_Context *p_ec, float delta_time);
-void animate(App_State *as);
+void animate_from_queue(AnimationContext *anim_ctx, EventContext *event_ctx, float delta_time);
+void animate(AppState *as);

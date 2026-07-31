@@ -33,28 +33,28 @@ void anim_queue_destroy(AnimationQueue *p_queue){
     free(p_queue);
 }
 
-Animation_Context* animation_context_create(void){
+AnimationContext* animation_context_create(void){
     AnimationQueue *queue = anim_queue_create(16);
     Animation *p_anim = malloc(sizeof(Animation));
     if (p_anim == NULL){
         abort();
     }
     *p_anim = NULL_ANIMATION;
-    Animation_Context ac = {queue, p_anim};
-    Animation_Context *p_ac = malloc(sizeof(Animation_Context));
-    if (p_ac == NULL){
+    AnimationContext anim_ctx = {queue, p_anim};
+    AnimationContext *p_anim_ctx = malloc(sizeof(AnimationContext));
+    if (p_anim_ctx == NULL){
         abort();
     }
-    *p_ac = ac;
-    return p_ac;
+    *p_anim_ctx = anim_ctx;
+    return p_anim_ctx;
 }
 
-void animation_context_destroy(Animation_Context *p_ac){
-    free(p_ac->playing_blocking_anim);
-    p_ac->playing_blocking_anim = NULL;
-    anim_queue_destroy(p_ac->queue);
-    p_ac->queue = NULL;
-    free(p_ac);
+void animation_context_destroy(AnimationContext *anim_ctx){
+    free(anim_ctx->playing_blocking_anim);
+    anim_ctx->playing_blocking_anim = NULL;
+    anim_queue_destroy(anim_ctx->queue);
+    anim_ctx->queue = NULL;
+    free(anim_ctx);
 }
 
 bool anim_queue_full(AnimationQueue *queue){
@@ -178,28 +178,28 @@ Event animation_draw_card(Animation *self, float delta_time){
     return NULL_EVENT;
 }
 
-void animate_from_queue(Animation_Context *p_ac, Event_Context *p_ec, float delta_time){
-    if (!anim_queue_empty(p_ac->queue) && anim_is_null(*p_ac->playing_blocking_anim)){
-        *p_ac->playing_blocking_anim = dequeue_anim(p_ac->queue);
-        p_ac->playing_blocking_anim->state = ANIMATION_STATE_PLAYING;
+void animate_from_queue(AnimationContext *anim_ctx, EventContext *event_ctx, float delta_time){
+    if (!anim_queue_empty(anim_ctx->queue) && anim_is_null(*anim_ctx->playing_blocking_anim)){
+        *anim_ctx->playing_blocking_anim = dequeue_anim(anim_ctx->queue);
+        anim_ctx->playing_blocking_anim->state = ANIMATION_STATE_PLAYING;
     }
-    else if (!anim_is_null(*p_ac->playing_blocking_anim)){
-        if (p_ac->playing_blocking_anim->state == ANIMATION_STATE_COMPLETED){
-            *p_ac->playing_blocking_anim = NULL_ANIMATION;
-            if (anim_queue_empty(p_ac->queue)){
+    else if (!anim_is_null(*anim_ctx->playing_blocking_anim)){
+        if (anim_ctx->playing_blocking_anim->state == ANIMATION_STATE_COMPLETED){
+            *anim_ctx->playing_blocking_anim = NULL_ANIMATION;
+            if (anim_queue_empty(anim_ctx->queue)){
                 Event event = common_event_create(EVENT_ANIM_QUEUE_FINISHED);
-                enqueue_event(p_ec->queue, event);
+                event_enqueue(event_ctx->queue, event);
             }
         }
         else{
-            p_ac->playing_blocking_anim->anim_func(
-                p_ac->playing_blocking_anim,
+            anim_ctx->playing_blocking_anim->anim_func(
+                anim_ctx->playing_blocking_anim,
                 delta_time
             );
         }
     }
 }
 
-void animate(App_State *as){
+void animate(AppState *as){
     
 }

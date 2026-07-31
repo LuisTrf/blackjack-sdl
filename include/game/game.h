@@ -66,53 +66,41 @@ typedef struct Dealer{
     unsigned char aces_in_hand_worth_11;
 } Dealer;
 
-typedef struct Game_Context {
+typedef struct GameContext {
     GAME_STATE game_state;
     GAME_STATE prev_game_state;
     Deck *deck;
     Player *player;
     Dealer *dealer;
-} Game_Context;
+} GameContext;
 
-Game_Context* game_context_create(void);
-void game_context_destroy(Game_Context *p_gc);
-GAME_STATE game_context_get_game_state(Game_Context *p_gc);
-GAME_STATE game_context_get_prev_game_state(Game_Context *p_gc);
-void game_context_set_game_state(Game_Context *p_gc, GAME_STATE state);
-void game_reset(Game_Context *p_gc);
+GameContext* game_context_create(void);
+void game_context_destroy(GameContext *game_ctx);
+GAME_STATE game_context_get_game_state(GameContext *game_ctx);
+GAME_STATE game_context_get_prev_game_state(GameContext *game_ctx);
+void game_context_set_game_state(GameContext *game_ctx, GAME_STATE state);
+void game_reset(GameContext *game_ctx);
 
-void game_shuffle_deck(Deck *deck);
-Card* game_draw_random_card(Deck *deck);
+void deck_shuffle(Deck *deck);
 int deck_get_card_count(Deck *deck);
 
-bool game_dealer_bust(Dealer *dealer);
-bool game_dealer_is_blackjack(Dealer *dealer);
-bool game_dealer_can_hit(Dealer *dealer);
-bool game_dealer_is_hiding_second_card(Dealer *dealer);
-void game_dealer_reveal_second_card(Dealer *dealer);
-Card* game_dealer_hit(Deck* deck, Dealer *dealer);
-Card** game_dealer_get_hand(Dealer *dealer);
-int game_dealer_get_hand_value(Dealer *dealer);
-int game_dealer_get_cards_in_hand(Dealer *dealer);
-bool game_can_insure(Dealer *dealer);
+bool dealer_bust(Dealer *dealer);
+bool dealer_is_blackjack(Dealer *dealer);
+bool dealer_can_hit(Dealer *dealer);
+bool dealer_is_hiding_second_card(Dealer *dealer);
+void dealer_reveal_second_card(Dealer *dealer);
+Card* dealer_hit(Deck* deck, Dealer *dealer);
+Card** dealer_get_hand(Dealer *dealer);
+bool can_insure(Dealer *dealer);
 
-bool game_player_bust(Player *player);
-bool game_player_is_blackjack(Player *player);
-bool game_player_can_hit(Player *player);
-Card* game_player_hit(Deck *deck, Player *player);
-Card** game_player_get_hand(Player *player);
-int game_player_get_hand_value(Player *player);
-int game_player_get_cards_in_hand(Player *player);
-float game_player_get_money(Player *player);
-float game_player_get_bet(Player *player);
-bool game_player_is_bet_history_empty(Player *player);
-bool game_player_is_bet_history_full(Player *player);
-bool game_player_bet_push(Player *player, CHIP_VALUE val);
-CHIP_VALUE game_player_bet_pop(Player *player);
-CHIP_VALUE game_player_bet_peek(Player *player);
-void game_player_add_money_to_bet(Player *player, float money);
-void game_player_sub_money_from_bet(Player *player, float money);
-void game_player_add_money(Player *player, float money);
-void game_player_sub_money(Player *player, float money);
-bool game_player_can_bet(Player *player);
-bool game_player_can_double_down(Player *player);
+bool player_bust(Player *player);
+bool player_is_blackjack(Player *player);
+bool player_can_hit(Player *player);
+Card* player_hit(Deck *deck, Player *player);
+bool player_is_bet_history_empty(Player *player);
+bool player_is_bet_history_full(Player *player);
+bool player_bet_push(Player *player, CHIP_VALUE val);
+CHIP_VALUE player_bet_pop(Player *player);
+CHIP_VALUE player_bet_peek(Player *player);
+bool player_can_bet(Player *player);
+bool player_can_double_down(Player *player);

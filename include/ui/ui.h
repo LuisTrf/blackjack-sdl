@@ -7,10 +7,10 @@
 #include "../input/input_context.h"
 #include "../event/event_context.h"
 
-typedef struct UI_Context {
+typedef struct UIContext {
     Container *root;
-    Button_Context *bc;
-} UI_Context;
+    ButtonContext *button_ctx;
+} UIContext;
 
-UI_Context* ui_context_create(texture_hash *texture_map, Input_Context *ic, Event_Context *ec);
-void ui_context_destroy(UI_Context *uic);
+UIContext* ui_context_create(texture_hash *texture_map, InputContext *input_ctx, EventContext *event_ctx);
+void ui_context_destroy(UIContext *ui_ctx);

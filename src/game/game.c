@@ -16,7 +16,7 @@ const char SUITS[4] = {'C', 'D', 'H', 'S'};
 const char RANKS[13] = {'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'};
 const int RANK_VALUES[13] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11};
 
-Player* game_player_create(void){
+Player* player_create(void){
     Player player = {
         {NULL}, 
         0, 
@@ -35,11 +35,11 @@ Player* game_player_create(void){
     return p_player;
 }
 
-void game_player_destroy(Player *p_player){
-    free(p_player);
+void player_destroy(Player *player){
+    free(player);
 }
 
-Dealer* game_dealer_create(void){
+Dealer* dealer_create(void){
     Dealer dealer = {
         {NULL},
         0,
@@ -54,11 +54,11 @@ Dealer* game_dealer_create(void){
     return p_dealer;
 }
 
-void game_dealer_destroy(Dealer *p_dealer){
-    free(p_dealer);
+void dealer_destroy(Dealer *dealer){
+    free(dealer);
 }
 
-Deck* game_deck_create(void){
+Deck* deck_create(void){
     Card** arr = calloc(52, sizeof(Card));
     if (arr == NULL){
         abort();
@@ -99,7 +99,7 @@ Deck* game_deck_create(void){
     return p_deck;
 }
 
-void game_deck_destroy(Deck* deck){
+void deck_destroy(Deck* deck){
     for (int i=0; i<52; i++){
         free(deck->arr[i]);
         deck->arr[i] = NULL;
@@ -107,56 +107,50 @@ void game_deck_destroy(Deck* deck){
     free(deck);
 }
 
-int deck_get_card_count(Deck *deck){return (deck->top + 1);}
-Card* deck_get_card_i(Deck *deck, int i){
-    if (-1 < i && i < 52){
-        return deck->arr[i];
-    }
-    else {
-        return NULL;
-    }
+int deck_get_card_count(Deck *deck){
+    return (deck->top + 1);
 }
 
-Game_Context* game_context_create(void){
-    Game_Context gc = {
+GameContext* game_context_create(void){
+    GameContext game_ctx = {
         GAME_STATE_NEW,
         _GAME_STATE_NONE,
-        game_deck_create(),
-        game_player_create(),
-        game_dealer_create(),
+        deck_create(),
+        player_create(),
+        dealer_create(),
     };
-    Game_Context *p_gc = malloc(sizeof(Game_Context));
-    if (p_gc == NULL){
+    GameContext *p_game_ctx = malloc(sizeof(GameContext));
+    if (p_game_ctx == NULL){
         abort();
     }
-    *p_gc = gc;
-    return p_gc;
+    *p_game_ctx = game_ctx;
+    return p_game_ctx;
 }
 
-void game_context_destroy(Game_Context *p_gc){
-    game_deck_destroy(p_gc->deck);
-    p_gc->deck = NULL;
-    game_player_destroy(p_gc->player);
-    p_gc->player = NULL;
-    game_dealer_destroy(p_gc->dealer);
-    p_gc->dealer = NULL;
-    free(p_gc);
+void game_context_destroy(GameContext *game_ctx){
+    deck_destroy(game_ctx->deck);
+    game_ctx->deck = NULL;
+    player_destroy(game_ctx->player);
+    game_ctx->player = NULL;
+    dealer_destroy(game_ctx->dealer);
+    game_ctx->dealer = NULL;
+    free(game_ctx);
 }
 
-GAME_STATE game_context_get_game_state(Game_Context *p_gc){
-    return p_gc->game_state;
+GAME_STATE game_context_get_game_state(GameContext *game_ctx){
+    return game_ctx->game_state;
 }
 
-GAME_STATE game_context_get_prev_game_state(Game_Context *p_gc){
-    return p_gc->prev_game_state;
+GAME_STATE game_context_get_prev_game_state(GameContext *game_ctx){
+    return game_ctx->prev_game_state;
 }
 
-void game_context_set_game_state(Game_Context *p_gc, GAME_STATE state){
-    p_gc->prev_game_state=p_gc->game_state;
-    p_gc->game_state=state;
+void game_context_set_game_state(GameContext *game_ctx, GAME_STATE state){
+    game_ctx->prev_game_state = game_ctx->game_state;
+    game_ctx->game_state = state;
 }
 
-void game_shuffle_deck(Deck *deck){
+void deck_shuffle(Deck *deck){
     for (int i=deck->top; i>=1; i--){
         int j = rand()%(i+1);
         Card *temp = deck->arr[j];
@@ -169,23 +163,23 @@ void game_shuffle_deck(Deck *deck){
     }
 }
 
-bool game_is_deck_empty(Deck *deck){
+bool is_deck_empty(Deck *deck){
     return (deck->top == -1);
 }
 
-bool game_is_deck_full(Deck *deck){
+bool is_deck_full(Deck *deck){
     return (deck->top == 51);
 }
 
-void game_deck_push(Deck *deck, Card *card){
-    if (!game_is_deck_full(deck)){
+void deck_push(Deck *deck, Card *card){
+    if (!is_deck_full(deck)){
         deck->arr[deck->top] = card;
         deck->top++;
     }
 }
 
-Card* game_deck_pop(Deck *deck){
-    if (!game_is_deck_empty(deck)){
+Card* deck_pop(Deck *deck){
+    if (!is_deck_empty(deck)){
         Card* c = deck->arr[deck->top];
         deck->arr[deck->top] = NULL;
         deck->top--;
@@ -196,7 +190,7 @@ Card* game_deck_pop(Deck *deck){
     }
 }
 
-Card* game_draw_random_card(Deck *deck){
+Card* draw_random_card(Deck *deck){
     Card *c;
     do{
         c=deck->arr[rand()%(deck->top+1)];
@@ -204,57 +198,57 @@ Card* game_draw_random_card(Deck *deck){
     return c;
 }
 
-void game_reset(Game_Context *p_gc){
-    for (;p_gc->dealer->cards_in_hand > 0; p_gc->dealer->cards_in_hand--){
-        p_gc->dealer->hand[p_gc->dealer->cards_in_hand-1]->location = CARD_LOCATION_DECK;
-        p_gc->dealer->hand[p_gc->dealer->cards_in_hand-1]->face_down = true;
-        p_gc->dealer->hand[p_gc->dealer->cards_in_hand-1]->obj.pos.x = DECK_ORIGIN_X - (51 - (p_gc->deck->top + 1));
-        p_gc->dealer->hand[p_gc->dealer->cards_in_hand-1]->obj.pos.y = DECK_ORIGIN_Y + (51 - (p_gc->deck->top + 1));
-        game_deck_push(p_gc->deck, p_gc->dealer->hand[p_gc->dealer->cards_in_hand-1]);
-        p_gc->dealer->hand[p_gc->dealer->cards_in_hand-1] = NULL;
+void game_reset(GameContext *game_ctx){
+    for (;game_ctx->dealer->cards_in_hand > 0; game_ctx->dealer->cards_in_hand--){
+        game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]->location = CARD_LOCATION_DECK;
+        game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]->face_down = true;
+        game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]->obj.pos.x = DECK_ORIGIN_X - (51 - deck_get_card_count(game_ctx->deck));
+        game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]->obj.pos.y = DECK_ORIGIN_Y + (51 - deck_get_card_count(game_ctx->deck));
+        deck_push(game_ctx->deck, game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]);
+        game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1] = NULL;
     }
-    p_gc->dealer->hand_value = 0;
-    p_gc->dealer->aces_in_hand_worth_11 = 0;
+    game_ctx->dealer->hand_value = 0;
+    game_ctx->dealer->aces_in_hand_worth_11 = 0;
 
-    for (;p_gc->player->cards_in_hand > 0; p_gc->player->cards_in_hand--){
-        p_gc->player->hand[p_gc->player->cards_in_hand-1]->location = CARD_LOCATION_DECK;
-        p_gc->player->hand[p_gc->player->cards_in_hand-1]->face_down = true;
-        p_gc->player->hand[p_gc->player->cards_in_hand-1]->obj.pos.x = DECK_ORIGIN_X - (51 - (p_gc->deck->top + 1));
-        p_gc->player->hand[p_gc->player->cards_in_hand-1]->obj.pos.y = DECK_ORIGIN_Y + (51 - (p_gc->deck->top + 1));
-        game_deck_push(p_gc->deck, p_gc->player->hand[p_gc->player->cards_in_hand-1]);
-        p_gc->player->hand[p_gc->player->cards_in_hand-1] = NULL;
+    for (;game_ctx->player->cards_in_hand > 0; game_ctx->player->cards_in_hand--){
+        game_ctx->player->hand[game_ctx->player->cards_in_hand-1]->location = CARD_LOCATION_DECK;
+        game_ctx->player->hand[game_ctx->player->cards_in_hand-1]->face_down = true;
+        game_ctx->player->hand[game_ctx->player->cards_in_hand-1]->obj.pos.x = DECK_ORIGIN_X - (51 - deck_get_card_count(game_ctx->deck));
+        game_ctx->player->hand[game_ctx->player->cards_in_hand-1]->obj.pos.y = DECK_ORIGIN_Y + (51 - deck_get_card_count(game_ctx->deck));
+        deck_push(game_ctx->deck, game_ctx->player->hand[game_ctx->player->cards_in_hand-1]);
+        game_ctx->player->hand[game_ctx->player->cards_in_hand-1] = NULL;
     }
-    p_gc->player->hand_value = 0;
-    p_gc->player->aces_in_hand_worth_11 = 0;
-    p_gc->player->bet = 0;
-    p_gc->player->betted_chips = 0;
+    game_ctx->player->hand_value = 0;
+    game_ctx->player->aces_in_hand_worth_11 = 0;
+    game_ctx->player->bet = 0;
+    game_ctx->player->betted_chips = 0;
 }
 
-bool game_dealer_bust(Dealer *dealer){
+bool dealer_bust(Dealer *dealer){
     return dealer->hand_value > 21 ? true : false;
 }
 
-bool game_player_bust(Player *player){
+bool player_bust(Player *player){
     return player->hand_value > 21 ? true : false;
 }
 
-bool game_dealer_is_blackjack(Dealer *dealer){
+bool dealer_is_blackjack(Dealer *dealer){
     return (dealer->hand_value == 21 && dealer->cards_in_hand == 2) ? true : false;
 }
 
-bool game_player_is_blackjack(Player *player){
+bool player_is_blackjack(Player *player){
     return (player->hand_value == 21 && player->cards_in_hand == 2) ? true : false;
 }
 
-bool game_dealer_can_hit(Dealer *dealer){
+bool dealer_can_hit(Dealer *dealer){
     return dealer->cards_in_hand < 10 && dealer->hand_value < 21;
 }
 
-bool game_player_can_hit(Player *player){
+bool player_can_hit(Player *player){
     return player->cards_in_hand < 5 && player->hand_value < 21;
 }
 
-bool game_dealer_is_hiding_second_card(Dealer *dealer){
+bool dealer_is_hiding_second_card(Dealer *dealer){
     if (dealer->hand[1] != NULL){
         return dealer->hand[1]->face_down;
     }
@@ -263,13 +257,13 @@ bool game_dealer_is_hiding_second_card(Dealer *dealer){
     }
 }
 
-void game_dealer_reveal_second_card(Dealer *dealer){
+void dealer_reveal_second_card(Dealer *dealer){
     dealer->hand[1]->face_down=false;
 }
 
-Card* game_dealer_hit(Deck *deck, Dealer *dealer){
-    if (game_dealer_can_hit(dealer)){
-        Card *c = game_deck_pop(deck);
+Card* dealer_hit(Deck *deck, Dealer *dealer){
+    if (dealer_can_hit(dealer)){
+        Card *c = deck_pop(deck);
         c->location=CARD_LOCATION_DEALER_HAND;
 
         dealer->hand[dealer->cards_in_hand] = c;
@@ -291,9 +285,9 @@ Card* game_dealer_hit(Deck *deck, Dealer *dealer){
     }
 }
 
-Card* game_player_hit(Deck *deck, Player *player){
-    if (game_player_can_hit(player)){
-        Card *c = game_deck_pop(deck);
+Card* player_hit(Deck *deck, Player *player){
+    if (player_can_hit(player)){
+        Card *c = deck_pop(deck);
         c->location=CARD_LOCATION_PLAYER_HAND;
         
         player->hand[player->cards_in_hand] = c;
@@ -315,48 +309,16 @@ Card* game_player_hit(Deck *deck, Player *player){
     }
 }
 
-Card** game_dealer_get_hand(Dealer *dealer){
-    return dealer->hand;
-}
-
-Card** game_player_get_hand(Player *player){
-    return player->hand;
-}
-
-int game_dealer_get_hand_value(Dealer *dealer){
-    return dealer->hand_value;
-}
-
-int game_player_get_hand_value(Player *player){
-    return player->hand_value;
-}
-
-int game_player_get_cards_in_hand(Player *player){
-    return player->cards_in_hand;
-}
-
-int game_dealer_get_cards_in_hand(Dealer *dealer){
-    return dealer->cards_in_hand;
-}
-
-float game_player_get_money(Player *player){
-    return player->money;
-}
-
-float game_player_get_bet(Player *player){
-    return player->bet;
-}
-
-bool game_player_is_bet_history_empty(Player *player){
+bool player_is_bet_history_empty(Player *player){
     return (player->betted_chips == 0);
 }
 
-bool game_player_is_bet_history_full(Player *player){
+bool player_is_bet_history_full(Player *player){
     return (player->betted_chips == MAXIMUM_BETTED_CHIPS);
 }
 
 bool game_player_bet_push(Player *player, CHIP_VALUE val){
-    if (!game_player_is_bet_history_full(player)){
+    if (!player_is_bet_history_full(player)){
         player->bet_history[player->betted_chips] = val;
         player->bet += val;
         player->betted_chips++;
@@ -367,8 +329,8 @@ bool game_player_bet_push(Player *player, CHIP_VALUE val){
     }
 }
 
-CHIP_VALUE game_player_bet_pop(Player *player){
-    if (!game_player_is_bet_history_empty(player)){
+CHIP_VALUE player_bet_pop(Player *player){
+    if (!player_is_bet_history_empty(player)){
         player->bet -= player->bet_history[player->betted_chips-1];
         player->betted_chips--;
         return player->bet_history[player->betted_chips];
@@ -378,8 +340,8 @@ CHIP_VALUE game_player_bet_pop(Player *player){
     }
 }
 
-CHIP_VALUE game_player_bet_peek(Player *player){
-    if (!game_player_is_bet_history_empty(player)){
+CHIP_VALUE player_bet_peek(Player *player){
+    if (!player_is_bet_history_empty(player)){
         return player->bet_history[player->betted_chips-1];
     }
     else {
@@ -387,31 +349,15 @@ CHIP_VALUE game_player_bet_peek(Player *player){
     }
 }
 
-void game_player_add_money_to_bet(Player *player, float money){
-    player->bet += money;
+bool player_can_bet(Player *player){
+    return player->money >= CHIP_VALUE_ONE;
 }
 
-void game_player_sub_money_from_bet(Player *player, float money){
-    player->bet -= money;
+bool player_can_double_down(Player *player){
+    return player->money >= player->bet;
 }
 
-void game_player_add_money(Player *player, float money){
-    player->money += money;
-}
-
-void game_player_sub_money(Player *player, float money){
-    player->money -= money;
-}
-
-bool game_player_can_bet(Player *player){
-    return game_player_get_money(player) >= CHIP_VALUE_ONE;
-}
-
-bool game_player_can_double_down(Player *player){
-    return game_player_get_money(player) >= game_player_get_bet(player);
-}
-
-bool game_can_insure(Dealer *dealer){
+bool can_insure(Dealer *dealer){
     if (dealer->hand[0] != NULL){
         return dealer->hand[0]->rank == 'A';
     }

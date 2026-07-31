@@ -54,8 +54,8 @@ void label_destroy(Label *p_label){
 }
 
 void label_update_dimensions(Label *label){
-    TTF_SetFontSize(label->p_font, label->font_size);
-    TTF_GetStringSize(label->p_font, label->txt, 0, &(label->widget.width), &(label->widget.height));
+    TTF_SetFontSize(label->font, label->font_size);
+    TTF_GetStringSize(label->font, label->txt, 0, &(label->widget.width), &(label->widget.height));
 }
 
 void label_align_x(Label *label, float target_x){

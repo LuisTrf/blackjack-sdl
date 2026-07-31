@@ -10,13 +10,13 @@ typedef enum EventType {
     BUTTON_EVENT_RELEASE_STAND,
 } EventType;
 
-typedef struct Common_Event {
+typedef struct CommonEvent {
     EventType type;
-} Common_Event;
+} CommonEvent;
 
 typedef union Event {
     EventType type;
-    Common_Event common;
+    CommonEvent common;
 } Event;
 
 static const Event NULL_EVENT = {.type = EVENT_NONE};

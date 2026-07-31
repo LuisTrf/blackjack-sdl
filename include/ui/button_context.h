@@ -1,3 +1,3 @@
 #pragma once
 
-typedef struct Button_Context Button_Context;
+typedef struct ButtonContext ButtonContext;

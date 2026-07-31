@@ -12,8 +12,8 @@
 #include "../include/constants.h"
 #include "../include/main.h"
 
-App_State* app_state_create(void){
-    App_State as;
+AppState* app_state_create(void){
+    AppState as;
     if (!SDL_Init(SDL_INIT_VIDEO)){
         SDL_Log("Error initializing SDL: %s\n", SDL_GetError());
         exit(1);
@@ -49,15 +49,15 @@ App_State* app_state_create(void){
         SDL_Log("Error initializing SDL_ttf: %s\n", SDL_GetError());
         exit(1);
     }
-    as.ic = input_context_create();
-    as.uc = update_context_create();
+    as.input_ctx = input_context_create();
+    as.update_ctx = update_context_create();
     as.texture_map = texture_map_create(as.renderer);
-    as.gc = game_context_create();
-    as.ec = event_context_create();
-    as.ac = animation_context_create();
-    as.uic = ui_context_create(as.texture_map, as.ic, as.ec);
+    as.game_ctx = game_context_create();
+    as.event_ctx = event_context_create();
+    as.anim_ctx = animation_context_create();
+    as.ui_ctx = ui_context_create(as.texture_map, as.input_ctx, as.event_ctx);
     as.should_quit = false;
-    App_State *p_as = malloc(sizeof(App_State));
+    AppState *p_as = malloc(sizeof(AppState));
     if (p_as == NULL){
         abort();
     }
@@ -65,21 +65,21 @@ App_State* app_state_create(void){
     return p_as;
 }
 
-void app_state_destroy(App_State *as){
-    ui_context_destroy(as->uic);
-    animation_context_destroy(as->ac);
-    event_context_destroy(as->ec);
-    game_context_destroy(as->gc);
+void app_state_destroy(AppState *as){
+    ui_context_destroy(as->ui_ctx);
+    animation_context_destroy(as->anim_ctx);
+    event_context_destroy(as->event_ctx);
+    game_context_destroy(as->game_ctx);
     texture_map_destroy(as->texture_map);
-    update_context_destroy(as->uc);
-    input_context_destroy(as->ic);
+    update_context_destroy(as->update_ctx);
+    input_context_destroy(as->input_ctx);
     SDL_DestroyRenderer(as->renderer);
     SDL_DestroyWindow(as->window);
     free(as);
 }
 
 int main(int argc, char **argv){
-    App_State *as = app_state_create();
+    AppState *as = app_state_create();
     while (!as->should_quit){
         as->should_quit = input_handle(as);
         update(as);
