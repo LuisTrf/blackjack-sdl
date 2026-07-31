@@ -38,3 +38,9 @@ void spritebox_destroy(SpriteBox *p_spritebox){
     free(p_spritebox);
     p_spritebox=NULL;
 }
+
+SDL_Texture* spritebox_get_spritesheet(SpriteBox *spritebox){return spritebox->p_spritesheet;}
+int spritebox_get_spritesheet_x(SpriteBox *spritebox){return spritebox->spritesheet_x;}
+int spritebox_get_spritesheet_y(SpriteBox *spritebox){return spritebox->spritesheet_y;}
+void spritebox_set_spritesheet_x(SpriteBox *spritebox, int spritesheet_x){spritebox->spritesheet_x = spritesheet_x;}
+void spritebox_set_spritesheet_y(SpriteBox *spritebox, int spritesheet_y){spritebox->spritesheet_y = spritesheet_y;}

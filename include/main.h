@@ -1,4 +1,25 @@
 #pragma once
 
-typedef struct App_State App_State;
+#include "app_state.h"
 
+#include <SDL3/SDL.h>
+#include "input/input.h"
+#include "update/update.h"
+#include "render/render.h"
+#include "game/game.h"
+#include "event/event.h"
+#include "update/animation.h"
+#include "ui/ui.h"
+
+typedef struct App_State {
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+    Input_Context *ic;
+    Update_Context *uc;
+    texture_hash* texture_map;
+    Game_Context *gc;
+    Event_Context *ec;
+    Animation_Context *ac;
+    UI_Context *uic;
+    bool should_quit;
+} App_State;

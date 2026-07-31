@@ -35,3 +35,5 @@ void picturebox_destroy(PictureBox *p_picbox){
     free(p_picbox);
     p_picbox=NULL;
 }
+
+SDL_Texture* picbox_get_texture(PictureBox *picbox){return picbox->p_texture;}

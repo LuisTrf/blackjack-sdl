@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
-#include "../main.h"
+#include "../app_state.h"
 
 typedef enum TextureID {
     TEXTURE_ID_NULL,
@@ -16,8 +16,6 @@ typedef struct texture_hash_t {
     TextureID key;
     SDL_Texture* value;
 } texture_hash;
-
-typedef struct Render_Context Render_Context;
 
 texture_hash* texture_map_create(SDL_Renderer *renderer);
 void texture_map_destroy(texture_hash* texture_map);

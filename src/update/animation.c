@@ -1,9 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "../include/animation.h"
-#include "../include/events.h"
-#include "../include/event_context.h"
-#include "../include/animation_context.h"
+#include "../../include/update/animation.h"
 
 Animation animation_create(vec2 *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time)){
     Animation anim = {
@@ -36,15 +33,15 @@ void anim_queue_destroy(AnimationQueue *p_queue){
     free(p_queue);
 }
 
-AnimationContext* animation_context_create(void){
+Animation_Context* animation_context_create(void){
     AnimationQueue *queue = anim_queue_create(16);
     Animation *p_anim = malloc(sizeof(Animation));
     if (p_anim == NULL){
         abort();
     }
     *p_anim = NULL_ANIMATION;
-    AnimationContext ac = {queue, p_anim};
-    AnimationContext *p_ac = malloc(sizeof(AnimationContext));
+    Animation_Context ac = {queue, p_anim};
+    Animation_Context *p_ac = malloc(sizeof(Animation_Context));
     if (p_ac == NULL){
         abort();
     }
@@ -52,7 +49,7 @@ AnimationContext* animation_context_create(void){
     return p_ac;
 }
 
-void animation_context_destroy(AnimationContext *p_ac){
+void animation_context_destroy(Animation_Context *p_ac){
     free(p_ac->playing_blocking_anim);
     p_ac->playing_blocking_anim = NULL;
     anim_queue_destroy(p_ac->queue);
@@ -181,7 +178,7 @@ Event animation_draw_card(Animation *self, float delta_time){
     return NULL_EVENT;
 }
 
-void animate_from_queue(AnimationContext *p_ac, EventContext *p_ec, UpdateContext *p_uc){
+void animate_from_queue(Animation_Context *p_ac, Event_Context *p_ec, float delta_time){
     if (!anim_queue_empty(p_ac->queue) && anim_is_null(*p_ac->playing_blocking_anim)){
         *p_ac->playing_blocking_anim = dequeue_anim(p_ac->queue);
         p_ac->playing_blocking_anim->state = ANIMATION_STATE_PLAYING;
@@ -197,7 +194,7 @@ void animate_from_queue(AnimationContext *p_ac, EventContext *p_ec, UpdateContex
         else{
             p_ac->playing_blocking_anim->anim_func(
                 p_ac->playing_blocking_anim,
-                p_uc->delta_time
+                delta_time
             );
         }
     }

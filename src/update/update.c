@@ -2,11 +2,10 @@
 #include <stdlib.h>
 #include "../../include/stb_ds.h"
 #include "../../include/constants.h"
-#include "../../include/ui/button.h"
 #include "../../include/game/game.h"
 #include "../../include/event/event.h"
 #include "../../include/main.h"
-#include "../../include/update/update_internal.h"
+#include "../../include/update/update.h"
 
 #include <stdio.h>
 
@@ -37,38 +36,42 @@ void update_delta_time(Update_Context *p_uc){
 void deal(Game_Context *gc, EventQueue *queue){
     game_context_set_game_state(gc, GAME_STATE_PLAYING);
 
-    game_shuffle_deck(gc->deck);
+    Deck* deck = gc_get_deck(gc);
+    Dealer* dealer = gc_get_dealer(gc);
+    Player* player = gc_get_player(gc);
 
-    Card* dc1 = game_dealer_hit(gc->deck, gc->dealer);
-    Card* dc2 = game_dealer_hit(gc->deck, gc->dealer);
+    game_shuffle_deck(deck);
 
-    Card *pc1 = game_player_hit(gc->deck, gc->player);
-    Card *pc2 = game_player_hit(gc->deck, gc->player);
+    Card* dc1 = game_dealer_hit(deck, dealer);
+    Card* dc2 = game_dealer_hit(deck, dealer);
 
-    if (game_dealer_is_blackjack(gc->dealer)){
+    Card *pc1 = game_player_hit(deck, player);
+    Card *pc2 = game_player_hit(deck, player);
+
+    if (game_dealer_is_blackjack(dealer)){
         
     }
 }
 
-void update_game_on_release_hit(Game_Context *gc){
+void hit(Game_Context *gc){
 }
 
 void update(App_State *as){
-    update_delta_time(p_uc);
-    while (!event_queue_empty(p_ec->queue)){
-        Event event = dequeue_event(p_ec->queue);
+    update_delta_time(as->uc);
+    while (!event_queue_empty(as->ec->queue)){
+        Event event = dequeue_event(as->ec->queue);
         switch (event.type){
             case BUTTON_EVENT_RELEASE_DEAL:
-                deal(p_gc, p_ec->queue);
+                deal(as->gc, as->ec->queue);
                 break;
             case BUTTON_EVENT_RELEASE_HIT:
-                hit(p_gc);
+                hit(as->gc);
                 break;
             default:
                 break;
         }
-        ec_widget_listeners_notify_all(p_ec, event);
+        ec_widget_listeners_notify_all(as->ec, event);
     }
-    bc_update_move_button_positions_from_visibilities(p_bc); //replace via event
-    animate_from_queue(p_ac, p_ec, p_uc);
+    bc_update_move_button_positions_from_visibilities(as->uic->bc);
+    //animate_from_queue(p_ac, p_ec, p_uc);
 }

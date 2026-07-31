@@ -16,3 +16,5 @@ PictureBox* picturebox_create(
     Event (*input_func)(Widget *self, SDL_Event event)
 );
 void picturebox_destroy(PictureBox *p_picture_box);
+
+SDL_Texture* picbox_get_texture(PictureBox *picbox);

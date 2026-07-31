@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "../../include/vec2.h"
 #include "../../include/ui/button_constants.h"
 #include "../../include/ui/button_internal.h"
 #include "../../include/stb_ds.h"
@@ -44,7 +45,8 @@ Button gold100k_button = {{{CHIP_BUTTON_X(9), CHIP_BUTTON_Y(9), CHIP_BUTTON_WIDT
 */
 
 Button* button_create(
-    float x, float y, int width, int height, 
+    float x, float y, 
+    int width, int height, 
     bool visible, 
     EventType release_eventtype,
     BUTTON_STATE button_state_initial, 
@@ -99,35 +101,22 @@ void button_context_destroy(Button_Context *p_bc){
     free(p_bc);
 }
 
-void bc_register_move_button(Button_Context *p_bc, Button *button){
-    arrput(p_bc->moveb_refs, button);
-}
-
+Event button_get_release_event(Button *button){return button->release_event;}
+BUTTON_STATE button_get_state(Button *button){return button->_state;}
 void button_set_state(Button *button, BUTTON_STATE state){
     button->_prev_state = button->_state;
     button->_state = state;
 }
-
-BUTTON_STATE button_get_state(Button *button){
-    return button->_state;
-}
-
-BUTTON_STATE button_get_prev_state(Button *button){
-    return button->_prev_state;
-}
-
-vec2* button_get_pos(Button *button){return &(button->widget.pos);}
-
-int button_get_width(Button *button){return button->widget.width;}
-
-int button_get_height(Button *button){return button->widget.height;}
-
-Event button_get_release_event(Button *button){return button->release_event;}
-
+BUTTON_STATE button_get_prev_state(Button *button){return button->_prev_state;}
 void button_restore_prev_state(Button *button){
     BUTTON_STATE temp = button->_state;
     button->_state = button->_prev_state;
     button->_prev_state = temp;
+}
+SDL_Texture* button_get_spritesheet(Button *button){return button->p_spritesheet;}
+
+void bc_register_move_button(Button_Context *p_bc, Button *button){
+    arrput(p_bc->moveb_refs, button);
 }
 
 int bc_get_visible_move_buttons(Button_Context *p_bc){

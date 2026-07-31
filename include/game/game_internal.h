@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game_constants.h"
+#include "gameobj.h"
 #include "game.h"
 
 typedef struct Card {
@@ -25,6 +26,7 @@ typedef struct Player {
     float money;
     float bet;
     int betted_chips;
+    /* replace array via stb dynamic arr */
     CHIP_VALUE bet_history[MAXIMUM_BETTED_CHIPS];
 } Player;
 

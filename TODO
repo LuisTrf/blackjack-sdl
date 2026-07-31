@@ -1,38 +1,6 @@
-Consider changing to arrays of structs instead of arrays of struct pointers for more efficient memory access.
+Make Context structs consistently opaque.
+Update the CMakeLists.txt so that it uses many CMakeLists.txt in included directories (I need to learn more CMake first;
+this does the job for now).
 
-Poll event queue in update method. 
-Input.c enqueues events to the event queue to update button subscribers and action button visibility.
-Rename InputContext subscribers field to widget_listeners.
-Update queue.c to use separate constructors and destructors for event queue and anim queue without pointers to events and
-animations structs.
-
-Create ButtonEvent under AppEvent, input.c pushes ButtonEvent to the event queue.
-
-Use the _internal.h header file structure to encapsulate context struct fields.
-Create EventContext which holds event listeners and EventQueue instance.
-Update button constructor to take an App_EventType and construct a button event from inside the constructor.
-
-Rename input context and event context to managers.
-Add context/manager fields to AppState and pass AppState as an argument to core methods like handle_input(), update() and render() to
-avoid paramter bloat.
-
-Improve the file structure; condense .h files and hide struct members to external files using _internal
-.h header file structure.
-
-HashMap of arraylists to link EventType to Widget list of event listener widgets
-Spriteboxes from deck are taken from the bottom instead of top on a draw.
-
-Cards should be face down when drawing until in correct position.
-Only shift the spritebox in container children arr when the animation begins.
-Try to create a generalised Animation struct to add support for vec2 and sprite animations.
-^ DO THIS ONLY IF YOU WANT TO ADD SPRITESHEET ANIMATIONS.
-
-!!! FIX THE FILE STRUCTURE/ORGANISATION !!! its like a jungle
-
-Separate methods to render widgets and card game objects.
-Add game object struct; cards should be game objects with vec2 pos, w, h, vis.
-The deck shouldn't be spriteboxes but instead rendered cards, remove the card container widget.
-Deck should be a stack of Card structs. When hitting pop from the stack. When starting new game push all to stack and
-shuffle all Card pointers in the deck arr.
-
-Create a UI_Context object to hold root and Button_Context. This does not need to be an opaque structure.
+Think of a workaround so that I can render the 1st drawn card above the 2nd drawn card during the
+deal animation.

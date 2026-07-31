@@ -7,7 +7,8 @@
 #include "../../include/ui/widget.h"
 #include "../../include/event/event.h"
 #include "../../include/ui/button.h"
-#include "../../include/input/input_internal.h"
+#include "../../include/input/input.h"
+#include "../../include/main.h"
 
 bool handle_quit(SDL_Event event){
     switch(event.type){
@@ -52,24 +53,27 @@ void ic_widget_listener_remove(Input_Context *p_ic, Widget *widget){
     }
 }
 
-void ic_widget_listeners_notify_all(EventQueue *event_queue, Widget** widget_listeners, SDL_Event event){
-    for (int i = 0; i < arrlen(widget_listeners); i++){
-        Event e = widget_input(widget_listeners[i], event);
+void ic_widget_listeners_notify_all(Event_Context *ec, Input_Context* ic, SDL_Event event){;
+    for (int i = 0; i < arrlen(ic->input_widget_listeners); i++){
+        Event e = widget_input(ic->input_widget_listeners[i], event);
         if (!event_is_null(e)){
-            enqueue_event(event_queue, e);
+            enqueue_event(ec->queue, e);
         }
     }
 }
 
 Event input_handle_button_mouse_events(Widget *widget, SDL_Event event){
     Button *button = (Button *)widget;
-    vec2* bpos = button_get_pos(button);
     float x, y;
+    float bx = widget_get_x((Widget *)button); 
+    float by = widget_get_y((Widget *)button);
+    int bwidth = widget_get_width((Widget *)button); 
+    int bheight = widget_get_height((Widget *)button);
     SDL_MouseButtonFlags mflags = SDL_GetMouseState(&x, &y);
-    if(x > bpos->x 
-        && x < (bpos->x + button_get_width(button))
-        && y > bpos->y 
-        && y < (bpos->y + button_get_height(button))
+    if(x > bx
+        && x < (bx + bwidth)
+        && y > by
+        && y < (by + bheight)
     ){
         if (button_get_state(button) != BUTTON_STATE_DISABLED){
             switch (event.type) {
@@ -104,14 +108,14 @@ Event input_handle_button_mouse_events(Widget *widget, SDL_Event event){
     return NULL_EVENT;
 }
 
-bool input_handle(AppState *as){
+bool input_handle(App_State *as){
     bool should_quit = false;
     SDL_Event event;
     while (SDL_PollEvent(&event)){
         should_quit = handle_quit(event);
         ic_widget_listeners_notify_all(
-            event_queue, 
-            p_ic->input_widget_listeners,
+            as->ec, 
+            as->ic,
             event
         );
     }

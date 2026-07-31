@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include "gameobj.h"
+#include "../vec2.h"
 
 typedef enum CARD_LOCATION {
     CARD_LOCATION_DECK,
@@ -30,25 +30,39 @@ typedef enum CHIP_VALUE {
     CHIP_VALUE_HUNDRED_K = 100000
 } CHIP_VALUE;
 
+typedef struct GameObject GameObject;
 typedef struct Card Card;
 typedef struct Deck Deck;
 typedef struct Player Player;
 typedef struct Dealer Dealer;
 typedef struct Game_Context Game_Context;
 
+vec2* obj_get_pos(GameObject *obj);
+float obj_get_x(GameObject *obj);
+float obj_get_y(GameObject *obj);
+int obj_get_width(GameObject *obj);
+int obj_get_height(GameObject *obj);
+bool obj_is_visible(GameObject *obj);
+
+char card_get_suit(Card *card);
+char card_get_rank(Card *card);
+CARD_LOCATION card_get_location(Card *card);
+bool card_is_face_down(Card *card);
+
 Game_Context* game_context_create(void);
 void game_context_destroy(Game_Context *p_gc);
 GAME_STATE game_context_get_game_state(Game_Context *p_gc);
 GAME_STATE game_context_get_prev_game_state(Game_Context *p_gc);
 void game_context_set_game_state(Game_Context *p_gc, GAME_STATE state);
+Deck* gc_get_deck(Game_Context *gc);
+Dealer* gc_get_dealer(Game_Context *gc);
+Player* gc_get_player(Game_Context *gc);
 void game_reset(Game_Context *p_gc);
 
 void game_shuffle_deck(Deck *deck);
 Card* game_draw_random_card(Deck *deck);
-
-char game_get_card_suit(Card *card);
-char game_get_card_rank(Card *card);
-CARD_LOCATION game_get_card_location(Card *card);
+int deck_get_card_count(Deck *deck);
+Card* deck_get_card_i(Deck *deck, int i);
 
 bool game_dealer_bust(Dealer *dealer);
 bool game_dealer_is_blackjack(Dealer *dealer);

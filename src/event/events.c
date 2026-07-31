@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "../../include/stb_ds.h"
 #include "../../include/ui/widget.h"
-#include "../../include/event/event_internal.h"
+#include "../../include/event/event.h"
 
 Event common_event_create(EventType event_type){
     Common_Event ce = {.type = event_type};
@@ -105,7 +105,7 @@ Event_Context* event_context_create(void){
     return p_ec;
 }
 
-void event_context_destroy(EventContext *ec){
+void event_context_destroy(Event_Context *ec){
     event_queue_destroy(ec->queue);
     ec->queue = NULL;
     arrfree(ec->event_widget_listeners);
@@ -113,7 +113,7 @@ void event_context_destroy(EventContext *ec){
     free(ec);
 }
 
-void ec_widget_listeners_notify_all(EventContext *ec, Event event){
+void ec_widget_listeners_notify_all(Event_Context *ec, Event event){
     for (int i = 0; i < arrlen(ec->event_widget_listeners); i++){
         Event e = widget_notify(ec->event_widget_listeners[i], event);
         if (!event_is_null(e)){

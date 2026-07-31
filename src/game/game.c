@@ -16,6 +16,13 @@ const char SUITS[4] = {'C', 'D', 'H', 'S'};
 const char RANKS[13] = {'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'};
 const int RANK_VALUES[13] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11};
 
+vec2* obj_get_pos(GameObject *obj){return &obj->pos;}
+float obj_get_x(GameObject *obj){return obj->pos.x;}
+float obj_get_y(GameObject *obj){return obj->pos.y;}
+int obj_get_width(GameObject *obj){return obj->width;}
+int obj_get_height(GameObject *obj){return obj->height;}
+bool obj_is_visible(GameObject *obj){return obj->visible;}
+
 Player* game_player_create(void){
     Player player = {
         {NULL}, 
@@ -107,6 +114,21 @@ void game_deck_destroy(Deck* deck){
     free(deck);
 }
 
+char card_get_suit(Card *card){return card->suit;}
+char card_get_rank(Card *card){return card->rank;}
+CARD_LOCATION card_get_location(Card *card){return card->location;}
+bool card_is_face_down(Card *card){return card->face_down;}
+
+int deck_get_card_count(Deck *deck){return (deck->top + 1);}
+Card* deck_get_card_i(Deck *deck, int i){
+    if (-1 < i && i < 52){
+        return deck->arr[i];
+    }
+    else {
+        return NULL;
+    }
+}
+
 Game_Context* game_context_create(void){
     Game_Context gc = {
         GAME_STATE_NEW,
@@ -146,17 +168,9 @@ void game_context_set_game_state(Game_Context *p_gc, GAME_STATE state){
     p_gc->game_state=state;
 }
 
-char game_get_card_suit(Card *card){
-    return card->suit;
-}
-
-char game_get_card_rank(Card *card){
-    return card->rank;
-}
-
-CARD_LOCATION game_get_card_location(Card *card){
-    return card->location;
-}
+Deck* gc_get_deck(Game_Context *gc){return gc->deck;}
+Dealer* gc_get_dealer(Game_Context *gc){return gc->dealer;}
+Player* gc_get_player(Game_Context *gc){return gc->player;}
 
 void game_shuffle_deck(Deck *deck){
     for (int i=deck->top; i>=1; i--){

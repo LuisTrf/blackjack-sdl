@@ -35,10 +35,8 @@ void button_set_state(Button *button, BUTTON_STATE state);
 BUTTON_STATE button_get_state(Button *button);
 BUTTON_STATE button_get_prev_state(Button *button);
 void button_restore_prev_state(Button *button);
-vec2* button_get_pos(Button *button);
-int button_get_width(Button *button);
-int button_get_height(Button *button);
 Event button_get_release_event(Button *button);
+SDL_Texture* button_get_spritesheet(Button *button);
 
 void bc_register_move_button(Button_Context *p_bc, Button *button);
 int bc_get_visible_move_buttons(Button_Context *p_bc);
