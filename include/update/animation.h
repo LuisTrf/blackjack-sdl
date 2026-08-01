@@ -2,21 +2,23 @@
 
 #include "../event/event.h"
 #include "../vec2.h"
+#include "../cargo.h"
 #include "../app_state.h"
 
-typedef enum AnimationState {
+typedef enum ANIMATION_STATE {
     _ANIMATION_STATE_NONE,
     ANIMATION_STATE_WAITING,
     ANIMATION_STATE_PLAYING,
     ANIMATION_STATE_COMPLETED
-} AnimationState;
+} ANIMATION_STATE;
 
 typedef struct Animation {
-    vec2 *target;
+    Rect *target;
     vec2 src;
     vec2 dst;
-    AnimationState state;
+    ANIMATION_STATE state;
     Event (*anim_func)(struct Animation *self, float delta_time);
+    Cargo cargo;
 } Animation;
 
 static const Animation NULL_ANIMATION = {
@@ -39,13 +41,13 @@ typedef struct AnimationContext {
     Animation *playing_blocking_anim;
 } AnimationContext;
 
-Animation animation_create(vec2 *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time));
+Animation animation_create(Rect *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time), Cargo cargo);
 AnimationQueue* anim_queue_create(int size);
 void anim_queue_destroy(AnimationQueue *p_queue);
 bool anim_queue_full(AnimationQueue *queue);
 bool anim_queue_empty(AnimationQueue *queue);
-void enqueue_anim(AnimationQueue *queue, Animation anim);
-Animation dequeue_anim(AnimationQueue *queue);
+void anim_enqueue(AnimationQueue *queue, Animation anim);
+Animation anim_dequeue(AnimationQueue *queue);
 bool anim_is_null(Animation anim);
 
 Event animation_draw_card(Animation *self, float delta_time);

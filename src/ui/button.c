@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "../../include/vec2.h"
 #include "../../include/ui/button_constants.h"
 #include "../../include/event/event.h"
 #include "../../include/ui/button.h"
@@ -58,15 +57,17 @@ Button* button_create(
 {
     Button button = {
         .widget={
-            .wtype=WIDGET_BUTTON, 
-            .pos={.x=x, .y=y}, 
-            .width=width, 
-            .height=height, 
-            .visible=visible, 
+            .rect = {
+                .pos={.x=x, .y=y}, 
+                .width=width, 
+                .height=height, 
+                .visible=visible, 
+            },
+            .wtype=WIDGET_BUTTON,
             .notify_func=notify_func,
             .input_func=input_func
         }, 
-        .release_event=NULL_EVENT, 
+        .release_event=common_event_create(release_eventtype), 
         ._state=button_state_initial, 
         ._prev_state=_BUTTON_STATE_NONE, 
         .spritesheet=spritesheet, 
@@ -75,8 +76,6 @@ Button* button_create(
     if (p_button == NULL){
         abort();
     }
-    Event release_event = common_event_create(release_eventtype);
-    button.release_event = release_event;
     *p_button = button;
     return p_button;
 }
@@ -132,7 +131,7 @@ void button_ctx_register_move_button(ButtonContext *button_ctx, Button *button){
 int button_ctx_get_visible_move_buttons(ButtonContext *button_ctx){
     int visible_move_button_count = 0;
     for (int i = 0; i < arrlen(button_ctx->moveb_refs); i++){
-        if (button_ctx->moveb_refs[i]->widget.visible){
+        if (button_ctx->moveb_refs[i]->widget.rect.visible){
             visible_move_button_count++;
         }
     }
@@ -143,15 +142,15 @@ void button_ctx_reposition_visible_move_buttons(ButtonContext *button_ctx){
     int visible_move_button_count = button_ctx_get_visible_move_buttons(button_ctx);
     int remaining_visible_move_button_count = visible_move_button_count;
     for (int i = 0; i < arrlen(button_ctx->moveb_refs); i++){
-        if (button_ctx->moveb_refs[i]->widget.visible){
-            button_ctx->moveb_refs[i]->widget.pos.x = 
+        if (button_ctx->moveb_refs[i]->widget.rect.visible){
+            button_ctx->moveb_refs[i]->widget.rect.pos.x = 
                 MOVE_BUTTON_ORIGIN_X
                 + 0.5f * (visible_move_button_count - 1) * MOVE_BUTTON_WIDTH
                 - 0.5f * (remaining_visible_move_button_count - 1) * (MOVE_BUTTON_STEP_X + MOVE_BUTTON_WIDTH);
             remaining_visible_move_button_count--;
         }
         else {
-            button_ctx->moveb_refs[i]->widget.pos.x = MOVE_BUTTON_ORIGIN_X;
+            button_ctx->moveb_refs[i]->widget.rect.pos.x = MOVE_BUTTON_ORIGIN_X;
         }
     }
 }
@@ -160,7 +159,7 @@ Event button_notify_deal(Widget *self, Event event){
     switch(event.type){
         case BUTTON_EVENT_RELEASE_DEAL:
             button_set_state((Button *)self, BUTTON_STATE_DISABLED);
-            self->visible = false;
+            self->rect.visible = false;
             break;
         default:
             break;
@@ -172,7 +171,7 @@ Event button_notify_hit(Widget *self, Event event){
     switch(event.type){
         case BUTTON_EVENT_RELEASE_DEAL:
             button_set_state((Button *)self, BUTTON_STATE_IDLE);
-            self->visible = true;
+            self->rect.visible = true;
             break;
         default:
             break;
@@ -184,7 +183,7 @@ Event button_notify_stand(Widget *self, Event event){
     switch(event.type){
         case BUTTON_EVENT_RELEASE_DEAL:
             button_set_state((Button *)self, BUTTON_STATE_IDLE);
-            self->visible = true;
+            self->rect.visible = true;
             break;
         default:
             break;

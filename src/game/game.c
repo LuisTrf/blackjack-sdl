@@ -59,21 +59,21 @@ void dealer_destroy(Dealer *dealer){
 }
 
 Deck* deck_create(void){
-    Card** arr = calloc(52, sizeof(Card));
+    Card* arr = calloc(52, sizeof(Card));
     if (arr == NULL){
         abort();
     }
     for (int s = 0; s < 4; s++){
         for (int r = 0; r < 13; r++){
             Card card = {
-                .obj = {
+                .rect = {
                     .pos = {
                         .x=DECK_ORIGIN_X - (51 - (s*13 + r)),
                         .y=DECK_ORIGIN_Y + (51 - (s*13 + r)),
                     },
-                    CARD_WIDTH,
-                    CARD_HEIGHT,
-                    true,
+                    .width=CARD_WIDTH,
+                    .height=CARD_HEIGHT,
+                    .visible=true,
                 },
                 .suit=SUITS[s], 
                 .rank=RANKS[r], 
@@ -81,12 +81,7 @@ Deck* deck_create(void){
                 .location=CARD_LOCATION_DECK, 
                 .face_down=true
             };
-            Card *p = malloc(sizeof(Card));
-            if (p==NULL){
-                abort();
-            }
-            *p = card;
-            arr[s*13+r] = p;
+            arr[s*13 + r] = card;
         }
     }
     Deck deck = {51, arr};
@@ -100,10 +95,7 @@ Deck* deck_create(void){
 }
 
 void deck_destroy(Deck* deck){
-    for (int i=0; i<52; i++){
-        free(deck->arr[i]);
-        deck->arr[i] = NULL;
-    }
+    free(deck->arr);
     free(deck);
 }
 
@@ -153,13 +145,13 @@ void game_context_set_game_state(GameContext *game_ctx, GAME_STATE state){
 void deck_shuffle(Deck *deck){
     for (int i=deck->top; i>=1; i--){
         int j = rand()%(i+1);
-        Card *temp = deck->arr[j];
+        Card temp = deck->arr[j];
         deck->arr[j] = deck->arr[i];
         deck->arr[i] = temp;
-        deck->arr[j]->obj.pos.x = DECK_ORIGIN_X - (51 - j);
-        deck->arr[j]->obj.pos.y = DECK_ORIGIN_Y + (51 - j);
-        deck->arr[i]->obj.pos.x = DECK_ORIGIN_X - (51 - i);
-        deck->arr[i]->obj.pos.y = DECK_ORIGIN_Y + (51 - i);
+        deck->arr[j].rect.pos.x = DECK_ORIGIN_X - (51 - j);
+        deck->arr[j].rect.pos.y = DECK_ORIGIN_Y + (51 - j);
+        deck->arr[i].rect.pos.x = DECK_ORIGIN_X - (51 - i);
+        deck->arr[i].rect.pos.y = DECK_ORIGIN_Y + (51 - i);
     }
 }
 
@@ -171,17 +163,9 @@ bool is_deck_full(Deck *deck){
     return (deck->top == 51);
 }
 
-void deck_push(Deck *deck, Card *card){
-    if (!is_deck_full(deck)){
-        deck->arr[deck->top] = card;
-        deck->top++;
-    }
-}
-
-Card* deck_pop(Deck *deck){
+Card* draw(Deck *deck){
     if (!is_deck_empty(deck)){
-        Card* c = deck->arr[deck->top];
-        deck->arr[deck->top] = NULL;
+        Card *c = &deck->arr[deck->top];
         deck->top--;
         return c;
     }
@@ -193,7 +177,7 @@ Card* deck_pop(Deck *deck){
 Card* draw_random_card(Deck *deck){
     Card *c;
     do{
-        c=deck->arr[rand()%(deck->top+1)];
+        c = &deck->arr[rand()%(deck->top+1)];
     } while (c->location!=CARD_LOCATION_DECK);
     return c;
 }
@@ -202,9 +186,8 @@ void game_reset(GameContext *game_ctx){
     for (;game_ctx->dealer->cards_in_hand > 0; game_ctx->dealer->cards_in_hand--){
         game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]->location = CARD_LOCATION_DECK;
         game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]->face_down = true;
-        game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]->obj.pos.x = DECK_ORIGIN_X - (51 - deck_get_card_count(game_ctx->deck));
-        game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]->obj.pos.y = DECK_ORIGIN_Y + (51 - deck_get_card_count(game_ctx->deck));
-        deck_push(game_ctx->deck, game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]);
+        game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]->rect.pos.x = DECK_ORIGIN_X - (51 - deck_get_card_count(game_ctx->deck));
+        game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]->rect.pos.y = DECK_ORIGIN_Y + (51 - deck_get_card_count(game_ctx->deck));
         game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1] = NULL;
     }
     game_ctx->dealer->hand_value = 0;
@@ -213,15 +196,16 @@ void game_reset(GameContext *game_ctx){
     for (;game_ctx->player->cards_in_hand > 0; game_ctx->player->cards_in_hand--){
         game_ctx->player->hand[game_ctx->player->cards_in_hand-1]->location = CARD_LOCATION_DECK;
         game_ctx->player->hand[game_ctx->player->cards_in_hand-1]->face_down = true;
-        game_ctx->player->hand[game_ctx->player->cards_in_hand-1]->obj.pos.x = DECK_ORIGIN_X - (51 - deck_get_card_count(game_ctx->deck));
-        game_ctx->player->hand[game_ctx->player->cards_in_hand-1]->obj.pos.y = DECK_ORIGIN_Y + (51 - deck_get_card_count(game_ctx->deck));
-        deck_push(game_ctx->deck, game_ctx->player->hand[game_ctx->player->cards_in_hand-1]);
+        game_ctx->player->hand[game_ctx->player->cards_in_hand-1]->rect.pos.x = DECK_ORIGIN_X - (51 - deck_get_card_count(game_ctx->deck));
+        game_ctx->player->hand[game_ctx->player->cards_in_hand-1]->rect.pos.y = DECK_ORIGIN_Y + (51 - deck_get_card_count(game_ctx->deck));
         game_ctx->player->hand[game_ctx->player->cards_in_hand-1] = NULL;
     }
     game_ctx->player->hand_value = 0;
     game_ctx->player->aces_in_hand_worth_11 = 0;
     game_ctx->player->bet = 0;
     game_ctx->player->betted_chips = 0;
+
+    game_ctx->deck->top = 51;
 }
 
 bool dealer_bust(Dealer *dealer){
@@ -263,8 +247,8 @@ void dealer_reveal_second_card(Dealer *dealer){
 
 Card* dealer_hit(Deck *deck, Dealer *dealer){
     if (dealer_can_hit(dealer)){
-        Card *c = deck_pop(deck);
-        c->location=CARD_LOCATION_DEALER_HAND;
+        Card *c = draw(deck);
+        c->location = CARD_LOCATION_DEALER_HAND;
 
         dealer->hand[dealer->cards_in_hand] = c;
         dealer->cards_in_hand++;
@@ -287,8 +271,8 @@ Card* dealer_hit(Deck *deck, Dealer *dealer){
 
 Card* player_hit(Deck *deck, Player *player){
     if (player_can_hit(player)){
-        Card *c = deck_pop(deck);
-        c->location=CARD_LOCATION_PLAYER_HAND;
+        Card *c = draw(deck);
+        c->location = CARD_LOCATION_PLAYER_HAND;
         
         player->hand[player->cards_in_hand] = c;
         player->cards_in_hand++;

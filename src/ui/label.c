@@ -27,11 +27,13 @@ Label* label_create(
 {
     Label label = {
         {
+            {
+                .pos={.x=x, .y=y}, 
+                .width=width, 
+                .height=height, 
+                .visible=visible, 
+            },
             WIDGET_LABEL, 
-            {x, y}, 
-            width, 
-            height, 
-            visible, 
             notify_func,
             input_func
         }, 
@@ -55,13 +57,13 @@ void label_destroy(Label *p_label){
 
 void label_update_dimensions(Label *label){
     TTF_SetFontSize(label->font, label->font_size);
-    TTF_GetStringSize(label->font, label->txt, 0, &(label->widget.width), &(label->widget.height));
+    TTF_GetStringSize(label->font, label->txt, 0, &(label->widget.rect.width), &(label->widget.rect.height));
 }
 
 void label_align_x(Label *label, float target_x){
-    label->widget.pos.x = target_x - (label->widget.width)/2.f;
+    label->widget.rect.pos.x = target_x - (label->widget.rect.width)/2.f;
 }
 
 void label_align_y(Label *label, float target_y){
-    label->widget.pos.y = target_y - (label->widget.height)/2.f;
+    label->widget.rect.pos.y = target_y - (label->widget.rect.height)/2.f;
 }

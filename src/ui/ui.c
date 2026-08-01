@@ -14,7 +14,7 @@
 
 Button* widget_deal_button_initialize(texture_hash *texture_map, InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
     Button *deal_button = button_create(
-        MOVE_BUTTON_ORIGIN_X, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT, 
+        368.f, 560.f, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT, 
         true,
         BUTTON_EVENT_RELEASE_DEAL,
         BUTTON_STATE_IDLE, 
@@ -30,7 +30,7 @@ Button* widget_deal_button_initialize(texture_hash *texture_map, InputContext *i
 
 Button* widget_hit_button_initialize(texture_hash *texture_map, InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
     Button *hit_button = button_create(
-        MOVE_BUTTON_ORIGIN_X, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        546.f, 560.f, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         true, 
         BUTTON_EVENT_RELEASE_HIT,
         BUTTON_STATE_IDLE,
@@ -46,7 +46,7 @@ Button* widget_hit_button_initialize(texture_hash *texture_map, InputContext *in
 
 Button* widget_stand_button_initialize(texture_hash *texture_map, InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
     Button *stand_button = button_create(
-        MOVE_BUTTON_ORIGIN_X, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        724.f, 560.f, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         true, 
         BUTTON_EVENT_RELEASE_STAND,
         BUTTON_STATE_IDLE,

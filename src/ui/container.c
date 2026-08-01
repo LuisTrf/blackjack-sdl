@@ -14,11 +14,13 @@ Container* container_create(
 ){
     Container container = {
         .widget={
+            .rect = {
+                .pos={.x=x, .y=y}, 
+                .width=width, 
+                .height=height, 
+                .visible=visible, 
+            },
             .wtype=WIDGET_CONTAINER, 
-            .pos={x, y}, 
-            .width=width, 
-            .height=height, 
-            .visible=visible, 
             .notify_func=notify_func,
             .input_func=input_func
         }, 

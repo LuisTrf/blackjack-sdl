@@ -2,6 +2,7 @@
 
 #include <SDL3/SDL.h>
 #include "../vec2.h"
+#include "../rect.h"
 #include "../event/event_types.h"
 
 typedef enum WIDGET_TYPE {
@@ -19,11 +20,8 @@ typedef enum WIDGET_TYPE {
 #include "../vec2.h"
 
 typedef struct Widget {
+    Rect rect;
     WIDGET_TYPE wtype;
-    vec2 pos;
-    int width;
-    int height;
-    bool visible;
     Event (*notify_func)(struct Widget *self, Event event);
     Event (*input_func)(struct Widget *self, SDL_Event sdl_event);
 } Widget;

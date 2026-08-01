@@ -14,11 +14,13 @@ SpriteBox* spritebox_create(
 ){
     SpriteBox spritebox = {
         {
+            .rect = {
+                .pos={.x=x, .y=y}, 
+                .width=width, 
+                .height=height, 
+                .visible=visible, 
+            },
             WIDGET_SPRITEBOX, 
-            {x, y}, 
-            width, 
-            height, 
-            visible, 
             notify_func,
             input_func
         }, 

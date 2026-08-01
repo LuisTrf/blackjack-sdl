@@ -12,6 +12,7 @@
 #include "../../include/ui/spritebox.h"
 #include "../../include/ui/button.h"
 #include "../../include/game/game.h"
+#include "../../include/game/card_constants.h"
 #include "../../include/game/game_constants.h"
 #include "../../include/render/render.h"
 #include "../../include/main.h"
@@ -44,41 +45,41 @@ void texture_map_destroy(texture_hash* texture_map){
 }
 
 void render_picturebox(SDL_Renderer *renderer, PictureBox *picturebox){
-    if (!picturebox->widget.visible) {return;}
+    if (!picturebox->widget.rect.visible) {return;}
     SDL_FRect dst_rect = {
-        picturebox->widget.pos.x,
-        picturebox->widget.pos.y,
-        picturebox->widget.width,
-        picturebox->widget.height
+        picturebox->widget.rect.pos.x,
+        picturebox->widget.rect.pos.y,
+        picturebox->widget.rect.width,
+        picturebox->widget.rect.height
     };
     SDL_RenderTexture(renderer, picturebox->texture, NULL, &dst_rect);
 }
 
 void render_spritebox(SDL_Renderer *renderer, SpriteBox *spritebox){
-    if (!spritebox->widget.visible) {return;}
+    if (!spritebox->widget.rect.visible) {return;}
     SDL_FRect src_rect = {
         spritebox->spritesheet_x,
         spritebox->spritesheet_y,
-        spritebox->widget.width,
-        spritebox->widget.height
+        spritebox->widget.rect.width,
+        spritebox->widget.rect.height
     };
     SDL_FRect dst_rect = {
-        spritebox->widget.pos.x,
-        spritebox->widget.pos.y,
-        spritebox->widget.width,
-        spritebox->widget.height
+        spritebox->widget.rect.pos.x,
+        spritebox->widget.rect.pos.y,
+        spritebox->widget.rect.width,
+        spritebox->widget.rect.height
     };
     SDL_RenderTexture(renderer, spritebox->spritesheet, &src_rect, &dst_rect);
 }
 
 void render_button(SDL_Renderer *renderer, Button *button){
-    if (!button->widget.visible) {return;}
+    if (!button->widget.rect.visible) {return;}
     int rel_offset_x, rel_offset_y;
     SDL_FRect dst_rect = {
-        button->widget.pos.x,
-        button->widget.pos.y,
-        button->widget.width,
-        button->widget.height
+        button->widget.rect.pos.x,
+        button->widget.rect.pos.y,
+        button->widget.rect.width,
+        button->widget.rect.height
     };
     switch (button_get_state(button)) {
         case (_BUTTON_STATE_NONE):
@@ -97,10 +98,10 @@ void render_button(SDL_Renderer *renderer, Button *button){
             break;
     }
     SDL_FRect src_rect = {
-        (rel_offset_x)*(button->widget.width + 2),
-        (rel_offset_y)*(button->widget.height + 2),
-        button->widget.width,
-        button->widget.height
+        (rel_offset_x)*(button->widget.rect.width + 2),
+        (rel_offset_y)*(button->widget.rect.height + 2),
+        button->widget.rect.width,
+        button->widget.rect.height
     };
     SDL_RenderTexture(renderer, button->spritesheet, &src_rect, &dst_rect);
 }
@@ -128,38 +129,38 @@ void render_widgets(SDL_Renderer *renderer, Container *root){
     }
 }
 
-void render_card(SDL_Renderer *renderer, texture_hash *texture_map, Card *card){
-    if (!card->obj.visible) {return;}
+void render_card(SDL_Renderer *renderer, texture_hash *texture_map, Card card){
+    if (!card.rect.visible) {return;}
     SDL_FRect dst_rect = {
-        card->obj.pos.x,
-        card->obj.pos.y,
-        card->obj.width,
-        card->obj.height
+        card.rect.pos.x,
+        card.rect.pos.y,
+        card.rect.width,
+        card.rect.height
     };
     int rel_offset_x = 0, rel_offset_y = 0;
-    if (card->face_down){
+    if (card.face_down){
         rel_offset_x = 0;
         rel_offset_y = 4;
     }
     else {
         for (int i=0; i<13; i++){
-            if (card->rank == RANKS[i]){
+            if (card.rank == RANKS[i]){
                 rel_offset_x = i;
                 break;
             }
         }
         for (int j=0; j<4; j++){
-            if (card->suit == SUITS[j]){
+            if (card.suit == SUITS[j]){
                 rel_offset_y = j;
                 break;
             }
         }
     }
     SDL_FRect src_rect = {
-        rel_offset_x*(card->obj.width + 2),
-        rel_offset_y*(card->obj.height + 2),
-        card->obj.width,
-        card->obj.height
+        rel_offset_x*(card.rect.width + 2),
+        rel_offset_y*(card.rect.height + 2),
+        card.rect.width,
+        card.rect.height
     };
     SDL_RenderTexture(renderer, hmget(texture_map, TEXTURE_ID_CARD_SPRITESHEET), &src_rect, &dst_rect);
 }
@@ -169,11 +170,29 @@ void render_cards(SDL_Renderer *renderer, texture_hash* texture_map, GameContext
     for (int i = 0; i < deck_card_count; i++){
         render_card(renderer, texture_map, game_ctx->deck->arr[i]);
     }
-    for (int i = 0; i < game_ctx->player->cards_in_hand; i++){
-        render_card(renderer, texture_map, game_ctx->player->hand[i]);
+    /*
+    i.e render cards outside of deck NOT being animated/which are visually in-hand in order of when
+    they were drawn.
+    */
+    for (int i = deck_card_count; i < 52; i++){
+        if (
+            game_ctx->deck->arr[i].rect.pos.x == DECK_ORIGIN_X - (51 - i) 
+            && game_ctx->deck->arr[i].rect.pos.y == DECK_ORIGIN_Y + (51 - i)
+        ){
+            render_card(renderer, texture_map, game_ctx->deck->arr[i]);
+        }
     }
-    for (int i = 0; i < game_ctx->dealer->cards_in_hand; i++){
-        render_card(renderer, texture_map, game_ctx->dealer->hand[i]);
+    /*
+    i.e render cards outside of deck which are visually in-hand/being animated in reverse order
+    of when they were drawn.
+    */
+    for (int i = 51; i >= deck_card_count; i--){
+        if (
+            game_ctx->deck->arr[i].rect.pos.x != DECK_ORIGIN_X - (51 - i) 
+            && game_ctx->deck->arr[i].rect.pos.y != DECK_ORIGIN_Y + (51 - i)
+        ){
+            render_card(renderer, texture_map, game_ctx->deck->arr[i]);
+        }
     }
 }
 

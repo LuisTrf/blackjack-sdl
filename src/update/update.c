@@ -1,6 +1,8 @@
 #include <SDL3/SDL.h>
 #include <stdlib.h>
 #include "../../include/stb_ds.h"
+#include "../../include/cargo.h"
+#include "../../include/vec2.h"
 #include "../../include/constants.h"
 #include "../../include/game/card_constants.h"
 #include "../../include/game/game.h"
@@ -32,31 +34,46 @@ void update_delta_time(UpdateContext *update_ctx){
     update_ctx->previous_frame_time = SDL_GetTicks();
 }
 
-void deal(GameContext *game_ctx, EventQueue *queue){
+void deal(GameContext *game_ctx, EventQueue *event_queue, AnimationQueue *anim_queue){
     game_context_set_game_state(game_ctx, GAME_STATE_PLAYING);
 
     deck_shuffle(game_ctx->deck);
 
     Card* dc1 = dealer_hit(game_ctx->deck, game_ctx->dealer);
-    dc1->obj.pos.x = HAND_ORIGIN_X;
-    dc1->obj.pos.y = HAND_ORIGIN_Y_DEALER;
-    dc1->face_down = false;
+    anim_enqueue(anim_queue, animation_create(
+        &(dc1->rect), 
+        vec2_create(HAND_ORIGIN_X, HAND_ORIGIN_Y_DEALER),
+        animation_draw_card,
+        cargo_boolean_create(false)
+    )
+    );
     Card* dc2 = dealer_hit(game_ctx->deck, game_ctx->dealer);
-    dc2->obj.pos.x = HAND_ORIGIN_X + CARD_STEP_X;
-    dc2->obj.pos.y = HAND_ORIGIN_Y_DEALER;
-    dc2->face_down = false;
+    anim_enqueue(anim_queue, animation_create(
+        &(dc2->rect), 
+        vec2_create((HAND_ORIGIN_X + CARD_STEP_X), HAND_ORIGIN_Y_DEALER),
+        animation_draw_card,
+        cargo_boolean_create(true)
+    )
+    );
 
     Card *pc1 = player_hit(game_ctx->deck, game_ctx->player);
-    pc1->obj.pos.x = HAND_ORIGIN_X;
-    pc1->obj.pos.y = HAND_ORIGIN_Y_PLAYER;
-    pc1->face_down = false;
+    anim_enqueue(anim_queue, animation_create(
+        &(pc1->rect), 
+        vec2_create(HAND_ORIGIN_X, HAND_ORIGIN_Y_PLAYER),
+        animation_draw_card,
+        cargo_boolean_create(false)
+    )
+    );
     Card *pc2 = player_hit(game_ctx->deck, game_ctx->player);
-    pc2->obj.pos.x = HAND_ORIGIN_X + CARD_STEP_X;
-    pc2->obj.pos.y = HAND_ORIGIN_Y_PLAYER;
-    pc2->face_down = false;
+    anim_enqueue(anim_queue, animation_create(
+        &(pc2->rect), 
+        vec2_create((HAND_ORIGIN_X + CARD_STEP_X), HAND_ORIGIN_Y_PLAYER),
+        animation_draw_card,
+        cargo_boolean_create(false)
+    )
+    );
 
     if (dealer_is_blackjack(game_ctx->dealer)){
-        
     }
 }
 
@@ -67,19 +84,19 @@ void update(AppState *as){
     update_delta_time(as->update_ctx);
     while (!event_queue_empty(as->event_ctx->queue)){
         Event event = event_dequeue(as->event_ctx->queue);
+        event_ctx_widget_listeners_notify_all(as->event_ctx, event);
         switch (event.type){
             case BUTTON_EVENT_RELEASE_DEAL:
-                deal(as->game_ctx, as->event_ctx->queue);
+                deal(as->game_ctx, as->event_ctx->queue, as->anim_ctx->queue);
+                button_ctx_reposition_visible_move_buttons(as->ui_ctx->button_ctx);
                 break;
             case BUTTON_EVENT_RELEASE_HIT:
                 hit(as->game_ctx);
+                button_ctx_reposition_visible_move_buttons(as->ui_ctx->button_ctx);
                 break;
             default:
                 break;
         }
-        event_ctx_widget_listeners_notify_all(as->event_ctx, event);
     }
-    button_ctx_reposition_visible_move_buttons(as->ui_ctx->button_ctx); // enqueue an event to run this
-    // after a button_release event
-    //animate_from_queue(p_ac, p_ec, p_uc);
+    animate(as);
 }

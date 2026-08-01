@@ -1,7 +1,8 @@
 Update the CMakeLists.txt so that it uses many CMakeLists.txt in included directories (I need to learn more CMake first;
 this does the job for now).
 
-Think of a workaround so that I can render the 1st drawn card above the 2nd drawn card during the
-deal animation.
+Rewrite deck to directly store Card objects, not pointers to card objects (no double referencing which is slow).
+Replace bet_history in player with a dynamic array.
 
-Rename contexts in AppState like input_ctx.
+OR create a 2D obj class which replaces gameobj and is a struct member of widget; the anim uses this as target.
+Create a union of int/float/bool wrapper structs which is passed as cargo with the animation.

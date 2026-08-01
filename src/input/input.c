@@ -64,10 +64,10 @@ void input_ctx_widget_listeners_notify_all(EventContext *event_ctx, InputContext
 Event input_handle_button_mouse_events(Widget *widget, SDL_Event sdl_event){
     Button *button = (Button *)widget;
     float x, y;
-    float bx = button->widget.pos.x; 
-    float by = button->widget.pos.y;
-    int bwidth = button->widget.width; 
-    int bheight = button->widget.height;
+    float bx = button->widget.rect.pos.x; 
+    float by = button->widget.rect.pos.y;
+    int bwidth = button->widget.rect.width; 
+    int bheight = button->widget.rect.height;
     SDL_MouseButtonFlags mflags = SDL_GetMouseState(&x, &y);
     if(x > bx
         && x < (bx + bwidth)

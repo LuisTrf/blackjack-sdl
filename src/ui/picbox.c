@@ -13,11 +13,13 @@ PictureBox* picturebox_create(
 ){
     PictureBox picbox = {
         {
+            {
+                .pos={.x=x, .y=y}, 
+                .width=width, 
+                .height=height, 
+                .visible=visible, 
+            },
             WIDGET_PICBOX, 
-            {x, y}, 
-            width, 
-            height, 
-            visible, 
             notify_func,
             input_func
         }, 

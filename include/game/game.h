@@ -2,7 +2,7 @@
 
 #include <stdbool.h>
 #include "game_constants.h"
-#include "gameobj.h"
+#include "../rect.h"
 #include "game.h"
 #include "../vec2.h"
 
@@ -34,7 +34,7 @@ typedef enum CHIP_VALUE {
 } CHIP_VALUE;
 
 typedef struct Card {
-    GameObject obj;
+    Rect rect;
     CARD_LOCATION location;
     char suit;
     char rank;
@@ -44,7 +44,7 @@ typedef struct Card {
 
 typedef struct Deck {
     int top;
-    Card** arr;
+    Card *arr;
 } Deck;
 
 typedef struct Player {

@@ -1,14 +1,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../../include/update/animation.h"
+#include "../../include/main.h"
 
-Animation animation_create(vec2 *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time)){
+Animation animation_create(Rect *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time), Cargo cargo){
     Animation anim = {
         .target = target,
-        .src = *target,
+        .src = target->pos,
         .dst = dst,
         .state = ANIMATION_STATE_WAITING,
         .anim_func = anim_func,
+        .cargo = cargo
     };
     return anim;
 }
@@ -78,7 +80,7 @@ bool anim_queue_empty(AnimationQueue *queue){
     }
 }
 
-void enqueue_anim(AnimationQueue *queue, Animation anim){
+void anim_enqueue(AnimationQueue *queue, Animation anim){
     if (anim_queue_full(queue)){
         fprintf(stderr, "ANIM QUEUE OVERFLOW!");
         return;
@@ -94,7 +96,7 @@ void enqueue_anim(AnimationQueue *queue, Animation anim){
     }
 }
 
-Animation dequeue_anim(AnimationQueue *queue){
+Animation anim_dequeue(AnimationQueue *queue){
     if (anim_queue_empty(queue)){
         fprintf(stderr, "ANIM QUEUE UNDERFLOW!");
         return NULL_ANIMATION;
@@ -167,20 +169,29 @@ void vec2_translate_in_fixed_time(float delta_time, vec2 *target, vec2 src, vec2
 Event animation_draw_card(Animation *self, float delta_time){
     vec2_translate_in_fixed_time(
         delta_time,
-        self->target,
+        &(self->target->pos),
         self->src,
         self->dst,
         0.3f
     );
-    if (self->state == ANIMATION_STATE_PLAYING && self->target->x == self->dst.x && self->target->y == self->dst.y){
+    if (self->state == ANIMATION_STATE_PLAYING && self->target->pos.x == self->dst.x && self->target->pos.y == self->dst.y){
         self->state = ANIMATION_STATE_COMPLETED;
+        Card* card = (Card *)self->target;
+        switch (self->cargo.type){
+            case CARGO_TYPE_BOOL:
+                card->face_down = self->cargo.boolean;
+                break;
+            default:
+                fprintf(stderr, "NON-BOOLEAN TYPE PASSED FOR card->face_down IN ANIMATION_DRAW_CARD.\n");
+                break;
+        }
     }
     return NULL_EVENT;
 }
 
 void animate_from_queue(AnimationContext *anim_ctx, EventContext *event_ctx, float delta_time){
     if (!anim_queue_empty(anim_ctx->queue) && anim_is_null(*anim_ctx->playing_blocking_anim)){
-        *anim_ctx->playing_blocking_anim = dequeue_anim(anim_ctx->queue);
+        *anim_ctx->playing_blocking_anim = anim_dequeue(anim_ctx->queue);
         anim_ctx->playing_blocking_anim->state = ANIMATION_STATE_PLAYING;
     }
     else if (!anim_is_null(*anim_ctx->playing_blocking_anim)){
@@ -201,5 +212,9 @@ void animate_from_queue(AnimationContext *anim_ctx, EventContext *event_ctx, flo
 }
 
 void animate(AppState *as){
-    
+    animate_from_queue(
+        as->anim_ctx, 
+        as->event_ctx, 
+        as->update_ctx->delta_time
+    );
 }
