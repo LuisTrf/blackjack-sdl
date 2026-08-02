@@ -51,11 +51,12 @@ AppState* app_state_create(void){
     }
     as.input_ctx = input_context_create();
     as.update_ctx = update_context_create();
-    as.texture_map = texture_map_create(as.renderer);
+    as.font_map = font_map_create();
+    as.texture_map = texture_map_create(as.renderer, as.font_map);
     as.game_ctx = game_context_create();
     as.event_ctx = event_context_create();
     as.anim_ctx = animation_context_create();
-    as.ui_ctx = ui_context_create(as.texture_map, as.input_ctx, as.event_ctx);
+    as.ui_ctx = ui_context_create(as.font_map, as.texture_map, as.input_ctx, as.event_ctx);
     as.should_quit = false;
     AppState *p_as = malloc(sizeof(AppState));
     if (p_as == NULL){
@@ -71,6 +72,7 @@ void app_state_destroy(AppState *as){
     event_context_destroy(as->event_ctx);
     game_context_destroy(as->game_ctx);
     texture_map_destroy(as->texture_map);
+    font_map_destroy(as->font_map);
     update_context_destroy(as->update_ctx);
     input_context_destroy(as->input_ctx);
     SDL_DestroyRenderer(as->renderer);

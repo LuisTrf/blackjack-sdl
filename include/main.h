@@ -16,6 +16,7 @@ typedef struct AppState {
     SDL_Renderer *renderer;
     InputContext *input_ctx;
     UpdateContext *update_ctx;
+    font_hash* font_map;
     texture_hash* texture_map;
     GameContext *game_ctx;
     EventContext *event_ctx;

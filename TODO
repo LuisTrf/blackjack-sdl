@@ -6,3 +6,8 @@ Replace bet_history in player with a dynamic array.
 
 OR create a 2D obj class which replaces gameobj and is a struct member of widget; the anim uses this as target.
 Create a union of int/float/bool wrapper structs which is passed as cargo with the animation.
+
+in render_label, create a retex flag in label struct which controls whether the label texture is re-rendered.
+Widgets to store texture_map/font_map keys or references.
+
+Replace label _retex with direct calls to re-render the texture?

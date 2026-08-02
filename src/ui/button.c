@@ -50,7 +50,7 @@ Button* button_create(
     bool visible, 
     EventType release_eventtype,
     BUTTON_STATE button_state_initial, 
-    SDL_Texture* spritesheet, 
+    TEXTURE_ID tid, 
     Event (*notify_func)(Widget *self, Event event),
     Event (*input_func)(Widget *self, SDL_Event event)
 )
@@ -70,7 +70,7 @@ Button* button_create(
         .release_event=common_event_create(release_eventtype), 
         ._state=button_state_initial, 
         ._prev_state=_BUTTON_STATE_NONE, 
-        .spritesheet=spritesheet, 
+        .tid=tid, 
     };
     Button *p_button = malloc(sizeof(Button));
     if (p_button == NULL){

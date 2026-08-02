@@ -50,7 +50,7 @@ void deal(GameContext *game_ctx, EventQueue *event_queue, AnimationQueue *anim_q
     Card* dc2 = dealer_hit(game_ctx->deck, game_ctx->dealer);
     anim_enqueue(anim_queue, animation_create(
         &(dc2->rect), 
-        vec2_create((HAND_ORIGIN_X + CARD_STEP_X), HAND_ORIGIN_Y_DEALER),
+        vec2_create((HAND_ORIGIN_X + HAND_STEP_X), HAND_ORIGIN_Y_DEALER),
         animation_draw_card,
         cargo_boolean_create(true)
     )
@@ -67,7 +67,7 @@ void deal(GameContext *game_ctx, EventQueue *event_queue, AnimationQueue *anim_q
     Card *pc2 = player_hit(game_ctx->deck, game_ctx->player);
     anim_enqueue(anim_queue, animation_create(
         &(pc2->rect), 
-        vec2_create((HAND_ORIGIN_X + CARD_STEP_X), HAND_ORIGIN_Y_PLAYER),
+        vec2_create((HAND_ORIGIN_X + HAND_STEP_X), HAND_ORIGIN_Y_PLAYER),
         animation_draw_card,
         cargo_boolean_create(false)
     )

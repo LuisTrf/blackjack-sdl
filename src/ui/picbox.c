@@ -7,7 +7,7 @@ PictureBox* picturebox_create(
     float x, float y, 
     int width, int height, 
     bool visible, 
-    SDL_Texture *texture,
+    TEXTURE_ID tid,
     Event (*notify_func)(Widget *self, Event event),
     Event (*input_func)(Widget *self, SDL_Event event)
 ){
@@ -23,7 +23,7 @@ PictureBox* picturebox_create(
             notify_func,
             input_func
         }, 
-        texture
+        tid
     };
     PictureBox *p_picbox = malloc(sizeof(PictureBox));
     if (p_picbox==NULL){

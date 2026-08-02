@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "widget.h"
 #include "../event/event_types.h"
+#include "../render/render_types.h"
 
 typedef enum BUTTON_STATE{
     _BUTTON_STATE_NONE,
@@ -18,7 +19,7 @@ typedef struct Button {
     Event release_event;
     BUTTON_STATE _state;
     BUTTON_STATE _prev_state;
-    SDL_Texture *spritesheet;
+    TEXTURE_ID tid;
 } Button;
 
 typedef struct ButtonContext{
@@ -31,7 +32,7 @@ Button* button_create(
     bool visible, 
     EventType release_eventtype, 
     BUTTON_STATE button_state_initial, 
-    SDL_Texture* spritesheet,
+    TEXTURE_ID tid,
     Event (*notify_func)(Widget *self, Event event),
     Event (*input_func)(Widget *self, SDL_Event sdl_event)
 );

@@ -4,17 +4,18 @@
 #include <stdbool.h>
 #include "widget.h"
 #include "../event/event_types.h"
+#include "../render/render_types.h"
 
 typedef struct PictureBox {
     Widget widget;
-    SDL_Texture *texture;
+    TEXTURE_ID tid;
 } PictureBox;
 
 PictureBox* picturebox_create(
     float x, float y, 
     int width, int height, 
     bool visible, 
-    SDL_Texture *texture, 
+    TEXTURE_ID tid, 
     Event (*notify_func)(Widget *self, Event event),
     Event (*input_func)(Widget *self, SDL_Event sdl_event)
 );

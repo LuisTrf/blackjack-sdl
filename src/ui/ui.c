@@ -7,18 +7,17 @@
 #include "../../include/ui/label.h"
 #include "../../include/ui/spritebox.h"
 #include "../../include/input/input.h"
-#include "../../include/render/render.h"
 #include "../../include/ui/ui.h"
 
 #include <stdio.h>
 
-Button* widget_deal_button_initialize(texture_hash *texture_map, InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
+Button* widget_deal_button_initialize(InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
     Button *deal_button = button_create(
         368.f, 560.f, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT, 
         true,
         BUTTON_EVENT_RELEASE_DEAL,
         BUTTON_STATE_IDLE, 
-        hmget(texture_map, TEXTURE_ID_DEAL_BUTTON_SPRITESHEET), 
+        TEXTURE_ID_DEAL_BUTTON_SPRITESHEET, 
         button_notify_deal,
         input_handle_button_mouse_events
     );
@@ -28,13 +27,13 @@ Button* widget_deal_button_initialize(texture_hash *texture_map, InputContext *i
     return deal_button;
 }
 
-Button* widget_hit_button_initialize(texture_hash *texture_map, InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
+Button* widget_hit_button_initialize(InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
     Button *hit_button = button_create(
         546.f, 560.f, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         true, 
         BUTTON_EVENT_RELEASE_HIT,
         BUTTON_STATE_IDLE,
-        hmget(texture_map, TEXTURE_ID_HIT_BUTTON_SPRITESHEET), 
+        TEXTURE_ID_HIT_BUTTON_SPRITESHEET, 
         button_notify_hit,
         input_handle_button_mouse_events
     );
@@ -44,13 +43,13 @@ Button* widget_hit_button_initialize(texture_hash *texture_map, InputContext *in
     return hit_button;
 }
 
-Button* widget_stand_button_initialize(texture_hash *texture_map, InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
+Button* widget_stand_button_initialize(InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
     Button *stand_button = button_create(
         724.f, 560.f, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         true, 
         BUTTON_EVENT_RELEASE_STAND,
         BUTTON_STATE_IDLE,
-        hmget(texture_map, TEXTURE_ID_STAND_BUTTON_SPRITESHEET), 
+        TEXTURE_ID_STAND_BUTTON_SPRITESHEET, 
         button_notify_stand,
         input_handle_button_mouse_events
     );
@@ -60,27 +59,58 @@ Button* widget_stand_button_initialize(texture_hash *texture_map, InputContext *
     return stand_button;
 }
 
-Container* ui_buttons_initialize(texture_hash *texture_map, InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
+Container* ui_buttons_initialize(InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
     Container *buttons = container_create(
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
         true,
         NULL,
         NULL
     );
-    Button* deal_button = widget_deal_button_initialize(texture_map, input_ctx, event_ctx, button_ctx);
+    Button* deal_button = widget_deal_button_initialize(input_ctx, event_ctx, button_ctx);
     container_add_widget(buttons, (Widget *)deal_button);
-    Button* hit_button = widget_hit_button_initialize(texture_map, input_ctx, event_ctx, button_ctx);
+    Button* hit_button = widget_hit_button_initialize(input_ctx, event_ctx, button_ctx);
     container_add_widget(buttons, (Widget *)hit_button);
-    Button *stand_button = widget_stand_button_initialize(texture_map, input_ctx, event_ctx, button_ctx);
+    Button *stand_button = widget_stand_button_initialize(input_ctx, event_ctx, button_ctx);
     container_add_widget(buttons, (Widget *)stand_button);
     return buttons;
 }
 
-Container* ui_root_initialize(texture_hash *texture_map, InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
+Label* widget_player_money_label_initialize(font_hash* font_map){
+    Label *player_money_label = label_create(
+        font_map,
+        0, 0,
+        true,
+        FONT_ID_OPENSANS_32PT,
+        TEXTURE_ID_LABEL_PLAYER_MONEY,
+        NULL,
+        NULL
+    );
+    label_write(player_money_label, font_map, "$%.2f", 10.00);
+    return player_money_label;
+}
+
+Container* ui_labels_initialize(font_hash* font_map){
+    Container *labels = container_create(
+        0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
+        true,
+        NULL,
+        NULL
+    );
+
+    Label *player_money_label = widget_player_money_label_initialize(font_map);
+    container_add_widget(labels, (Widget *)player_money_label);
+
+    return labels;
+}
+
+Container* ui_root_initialize(InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx, font_hash* font_map){
     Container *root = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true, NULL, NULL);
     
-    Container *buttons = ui_buttons_initialize(texture_map, input_ctx, event_ctx, button_ctx);
+    Container *buttons = ui_buttons_initialize(input_ctx, event_ctx, button_ctx);
     container_add_widget(root, (Widget *)buttons);
+
+    Container *labels = ui_labels_initialize(font_map);
+    container_add_widget(root, (Widget *)labels);
 
     return root;
 }
@@ -111,10 +141,10 @@ void widgets_teardown(Container *root){
     root = NULL;
 }
 
-UIContext* ui_context_create(texture_hash *texture_map, InputContext *input_ctx, EventContext *event_ctx){
+UIContext* ui_context_create(font_hash* font_map, texture_hash *texture_map, InputContext *input_ctx, EventContext *event_ctx){
     UIContext ui_ctx;
     ui_ctx.button_ctx = button_context_create();
-    ui_ctx.root = ui_root_initialize(texture_map, input_ctx, event_ctx, ui_ctx.button_ctx);
+    ui_ctx.root = ui_root_initialize(input_ctx, event_ctx, ui_ctx.button_ctx, font_map);
     UIContext *p_ui_ctx = malloc(sizeof(UIContext));
     if (p_ui_ctx == NULL){
         abort();
