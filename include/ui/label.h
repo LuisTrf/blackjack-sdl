@@ -20,9 +20,7 @@ Label* label_create(
     float x, float y, 
     bool visible, 
     FONT_ID fid,
-    TEXTURE_ID tid,
-    Event (*notify_func)(Widget *self, Event event),
-    Event (*input_func)(Widget *self, SDL_Event sdl_event)
+    TEXTURE_ID tid
 );
 void label_destroy(Label *label);
 

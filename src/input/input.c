@@ -35,34 +35,39 @@ InputContext* input_context_create(void){
 }
 
 void input_context_destroy(InputContext *input_ctx){
-    arrfree(input_ctx->input_widget_listeners);
-    input_ctx->input_widget_listeners = NULL;
+    arrfree(input_ctx->input_listeners);
+    input_ctx->input_listeners = NULL;
     free(input_ctx);
 }
 
-void input_ctx_widget_listener_register(InputContext *input_ctx, Widget *widget){
-    arrput(input_ctx->input_widget_listeners, widget);
+InputListener input_listener_create(void * self, Event (*input_func)(void *self, SDL_Event sdl_event)){
+    InputListener input_listener = {self, input_func};
+    return input_listener;
 }
 
-void input_ctx_widget_listener_remove(InputContext *input_ctx, Widget *widget){
-    for (int i = 0; i < arrlen(input_ctx->input_widget_listeners); i++){
-        if (input_ctx->input_widget_listeners[i] == widget){
-            arrdel(input_ctx->input_widget_listeners, i);
+void input_ctx_listener_register(InputContext *input_ctx, InputListener input_listener){
+    arrput(input_ctx->input_listeners, input_listener);
+}
+
+void input_ctx_listener_remove(InputContext *input_ctx, InputListener input_listener){
+    for (int i = 0; i < arrlen(input_ctx->input_listeners); i++){
+        if (input_ctx->input_listeners[i].self == input_listener.self){
+            arrdel(input_ctx->input_listeners, i);
         }
     }
 }
 
-void input_ctx_widget_listeners_notify_all(EventContext *event_ctx, InputContext* input_ctx, SDL_Event sdl_event){;
-    for (int i = 0; i < arrlen(input_ctx->input_widget_listeners); i++){
-        Event e = widget_input(input_ctx->input_widget_listeners[i], sdl_event);
+void input_ctx_listeners_notify_all(EventContext *event_ctx, InputContext* input_ctx, SDL_Event sdl_event){;
+    for (int i = 0; i < arrlen(input_ctx->input_listeners); i++){
+        Event e = input_ctx->input_listeners[i].input_func(input_ctx->input_listeners[i].self, sdl_event);
         if (!event_is_null(e)){
             event_enqueue(event_ctx->queue, e);
         }
     }
 }
 
-Event input_handle_button_mouse_events(Widget *widget, SDL_Event sdl_event){
-    Button *button = (Button *)widget;
+Event input_handle_button_mouse_events(void *self, SDL_Event sdl_event){
+    Button *button = (Button *)self;
     float x, y;
     float bx = button->widget.rect.pos.x; 
     float by = button->widget.rect.pos.y;
@@ -112,7 +117,7 @@ bool input_handle(AppState *as){
     SDL_Event sdl_event;
     while (SDL_PollEvent(&sdl_event)){
         should_quit = handle_quit(sdl_event);
-        input_ctx_widget_listeners_notify_all(
+        input_ctx_listeners_notify_all(
             as->event_ctx, 
             as->input_ctx,
             sdl_event

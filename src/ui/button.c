@@ -50,9 +50,7 @@ Button* button_create(
     bool visible, 
     EventType release_eventtype,
     BUTTON_STATE button_state_initial, 
-    TEXTURE_ID tid, 
-    Event (*notify_func)(Widget *self, Event event),
-    Event (*input_func)(Widget *self, SDL_Event event)
+    TEXTURE_ID tid
 )
 {
     Button button = {
@@ -64,8 +62,6 @@ Button* button_create(
                 .visible=visible, 
             },
             .wtype=WIDGET_BUTTON,
-            .notify_func=notify_func,
-            .input_func=input_func
         }, 
         .release_event=common_event_create(release_eventtype), 
         ._state=button_state_initial, 
@@ -155,11 +151,12 @@ void button_ctx_reposition_visible_move_buttons(ButtonContext *button_ctx){
     }
 }
 
-Event button_notify_deal(Widget *self, Event event){
+Event button_notify_deal(void *self, Event event){
+    Button *button = (Button *)self;
     switch(event.type){
         case BUTTON_EVENT_RELEASE_DEAL:
-            button_set_state((Button *)self, BUTTON_STATE_DISABLED);
-            self->rect.visible = false;
+            button_set_state(button, BUTTON_STATE_DISABLED);
+            button->widget.rect.visible = false;
             break;
         default:
             break;
@@ -167,11 +164,12 @@ Event button_notify_deal(Widget *self, Event event){
     return NULL_EVENT;
 }
 
-Event button_notify_hit(Widget *self, Event event){
+Event button_notify_hit(void *self, Event event){
+    Button *button = (Button *)self;
     switch(event.type){
         case BUTTON_EVENT_RELEASE_DEAL:
-            button_set_state((Button *)self, BUTTON_STATE_IDLE);
-            self->rect.visible = true;
+            button_set_state(button, BUTTON_STATE_IDLE);
+            button->widget.rect.visible = true;
             break;
         default:
             break;
@@ -179,11 +177,12 @@ Event button_notify_hit(Widget *self, Event event){
     return NULL_EVENT;
 }
 
-Event button_notify_stand(Widget *self, Event event){
+Event button_notify_stand(void *self, Event event){
+    Button *button = (Button *)self;
     switch(event.type){
         case BUTTON_EVENT_RELEASE_DEAL:
-            button_set_state((Button *)self, BUTTON_STATE_IDLE);
-            self->rect.visible = true;
+            button_set_state(button, BUTTON_STATE_IDLE);
+            button->widget.rect.visible = true;
             break;
         default:
             break;

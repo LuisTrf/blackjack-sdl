@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../../include/stb_ds.h"
-#include "../../include/ui/widget.h"
 #include "../../include/event/event.h"
 
 Event common_event_create(EventType event_type){
@@ -108,22 +107,27 @@ EventContext* event_context_create(void){
 void event_context_destroy(EventContext *event_ctx){
     event_queue_destroy(event_ctx->queue);
     event_ctx->queue = NULL;
-    arrfree(event_ctx->event_widget_listeners);
-    event_ctx->event_widget_listeners = NULL;
+    arrfree(event_ctx->event_listeners);
+    event_ctx->event_listeners = NULL;
     free(event_ctx);
 }
 
-void event_ctx_widget_listeners_notify_all(EventContext *event_ctx, Event event){
-    for (int i = 0; i < arrlen(event_ctx->event_widget_listeners); i++){
-        Event e = widget_notify(event_ctx->event_widget_listeners[i], event);
+EventListener event_listener_create(void *self, Event (*notify_func)(void *self, Event event)){
+    EventListener event_listener = {self, notify_func};
+    return event_listener;
+}
+
+void event_ctx_listeners_notify_all(EventContext *event_ctx, Event event){
+    for (int i = 0; i < arrlen(event_ctx->event_listeners); i++){
+        Event e = event_ctx->event_listeners[i].notify_func(event_ctx->event_listeners[i].self, event);
         if (!event_is_null(e)){
             event_enqueue(event_ctx->queue, e);
         }
     }
 }
 
-void event_ctx_widget_listener_register(EventContext *event_ctx, Widget *widget){
-    arrput(event_ctx->event_widget_listeners, widget);
+void event_ctx_listener_register(EventContext *event_ctx, EventListener event_listener){
+    arrput(event_ctx->event_listeners, event_listener);
 }
 
 /*

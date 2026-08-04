@@ -5,6 +5,7 @@ SDL_Event docs
 */
 #include <SDL3/SDL.h>
 #include "event_types.h"
+#include "event_listener.h"
 #include "../ui/widget.h"
 
 typedef struct EventQueue {
@@ -16,7 +17,7 @@ typedef struct EventQueue {
 
 typedef struct EventContext {
     EventQueue *queue;
-    Widget **event_widget_listeners;
+    EventListener* event_listeners;
 } EventContext;
 
 Event common_event_create(EventType event_type);
@@ -29,10 +30,12 @@ void event_enqueue(EventQueue *queue, Event event);
 Event event_dequeue(EventQueue *queue);
 bool event_is_null(Event event);
 
+EventListener event_listener_create(void *self, Event (*notify_func)(void *self, Event event));
+
 EventContext* event_context_create(void);
 void event_context_destroy(EventContext *event_ctx);
-void event_ctx_widget_listeners_notify_all(EventContext *event_ctx, Event event);
-void event_ctx_widget_listener_register(EventContext *event_ctx, Widget *widget);
+void event_ctx_listeners_notify_all(EventContext *event_ctx, Event event);
+void event_ctx_listener_register(EventContext *event_ctx, EventListener event_listener);
 /*
 #define MAXIMUM_POLLED_EVENTS 32
 typedef struct EventQueue {

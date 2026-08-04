@@ -22,9 +22,4 @@ typedef enum WIDGET_TYPE {
 typedef struct Widget {
     Rect rect;
     WIDGET_TYPE wtype;
-    Event (*notify_func)(struct Widget *self, Event event);
-    Event (*input_func)(struct Widget *self, SDL_Event sdl_event);
 } Widget;
-
-Event widget_notify(Widget *widget, Event event);
-Event widget_input(Widget *widget, SDL_Event sdl_event);

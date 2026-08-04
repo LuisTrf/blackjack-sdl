@@ -18,8 +18,6 @@ SpriteBox* spritebox_create(
     int width, int height, 
     bool visible, 
     TEXTURE_ID tid, 
-    int spritesheet_x, int spritesheet_y,
-    Event (*notify_func)(Widget *self, Event event),
-    Event (*input_func)(Widget *self, SDL_Event sdl_event)
+    int spritesheet_x, int spritesheet_y
 );
 void spritebox_destroy(SpriteBox *spritebox);

@@ -1,5 +1,6 @@
 #include <SDL3/SDL.h>
 #include <stdlib.h>
+
 #include "../../include/stb_ds.h"
 #include "../../include/cargo.h"
 #include "../../include/vec2.h"
@@ -34,7 +35,7 @@ void update_delta_time(UpdateContext *update_ctx){
     update_ctx->previous_frame_time = SDL_GetTicks();
 }
 
-void deal(GameContext *game_ctx, EventQueue *event_queue, AnimationQueue *anim_queue){
+void deal(GameContext *game_ctx, AnimationQueue *anim_queue){
     game_context_set_game_state(game_ctx, GAME_STATE_PLAYING);
 
     deck_shuffle(game_ctx->deck);
@@ -84,17 +85,19 @@ void update(AppState *as){
     update_delta_time(as->update_ctx);
     while (!event_queue_empty(as->event_ctx->queue)){
         Event event = event_dequeue(as->event_ctx->queue);
-        event_ctx_widget_listeners_notify_all(as->event_ctx, event);
         switch (event.type){
             case BUTTON_EVENT_RELEASE_DEAL:
-                deal(as->game_ctx, as->event_ctx->queue, as->anim_ctx->queue);
+                deal(as->game_ctx, as->anim_ctx->queue);
+                event_ctx_listeners_notify_all(as->event_ctx, event);
                 button_ctx_reposition_visible_move_buttons(as->ui_ctx->button_ctx);
                 break;
             case BUTTON_EVENT_RELEASE_HIT:
                 hit(as->game_ctx);
+                event_ctx_listeners_notify_all(as->event_ctx, event);
                 button_ctx_reposition_visible_move_buttons(as->ui_ctx->button_ctx);
                 break;
             default:
+                event_ctx_listeners_notify_all(as->event_ctx, event);
                 break;
         }
     }

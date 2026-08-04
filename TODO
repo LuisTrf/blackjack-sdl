@@ -10,4 +10,14 @@ Create a union of int/float/bool wrapper structs which is passed as cargo with t
 in render_label, create a retex flag in label struct which controls whether the label texture is re-rendered.
 Widgets to store texture_map/font_map keys or references.
 
-Replace label _retex with direct calls to re-render the texture?
+Create inputlistener event eventlistener structs which are members of structs that do them.
+Create vtables for input and event listening.
+Use wrapper structs like for the type when registering the struct to event/input listening. This wrapper
+struct is not dynamically allocated.
+
+How am I going to pass other variables to a widget when calling its update method?
+One option is to create an 'observables' dynamic arr which holds pointers to observed values. Initialise this during
+widget creation.
+Other option is to change definiton of the update_func to allow vararg cargo variables to be passed.
+Similar to how Animation is set up to hold cargo as well. Also allow Anim to carry a variable amount of cargo (this will
+need dynamic allocation).

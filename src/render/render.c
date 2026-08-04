@@ -59,6 +59,7 @@ SDL_Texture* render_create_empty_font_texture(SDL_Renderer *renderer, font_hash*
 void rerender_font_texture(SDL_Renderer *renderer, texture_hash* texture_map, font_hash* font_map, TEXTURE_ID tid, FONT_ID fid, const char* txt){
     SDL_Surface* surface = TTF_RenderText_Blended(hmget(font_map, fid), txt, 0, FONT_COLOR);
     SDL_DestroyTexture(hmget(texture_map, tid));
+    hmput(texture_map, tid, NULL);
     hmput(texture_map, tid, SDL_CreateTextureFromSurface(renderer, surface));
     SDL_DestroySurface(surface);
 }

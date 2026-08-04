@@ -8,9 +8,7 @@ SpriteBox* spritebox_create(
     int width, int height, 
     bool visible, 
     TEXTURE_ID tid, 
-    int spritesheet_x, int spritesheet_y,
-    Event (*notify_func)(Widget *self, Event event),
-    Event (*input_func)(Widget *self, SDL_Event event)
+    int spritesheet_x, int spritesheet_y
 ){
     SpriteBox spritebox = {
         {
@@ -20,9 +18,7 @@ SpriteBox* spritebox_create(
                 .height=height, 
                 .visible=visible, 
             },
-            WIDGET_SPRITEBOX, 
-            notify_func,
-            input_func
+            WIDGET_SPRITEBOX,
         }, 
         tid, 
         spritesheet_x, 

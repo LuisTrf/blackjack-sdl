@@ -29,9 +29,7 @@ Label* label_create(
     float x, float y, 
     bool visible, 
     FONT_ID fid,
-    TEXTURE_ID tid,
-    Event (*notify_func)(Widget *self, Event event),
-    Event (*input_func)(Widget *self, SDL_Event event)
+    TEXTURE_ID tid
 )
 {
     Label label = {
@@ -41,8 +39,6 @@ Label* label_create(
                 .visible=visible, 
             },
             WIDGET_LABEL, 
-            notify_func,
-            input_func
         }, 
         fid,
         tid, 

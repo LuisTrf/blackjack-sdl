@@ -8,9 +8,7 @@
 Container* container_create(
     float x, float y, 
     int width, int height, 
-    bool visible, 
-    Event (*notify_func)(Widget *self, Event event),
-    Event (*input_func)(Widget *self, SDL_Event event)
+    bool visible
 ){
     Container container = {
         .widget={
@@ -21,8 +19,6 @@ Container* container_create(
                 .visible=visible, 
             },
             .wtype=WIDGET_CONTAINER, 
-            .notify_func=notify_func,
-            .input_func=input_func
         }, 
         .children=NULL
     };

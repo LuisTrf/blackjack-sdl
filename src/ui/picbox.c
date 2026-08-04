@@ -7,9 +7,7 @@ PictureBox* picturebox_create(
     float x, float y, 
     int width, int height, 
     bool visible, 
-    TEXTURE_ID tid,
-    Event (*notify_func)(Widget *self, Event event),
-    Event (*input_func)(Widget *self, SDL_Event event)
+    TEXTURE_ID tid
 ){
     PictureBox picbox = {
         {
@@ -20,8 +18,6 @@ PictureBox* picturebox_create(
                 .visible=visible, 
             },
             WIDGET_PICBOX, 
-            notify_func,
-            input_func
         }, 
         tid
     };
