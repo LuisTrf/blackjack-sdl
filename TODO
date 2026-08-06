@@ -7,3 +7,7 @@ Write separate poll events method which is called from update().
 Poll events should dispatch to an input event queue and an animation event queue.
 Rewrite event_types to have an input_event type and anim_event type. Separate input and anim event queues which get
 polled separately.
+
+Remove event return from notify_func (keep event return for input_func).
+Condense appstate struct members/remove redundant members.
+Replace button_context with an eventlistener attached to buttons container widget.
