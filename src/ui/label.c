@@ -81,12 +81,12 @@ Event label_notify_dealer_hand(void *self, Event event, Cargo cargo[]){
             int player_cards_in_hand = cargo[3].integer;
             int player_hand_value = cargo[4].integer;
             label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X + dealer_cards_in_hand*HAND_LABEL_STEP_X;
+            label->widget.rect.visible = true;
             if (blackjack(player_cards_in_hand, player_hand_value)){
                 label_write(label, font_map, "%d, DEALER LOSES...", dealer_hand_value);
-                label->widget.rect.visible = true;
             }
             else {
-                label_write(label, font_map, "%d", dealer_hand_value);
+                label_write(label, font_map, "?");
             }
             break;
         }
@@ -131,8 +131,7 @@ Event label_notify_dealer_hand(void *self, Event event, Cargo cargo[]){
             label->widget.rect.visible = false;
             break;
         case EVENT_ANIM_QUEUE_NONBLOCKING:
-            bool is_dealer_hiding_second_card = cargo[0].boolean;
-            label->widget.rect.visible = !is_dealer_hiding_second_card;
+            label->widget.rect.visible = true;
             break;
         default:
             break;
@@ -162,7 +161,7 @@ Event label_notify_player_hand(void *self, Event event, Cargo cargo[]){
             int player_hand_value = cargo[4].integer;
             label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X + player_cards_in_hand*HAND_LABEL_STEP_X;
             if (bust(player_hand_value)) {
-                label_write(label, font_map, "BUST!");
+                label_write(label, font_map, "%d, BUST!", player_hand_value);
             }
             else {
                 label_write(label, font_map, "%d", player_hand_value);

@@ -103,7 +103,7 @@ void update(AppState *as){
         switch (event.type){
             case BUTTON_EVENT_RELEASE_DEAL:
                 update_on_button_deal_released(as->game_ctx, as->anim_ctx->queue);
-                event_ctx_listeners_notify_all(as->event_ctx, event,(Cargo[]){
+                event_ctx_listeners_notify_all(as->event_ctx, event, (Cargo[]){
                     {.type=CARGO_TYPE_FONT_HASHMAP, .font_hashmap=as->font_map},
                     {.type=CARGO_TYPE_INT, .integer=as->game_ctx->dealer->cards_in_hand},
                     {.type=CARGO_TYPE_INT, .integer=as->game_ctx->dealer->hand_value},
@@ -158,9 +158,7 @@ void update(AppState *as){
                 );
                 break;
             case EVENT_ANIM_QUEUE_NONBLOCKING: 
-                event_ctx_listeners_notify_all(as->event_ctx, event, (Cargo[]){
-                    {.type=CARGO_TYPE_BOOL, dealer_is_hiding_second_card(as->game_ctx->dealer)}
-                });
+                event_ctx_listeners_notify_all(as->event_ctx, event, (Cargo[]){});
                 break;
             default: {
                 event_ctx_listeners_notify_all(as->event_ctx, event, (Cargo[]){});

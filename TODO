@@ -11,3 +11,24 @@ polled separately.
 Remove event return from notify_func (keep event return for input_func).
 Condense appstate struct members/remove redundant members.
 Replace button_context with an eventlistener attached to buttons container widget.
+
+rewrite event system to use unions to deliver cargo
+
+typedef enum {
+    EVENT_MOUSE_MOVE,
+    EVENT_KEY_PRESS,
+    EVENT_WINDOW_RESIZE
+} EventType;
+
+typedef struct {
+    EventType type;
+    union {
+        struct { int x, y; } mouse_move;
+        struct { int keycode; bool shift, ctrl; } key_press;
+        struct { int width, height; } resize;
+    } data;
+} Event;
+
+The button_released_event will run game code, then this creates a new game event to notify the game state has been updated
+which is then enqueued with the data in the tagged union.
+animate() runs after polling this event queue and then the internal animation event queue is polled.
