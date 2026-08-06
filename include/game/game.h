@@ -48,22 +48,22 @@ typedef struct Deck {
 } Deck;
 
 typedef struct Player {
-    Card *hand[PLAYER_MAXIMUM_HAND_SIZE];
-    unsigned char hand_value;
-    unsigned char cards_in_hand;
-    unsigned char aces_in_hand_worth_11;
+    Card *hand[MAXIMUM_HAND_SIZE];
+    int hand_value;
+    int cards_in_hand;
+    int aces_in_hand_worth_11;
     float money;
     float bet;
     int betted_chips;
     /* replace array via stb dynamic arr */
-    CHIP_VALUE bet_history[MAXIMUM_BETTED_CHIPS];
+    CHIP_VALUE *bet_history;
 } Player;
 
 typedef struct Dealer{
-    Card *hand[DEALER_MAXIMUM_HAND_SIZE];
-    unsigned char hand_value;
-    unsigned char cards_in_hand;
-    unsigned char aces_in_hand_worth_11;
+    Card *hand[MAXIMUM_HAND_SIZE];
+    int hand_value;
+    int cards_in_hand;
+    int aces_in_hand_worth_11;
 } Dealer;
 
 typedef struct GameContext {
@@ -84,18 +84,18 @@ void game_reset(GameContext *game_ctx);
 void deck_shuffle(Deck *deck);
 int deck_get_card_count(Deck *deck);
 
-bool dealer_bust(Dealer *dealer);
-bool dealer_is_blackjack(Dealer *dealer);
-bool dealer_can_hit(Dealer *dealer);
+bool bust(int hand_value);
+bool blackjack(int cards_in_hand, int hand_value);
+void flip_card(Card *card, bool is_second_dealer_card, bool dealer_is_hiding_second_card);
+bool can_hit(int cards_in_hand, int hand_value);
+
 bool dealer_is_hiding_second_card(Dealer *dealer);
 void dealer_reveal_second_card(Dealer *dealer);
+bool is_second_dealer_card(Dealer *dealer, Card *card);
 Card* dealer_hit(Deck* deck, Dealer *dealer);
 Card** dealer_get_hand(Dealer *dealer);
 bool can_insure(Dealer *dealer);
 
-bool player_bust(Player *player);
-bool player_is_blackjack(Player *player);
-bool player_can_hit(Player *player);
 Card* player_hit(Deck *deck, Player *player);
 bool player_is_bet_history_empty(Player *player);
 bool player_is_bet_history_full(Player *player);

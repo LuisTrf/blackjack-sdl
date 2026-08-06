@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "widget.h"
 #include "../event/event_types.h"
+#include "../cargo.h"
 #include "../render/render_types.h"
 
 typedef enum BUTTON_STATE{
@@ -48,6 +49,6 @@ void button_ctx_register_move_button(ButtonContext *button_ctx, Button *button);
 int button_ctx_get_visible_move_buttons(ButtonContext *button_ctx);
 void button_ctx_reposition_visible_move_buttons(ButtonContext *button_ctx);
 
-Event button_notify_deal(void *self, Event event);
-Event button_notify_hit(void *self, Event event);
-Event button_notify_stand(void *self, Event event);
+Event button_notify_deal(void *self, Event event, Cargo *cargo);
+Event button_notify_hit(void *self, Event event, Cargo *cargo);
+Event button_notify_stand(void *self, Event event, Cargo *cargo);

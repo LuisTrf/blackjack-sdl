@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "../../include/stb_ds.h"
-#include "../../include/cargo.h"
 #include "../../include/vec2.h"
 #include "../../include/constants.h"
 #include "../../include/game/card_constants.h"
@@ -35,7 +34,13 @@ void update_delta_time(UpdateContext *update_ctx){
     update_ctx->previous_frame_time = SDL_GetTicks();
 }
 
-void deal(GameContext *game_ctx, AnimationQueue *anim_queue){
+void update_on_new_game(GameContext *game_ctx){
+    game_context_set_game_state(game_ctx, GAME_STATE_NEW);
+    game_reset(game_ctx);
+}
+
+void update_on_button_deal_released(GameContext *game_ctx, AnimationQueue *anim_queue){
+    game_reset(game_ctx);
     game_context_set_game_state(game_ctx, GAME_STATE_PLAYING);
 
     deck_shuffle(game_ctx->deck);
@@ -44,62 +49,123 @@ void deal(GameContext *game_ctx, AnimationQueue *anim_queue){
     anim_enqueue(anim_queue, animation_create(
         &(dc1->rect), 
         vec2_create(HAND_ORIGIN_X, HAND_ORIGIN_Y_DEALER),
-        animation_draw_card,
-        cargo_boolean_create(false)
-    )
-    );
+        animation_draw_card
+    ));
     Card* dc2 = dealer_hit(game_ctx->deck, game_ctx->dealer);
     anim_enqueue(anim_queue, animation_create(
         &(dc2->rect), 
         vec2_create((HAND_ORIGIN_X + HAND_STEP_X), HAND_ORIGIN_Y_DEALER),
-        animation_draw_card,
-        cargo_boolean_create(true)
-    )
-    );
+        animation_draw_card
+    ));
 
     Card *pc1 = player_hit(game_ctx->deck, game_ctx->player);
     anim_enqueue(anim_queue, animation_create(
         &(pc1->rect), 
         vec2_create(HAND_ORIGIN_X, HAND_ORIGIN_Y_PLAYER),
-        animation_draw_card,
-        cargo_boolean_create(false)
-    )
-    );
+        animation_draw_card
+    ));
     Card *pc2 = player_hit(game_ctx->deck, game_ctx->player);
     anim_enqueue(anim_queue, animation_create(
         &(pc2->rect), 
         vec2_create((HAND_ORIGIN_X + HAND_STEP_X), HAND_ORIGIN_Y_PLAYER),
-        animation_draw_card,
-        cargo_boolean_create(false)
-    )
-    );
-
-    if (dealer_is_blackjack(game_ctx->dealer)){
-    }
+        animation_draw_card
+    ));
 }
 
-void hit(GameContext *game_ctx){
+void update_on_button_hit_released(GameContext *game_ctx, AnimationQueue *anim_queue){
+    Card *pc = player_hit(game_ctx->deck, game_ctx->player);
+    anim_enqueue(anim_queue, animation_create(
+        &(pc->rect), 
+        vec2_create((HAND_ORIGIN_X + HAND_STEP_X*(game_ctx->player->cards_in_hand-1)), HAND_ORIGIN_Y_PLAYER),
+        animation_draw_card
+    ));
+}
+
+void update_on_button_stand_released(GameContext *game_ctx, AnimationQueue *anim_queue){
+    dealer_reveal_second_card(game_ctx->dealer);
+    while (game_ctx->dealer->hand_value < 17){
+        Card *dc = dealer_hit(game_ctx->deck, game_ctx->dealer);
+        anim_enqueue(anim_queue, animation_create(
+            &(dc->rect), 
+            vec2_create((HAND_ORIGIN_X + HAND_STEP_X*(game_ctx->dealer->cards_in_hand-1)), HAND_ORIGIN_Y_DEALER),
+            animation_draw_card
+        ));
+    }
 }
 
 void update(AppState *as){
     update_delta_time(as->update_ctx);
+    /*
+    Process input-related events here.
+    */
     while (!event_queue_empty(as->event_ctx->queue)){
         Event event = event_dequeue(as->event_ctx->queue);
         switch (event.type){
             case BUTTON_EVENT_RELEASE_DEAL:
-                deal(as->game_ctx, as->anim_ctx->queue);
-                event_ctx_listeners_notify_all(as->event_ctx, event);
+                update_on_button_deal_released(as->game_ctx, as->anim_ctx->queue);
+                event_ctx_listeners_notify_all(as->event_ctx, event,(Cargo[]){
+                    {.type=CARGO_TYPE_FONT_HASHMAP, .font_hashmap=as->font_map},
+                    {.type=CARGO_TYPE_INT, .integer=as->game_ctx->dealer->cards_in_hand},
+                    {.type=CARGO_TYPE_INT, .integer=as->game_ctx->dealer->hand_value},
+                    {.type=CARGO_TYPE_INT, .integer=as->game_ctx->player->cards_in_hand},
+                    {.type=CARGO_TYPE_INT, .integer=as->game_ctx->player->hand_value}
+                });
                 button_ctx_reposition_visible_move_buttons(as->ui_ctx->button_ctx);
                 break;
             case BUTTON_EVENT_RELEASE_HIT:
-                hit(as->game_ctx);
-                event_ctx_listeners_notify_all(as->event_ctx, event);
+                update_on_button_hit_released(as->game_ctx, as->anim_ctx->queue);
+                event_ctx_listeners_notify_all(as->event_ctx, event, (Cargo[]){
+                    {.type=CARGO_TYPE_FONT_HASHMAP, .font_hashmap=as->font_map},
+                    {.type=CARGO_TYPE_INT, .integer=as->game_ctx->dealer->cards_in_hand},
+                    {.type=CARGO_TYPE_INT, .integer=as->game_ctx->dealer->hand_value},
+                    {.type=CARGO_TYPE_INT, .integer=as->game_ctx->player->cards_in_hand},
+                    {.type=CARGO_TYPE_INT, .integer=as->game_ctx->player->hand_value}
+                });
                 button_ctx_reposition_visible_move_buttons(as->ui_ctx->button_ctx);
                 break;
-            default:
-                event_ctx_listeners_notify_all(as->event_ctx, event);
+            case BUTTON_EVENT_RELEASE_STAND:
+                update_on_button_stand_released(as->game_ctx, as->anim_ctx->queue);
+                event_ctx_listeners_notify_all(as->event_ctx, event, (Cargo[]){
+                    {.type=CARGO_TYPE_FONT_HASHMAP, .font_hashmap=as->font_map},
+                    {.type=CARGO_TYPE_INT, .integer=as->game_ctx->dealer->cards_in_hand},
+                    {.type=CARGO_TYPE_INT, .integer=as->game_ctx->dealer->hand_value},
+                    {.type=CARGO_TYPE_INT, .integer=as->game_ctx->player->cards_in_hand},
+                    {.type=CARGO_TYPE_INT, .integer=as->game_ctx->player->hand_value}
+                });
+                button_ctx_reposition_visible_move_buttons(as->ui_ctx->button_ctx);
                 break;
+            default: {
+                event_ctx_listeners_notify_all(as->event_ctx, event, (Cargo[]){});
+                break;
+            }
         }
     }
+    /*
+    Process animation-related events here.
+    */
     animate(as);
+    while (!event_queue_empty(as->event_ctx->queue)){
+        Event event = event_dequeue(as->event_ctx->queue);
+        switch(event.type){
+            case ANIMATION_EVENT_ANIMATION_CARD_DRAW_COMPLETED:
+                if (bust(as->game_ctx->player->hand_value) || blackjack(as->game_ctx->player->cards_in_hand, as->game_ctx->player->hand_value)) {
+                    dealer_reveal_second_card(as->game_ctx->dealer);
+                }
+                flip_card(
+                    (Card *)event.anim.target, 
+                    is_second_dealer_card(as->game_ctx->dealer, (Card *)event.anim.target),
+                    dealer_is_hiding_second_card(as->game_ctx->dealer)
+                );
+                break;
+            case EVENT_ANIM_QUEUE_NONBLOCKING: 
+                event_ctx_listeners_notify_all(as->event_ctx, event, (Cargo[]){
+                    {.type=CARGO_TYPE_BOOL, dealer_is_hiding_second_card(as->game_ctx->dealer)}
+                });
+                break;
+            default: {
+                event_ctx_listeners_notify_all(as->event_ctx, event, (Cargo[]){});
+                break;
+            }
+        }
+    }
 }

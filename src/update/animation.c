@@ -3,14 +3,13 @@
 #include "../../include/update/animation.h"
 #include "../../include/main.h"
 
-Animation animation_create(Rect *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time), Cargo cargo){
+Animation animation_create(Rect *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time)){
     Animation anim = {
         .target = target,
         .src = target->pos,
         .dst = dst,
         .state = ANIMATION_STATE_WAITING,
         .anim_func = anim_func,
-        .cargo = cargo
     };
     return anim;
 }
@@ -42,7 +41,7 @@ AnimationContext* animation_context_create(void){
         abort();
     }
     *p_anim = NULL_ANIMATION;
-    AnimationContext anim_ctx = {queue, p_anim};
+    AnimationContext anim_ctx = {queue, p_anim, false};
     AnimationContext *p_anim_ctx = malloc(sizeof(AnimationContext));
     if (p_anim_ctx == NULL){
         abort();
@@ -176,37 +175,44 @@ Event animation_draw_card(Animation *self, float delta_time){
     );
     if (self->state == ANIMATION_STATE_PLAYING && self->target->pos.x == self->dst.x && self->target->pos.y == self->dst.y){
         self->state = ANIMATION_STATE_COMPLETED;
-        Card* card = (Card *)self->target;
-        switch (self->cargo.type){
-            case CARGO_TYPE_BOOL:
-                card->face_down = self->cargo.boolean;
-                break;
-            default:
-                fprintf(stderr, "NON-BOOLEAN TYPE PASSED FOR card->face_down IN ANIMATION_DRAW_CARD.\n");
-                break;
-        }
+        return animation_event_create(ANIMATION_EVENT_ANIMATION_CARD_DRAW_COMPLETED, self->target);
     }
     return NULL_EVENT;
+}
+
+void block(AnimationContext *anim_ctx, EventContext *event_ctx){
+    if ((!anim_queue_empty(anim_ctx->queue) || !anim_is_null(*anim_ctx->playing_blocking_anim)) && !anim_ctx->queue_is_blocking){
+        anim_ctx->queue_is_blocking = true;
+        Event event = {.common={EVENT_ANIM_QUEUE_BLOCKING}};
+        event_enqueue(event_ctx->queue, event);
+    }
+}
+
+void unblock(AnimationContext *anim_ctx, EventContext *event_ctx){
+    if (anim_queue_empty(anim_ctx->queue) && anim_is_null(*anim_ctx->playing_blocking_anim) && anim_ctx->queue_is_blocking){
+        anim_ctx->queue_is_blocking = false;
+        Event event = common_event_create(EVENT_ANIM_QUEUE_NONBLOCKING);
+        event_enqueue(event_ctx->queue, event);
+    }
 }
 
 void animate_from_queue(AnimationContext *anim_ctx, EventContext *event_ctx, float delta_time){
     if (!anim_queue_empty(anim_ctx->queue) && anim_is_null(*anim_ctx->playing_blocking_anim)){
         *anim_ctx->playing_blocking_anim = anim_dequeue(anim_ctx->queue);
         anim_ctx->playing_blocking_anim->state = ANIMATION_STATE_PLAYING;
+        block(anim_ctx, event_ctx);
     }
     else if (!anim_is_null(*anim_ctx->playing_blocking_anim)){
         if (anim_ctx->playing_blocking_anim->state == ANIMATION_STATE_COMPLETED){
             *anim_ctx->playing_blocking_anim = NULL_ANIMATION;
-            if (anim_queue_empty(anim_ctx->queue)){
-                Event event = common_event_create(EVENT_ANIM_QUEUE_FINISHED);
-                event_enqueue(event_ctx->queue, event);
-            }
+            unblock(anim_ctx, event_ctx);
         }
         else{
-            anim_ctx->playing_blocking_anim->anim_func(
+            Event event = anim_ctx->playing_blocking_anim->anim_func(
                 anim_ctx->playing_blocking_anim,
                 delta_time
             );
+            if (!event_is_null(event)) {event_enqueue(event_ctx->queue, event);}
         }
     }
 }

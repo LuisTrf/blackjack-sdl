@@ -260,7 +260,8 @@ void render(AppState *as){
         as->renderer, 
         hmget(as->texture_map, TEXTURE_ID_BACKGROUND), 
         NULL, 
-        NULL);
+        NULL
+    );
     render_cards(as->renderer, as->texture_map, as->game_ctx);
     render_widgets(as->renderer, as->texture_map, as->font_map, as->ui_ctx->root);
     SDL_RenderPresent(as->renderer);

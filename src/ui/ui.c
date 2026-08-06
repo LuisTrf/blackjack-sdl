@@ -5,15 +5,17 @@
 #include "../../include/ui/container.h"
 #include "../../include/ui/picbox.h"
 #include "../../include/ui/label.h"
+#include "../../include/ui/label_constants.h"
 #include "../../include/ui/spritebox.h"
 #include "../../include/input/input.h"
 #include "../../include/ui/ui.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 
 Button* widget_deal_button_initialize(InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
     Button *deal_button = button_create(
-        368.f, 560.f, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT, 
+        MOVE_BUTTON_ORIGIN_X, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT, 
         true,
         BUTTON_EVENT_RELEASE_DEAL,
         BUTTON_STATE_IDLE, 
@@ -33,10 +35,10 @@ Button* widget_deal_button_initialize(InputContext *input_ctx, EventContext *eve
 
 Button* widget_hit_button_initialize(InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
     Button *hit_button = button_create(
-        546.f, 560.f, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
-        true, 
+        0.f, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        false, 
         BUTTON_EVENT_RELEASE_HIT,
-        BUTTON_STATE_IDLE,
+        BUTTON_STATE_DISABLED,
         TEXTURE_ID_HIT_BUTTON_SPRITESHEET
     );
     input_ctx_listener_register(
@@ -53,10 +55,10 @@ Button* widget_hit_button_initialize(InputContext *input_ctx, EventContext *even
 
 Button* widget_stand_button_initialize(InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
     Button *stand_button = button_create(
-        724.f, 560.f, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
-        true, 
+        0.f, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        false, 
         BUTTON_EVENT_RELEASE_STAND,
-        BUTTON_STATE_IDLE,
+        BUTTON_STATE_DISABLED,
         TEXTURE_ID_STAND_BUTTON_SPRITESHEET
     );
     input_ctx_listener_register(
@@ -97,7 +99,39 @@ Label* widget_player_money_label_initialize(font_hash* font_map){
     return player_money_label;
 }
 
-Container* ui_labels_initialize(font_hash* font_map){
+Label* widget_dealer_hand_label_initialize(font_hash* font_map, EventContext *event_ctx){
+    Label *dealer_hand_label = label_create(
+        font_map,
+        HAND_LABEL_ORIGIN_X, HAND_LABEL_ORIGIN_Y_DEALER,
+        false,
+        FONT_ID_OPENSANS_32PT,
+        TEXTURE_ID_LABEL_DEALER_HAND
+    );
+    label_align_y(dealer_hand_label, dealer_hand_label->widget.rect.pos.y);
+    event_ctx_listener_register(
+        event_ctx,
+        (EventListener){(void *)dealer_hand_label, label_notify_dealer_hand}
+    );
+    return dealer_hand_label;
+}
+
+Label* widget_player_hand_label_initialize(font_hash* font_map, EventContext *event_ctx){
+    Label *player_hand_label = label_create(
+        font_map,
+        HAND_LABEL_ORIGIN_X, HAND_LABEL_ORIGIN_Y_PLAYER,
+        false,
+        FONT_ID_OPENSANS_32PT,
+        TEXTURE_ID_LABEL_PLAYER_HAND
+    );
+    label_align_y(player_hand_label, player_hand_label->widget.rect.pos.y);
+    event_ctx_listener_register(
+        event_ctx,
+        (EventListener){(void *)player_hand_label, label_notify_player_hand}
+    );
+    return player_hand_label;
+}
+
+Container* ui_labels_initialize(font_hash* font_map, EventContext *event_ctx){
     Container *labels = container_create(
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
         true
@@ -105,6 +139,12 @@ Container* ui_labels_initialize(font_hash* font_map){
 
     Label *player_money_label = widget_player_money_label_initialize(font_map);
     container_add_widget(labels, (Widget *)player_money_label);
+
+    Label *dealer_hand_label = widget_dealer_hand_label_initialize(font_map, event_ctx);
+    container_add_widget(labels, (Widget *)dealer_hand_label);
+
+    Label *player_hand_label = widget_player_hand_label_initialize(font_map, event_ctx);
+    container_add_widget(labels, (Widget *)player_hand_label);
 
     return labels;
 }
@@ -115,7 +155,7 @@ Container* ui_root_initialize(InputContext *input_ctx, EventContext *event_ctx, 
     Container *buttons = ui_buttons_initialize(input_ctx, event_ctx, button_ctx);
     container_add_widget(root, (Widget *)buttons);
 
-    Container *labels = ui_labels_initialize(font_map);
+    Container *labels = ui_labels_initialize(font_map, event_ctx);
     container_add_widget(root, (Widget *)labels);
 
     return root;

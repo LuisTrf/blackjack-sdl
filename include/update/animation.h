@@ -18,7 +18,6 @@ typedef struct Animation {
     vec2 dst;
     ANIMATION_STATE state;
     Event (*anim_func)(struct Animation *self, float delta_time);
-    Cargo cargo;
 } Animation;
 
 static const Animation NULL_ANIMATION = {
@@ -39,9 +38,10 @@ typedef struct AnimationQueue {
 typedef struct AnimationContext {
     AnimationQueue *queue;
     Animation *playing_blocking_anim;
+    bool queue_is_blocking;
 } AnimationContext;
 
-Animation animation_create(Rect *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time), Cargo cargo);
+Animation animation_create(Rect *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time));
 AnimationQueue* anim_queue_create(int size);
 void anim_queue_destroy(AnimationQueue *p_queue);
 bool anim_queue_full(AnimationQueue *queue);

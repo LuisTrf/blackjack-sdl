@@ -8,7 +8,7 @@
 
 /*
 RULES
-Dealer hits maximum 10 times AAAA222233 because stands on 17.
+Hits maximum 12 times AAAA22223333, 22 which is bust.
 Player hits maximum 5 times because 5-card charlie rule.
 */
 
@@ -25,7 +25,7 @@ Player* player_create(void){
         PLAYER_BEGINNING_MONEY,
         0.f,
         0,
-        {_CHIP_VALUE_NONE},
+        NULL
     };
     Player *p_player = malloc(sizeof(Player));
     if (p_player == NULL){
@@ -208,28 +208,16 @@ void game_reset(GameContext *game_ctx){
     game_ctx->deck->top = 51;
 }
 
-bool dealer_bust(Dealer *dealer){
-    return dealer->hand_value > 21 ? true : false;
+bool bust(int hand_value){
+    return hand_value > 21;
 }
 
-bool player_bust(Player *player){
-    return player->hand_value > 21 ? true : false;
+bool blackjack(int cards_in_hand, int hand_value){
+    return cards_in_hand == 2 && hand_value == 21;
 }
 
-bool dealer_is_blackjack(Dealer *dealer){
-    return (dealer->hand_value == 21 && dealer->cards_in_hand == 2) ? true : false;
-}
-
-bool player_is_blackjack(Player *player){
-    return (player->hand_value == 21 && player->cards_in_hand == 2) ? true : false;
-}
-
-bool dealer_can_hit(Dealer *dealer){
-    return dealer->cards_in_hand < 10 && dealer->hand_value < 21;
-}
-
-bool player_can_hit(Player *player){
-    return player->cards_in_hand < 5 && player->hand_value < 21;
+bool can_hit(int cards_in_hand, int hand_value){
+    return cards_in_hand < 12 && hand_value < 21;
 }
 
 bool dealer_is_hiding_second_card(Dealer *dealer){
@@ -241,12 +229,22 @@ bool dealer_is_hiding_second_card(Dealer *dealer){
     }
 }
 
+bool is_second_dealer_card(Dealer *dealer, Card *card){
+    return (card == dealer->hand[1]);
+}
+
 void dealer_reveal_second_card(Dealer *dealer){
-    dealer->hand[1]->face_down=false;
+    dealer->hand[1]->face_down = false;
+}
+
+void flip_card(Card *card, bool is_second_dealer_card, bool dealer_is_hiding_second_card){
+    if (!is_second_dealer_card || !dealer_is_hiding_second_card){
+        card->face_down = false;
+    }
 }
 
 Card* dealer_hit(Deck *deck, Dealer *dealer){
-    if (dealer_can_hit(dealer)){
+    if (can_hit(dealer->cards_in_hand, dealer->hand_value)){
         Card *c = draw(deck);
         c->location = CARD_LOCATION_DEALER_HAND;
 
@@ -270,7 +268,7 @@ Card* dealer_hit(Deck *deck, Dealer *dealer){
 }
 
 Card* player_hit(Deck *deck, Player *player){
-    if (player_can_hit(player)){
+    if (can_hit(player->cards_in_hand, player->hand_value)){
         Card *c = draw(deck);
         c->location = CARD_LOCATION_PLAYER_HAND;
         

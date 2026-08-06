@@ -6,6 +6,7 @@
 #include "../../include/event/event.h"
 #include "../../include/ui/button.h"
 #include "../../include/stb_ds.h"
+#include "../../include/game/game.h"
 
 /*
 Button deal_button = {{BUTTON_X_ORIGIN, BUTTON_Y_ORIGIN, BUTTON_WIDTH, BUTTON_HEIGHT, true},
@@ -151,25 +152,74 @@ void button_ctx_reposition_visible_move_buttons(ButtonContext *button_ctx){
     }
 }
 
-Event button_notify_deal(void *self, Event event){
+Event button_notify_deal(void *self, Event event, Cargo *cargo){
     Button *button = (Button *)self;
     switch(event.type){
-        case BUTTON_EVENT_RELEASE_DEAL:
+        case BUTTON_EVENT_RELEASE_DEAL: {
+            int player_cards_in_hand = cargo[3].integer;
+            int player_hand_value = cargo[4].integer;
+            if (!blackjack(player_cards_in_hand, player_hand_value)){
+                button_set_state(button, BUTTON_STATE_DISABLED);
+                button->widget.rect.visible = false;
+            }
+            break;
+        }
+        case BUTTON_EVENT_RELEASE_HIT: {
+            int player_hand_value = cargo[4].integer;
+            if (bust(player_hand_value)){
+                button_set_state(button, BUTTON_STATE_IDLE);
+                button->widget.rect.visible = true;
+            }
+            break;
+        }
+        case BUTTON_EVENT_RELEASE_STAND:
+            button_set_state(button, BUTTON_STATE_IDLE);
+            button->widget.rect.visible = true;
+            break;
+        case EVENT_ANIM_QUEUE_BLOCKING:
+            button_set_state(button, BUTTON_STATE_DISABLED);
+            break;
+        case EVENT_ANIM_QUEUE_NONBLOCKING:
+            button_restore_prev_state(button);
+            break;
+        default:
+            break;
+    }
+    return NULL_EVENT;
+}
+
+Event button_notify_hit(void *self, Event event, Cargo *cargo){
+    Button *button = (Button *)self;
+    switch(event.type){
+        case BUTTON_EVENT_RELEASE_DEAL: {
+            int player_cards_in_hand = cargo[3].integer;
+            int player_hand_value = cargo[4].integer;
+            if (!blackjack(player_cards_in_hand, player_hand_value)){
+                button_set_state(button, BUTTON_STATE_IDLE);
+                button->widget.rect.visible = true;
+            }
+            break;
+        }
+        case BUTTON_EVENT_RELEASE_HIT: {
+            int player_cards_in_hand = cargo[3].integer;
+            int player_hand_value = cargo[4].integer;
+            if (!can_hit(player_cards_in_hand, player_hand_value)){
+                button_set_state(button, BUTTON_STATE_DISABLED);
+                if (bust(player_hand_value)){
+                    button->widget.rect.visible = false;
+                }
+            }
+            break;
+        }
+        case BUTTON_EVENT_RELEASE_STAND:
             button_set_state(button, BUTTON_STATE_DISABLED);
             button->widget.rect.visible = false;
             break;
-        default:
+        case EVENT_ANIM_QUEUE_BLOCKING:
+            button_set_state(button, BUTTON_STATE_DISABLED);
             break;
-    }
-    return NULL_EVENT;
-}
-
-Event button_notify_hit(void *self, Event event){
-    Button *button = (Button *)self;
-    switch(event.type){
-        case BUTTON_EVENT_RELEASE_DEAL:
-            button_set_state(button, BUTTON_STATE_IDLE);
-            button->widget.rect.visible = true;
+        case EVENT_ANIM_QUEUE_NONBLOCKING:
+            button_restore_prev_state(button);
             break;
         default:
             break;
@@ -177,12 +227,35 @@ Event button_notify_hit(void *self, Event event){
     return NULL_EVENT;
 }
 
-Event button_notify_stand(void *self, Event event){
+Event button_notify_stand(void *self, Event event, Cargo *cargo){
     Button *button = (Button *)self;
     switch(event.type){
-        case BUTTON_EVENT_RELEASE_DEAL:
-            button_set_state(button, BUTTON_STATE_IDLE);
-            button->widget.rect.visible = true;
+        case BUTTON_EVENT_RELEASE_DEAL: {
+            int player_cards_in_hand = cargo[3].integer;
+            int player_hand_value = cargo[4].integer;
+            if (!blackjack(player_cards_in_hand, player_hand_value)){
+                button_set_state(button, BUTTON_STATE_IDLE);
+                button->widget.rect.visible = true;
+            }
+            break;
+        }
+        case BUTTON_EVENT_RELEASE_HIT: {
+            int player_hand_value = cargo[4].integer;
+            if (bust(player_hand_value)){
+                button_set_state(button, BUTTON_STATE_DISABLED);
+                button->widget.rect.visible = false;
+            }
+            break;
+        }
+        case BUTTON_EVENT_RELEASE_STAND:
+            button_set_state(button, BUTTON_STATE_DISABLED);
+            button->widget.rect.visible = false;
+            break;
+        case EVENT_ANIM_QUEUE_BLOCKING:
+            button_set_state(button, BUTTON_STATE_DISABLED);
+            break;
+        case EVENT_ANIM_QUEUE_NONBLOCKING:
+            button_restore_prev_state(button);
             break;
         default:
             break;

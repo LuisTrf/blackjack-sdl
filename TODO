@@ -1,23 +1,9 @@
 Update the CMakeLists.txt so that it uses many CMakeLists.txt in included directories (I need to learn more CMake first;
 this does the job for now).
 
-Rewrite deck to directly store Card objects, not pointers to card objects (no double referencing which is slow).
-Replace bet_history in player with a dynamic array.
+Remove constructors which do not dynamically alloc memory with type casting.
 
-OR create a 2D obj class which replaces gameobj and is a struct member of widget; the anim uses this as target.
-Create a union of int/float/bool wrapper structs which is passed as cargo with the animation.
-
-in render_label, create a retex flag in label struct which controls whether the label texture is re-rendered.
-Widgets to store texture_map/font_map keys or references.
-
-Create inputlistener event eventlistener structs which are members of structs that do them.
-Create vtables for input and event listening.
-Use wrapper structs like for the type when registering the struct to event/input listening. This wrapper
-struct is not dynamically allocated.
-
-How am I going to pass other variables to a widget when calling its update method?
-One option is to create an 'observables' dynamic arr which holds pointers to observed values. Initialise this during
-widget creation.
-Other option is to change definiton of the update_func to allow vararg cargo variables to be passed.
-Similar to how Animation is set up to hold cargo as well. Also allow Anim to carry a variable amount of cargo (this will
-need dynamic allocation).
+Write separate poll events method which is called from update().
+Poll events should dispatch to an input event queue and an animation event queue.
+Rewrite event_types to have an input_event type and anim_event type. Separate input and anim event queues which get
+polled separately.

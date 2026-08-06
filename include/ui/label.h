@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "widget.h"
 #include "../event/event_types.h"
+#include "../cargo.h"
 #include "../render/render_types.h"
 
 typedef struct Label {
@@ -27,3 +28,6 @@ void label_destroy(Label *label);
 void label_write(Label *label, font_hash* font_map, const char *fmt, ...);
 void label_align_x(Label *label, float target_x);
 void label_align_y(Label *label, float target_y);
+
+Event label_notify_dealer_hand(void *self, Event event, Cargo *cargo);
+Event label_notify_player_hand(void *self, Event event, Cargo *cargo);

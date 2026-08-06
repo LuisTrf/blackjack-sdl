@@ -1,5 +1,13 @@
 #pragma once
 
+#include "../game/card_constants.h"
+
 #define STRING(s) #s
 #define XSTRING(s) STRING(s)
 #define DOLLAR_STRING(s) "$" XSTRING(s)
+
+#define HAND_LABEL_OFFSET_X 30
+#define HAND_LABEL_ORIGIN_X (HAND_ORIGIN_X + CARD_WIDTH + HAND_LABEL_OFFSET_X)
+#define HAND_LABEL_STEP_X (HAND_STEP_X)
+#define HAND_LABEL_ORIGIN_Y_DEALER (HAND_ORIGIN_Y_DEALER + CARD_HEIGHT/2.f)
+#define HAND_LABEL_ORIGIN_Y_PLAYER (HAND_ORIGIN_Y_PLAYER + CARD_HEIGHT/2.f)
