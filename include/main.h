@@ -9,6 +9,7 @@
 #include "game/game.h"
 #include "event/event.h"
 #include "update/animation.h"
+#include "ui/container.h"
 #include "ui/ui.h"
 
 typedef struct AppState {
@@ -21,6 +22,6 @@ typedef struct AppState {
     GameContext *game_ctx;
     EventContext *event_ctx;
     AnimationContext *anim_ctx;
-    UIContext *ui_ctx;
+    Container* ui_root;
     bool should_quit;
 } AppState;

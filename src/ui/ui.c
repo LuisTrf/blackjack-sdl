@@ -8,12 +8,11 @@
 #include "../../include/ui/label_constants.h"
 #include "../../include/ui/spritebox.h"
 #include "../../include/input/input.h"
-#include "../../include/ui/ui.h"
 
 #include <stdbool.h>
 #include <stdio.h>
 
-Button* widget_deal_button_initialize(InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
+Button* widget_deal_button_initialize(InputContext *input_ctx, EventContext *event_ctx){
     Button *deal_button = button_create(
         MOVE_BUTTON_ORIGIN_X, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT, 
         true,
@@ -29,11 +28,10 @@ Button* widget_deal_button_initialize(InputContext *input_ctx, EventContext *eve
         event_ctx, 
         event_listener_create((void *)deal_button, button_notify_deal)
     );
-    button_ctx_register_move_button(button_ctx, deal_button);
     return deal_button;
 }
 
-Button* widget_hit_button_initialize(InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
+Button* widget_hit_button_initialize(InputContext *input_ctx, EventContext *event_ctx){
     Button *hit_button = button_create(
         0.f, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         false, 
@@ -49,11 +47,10 @@ Button* widget_hit_button_initialize(InputContext *input_ctx, EventContext *even
         event_ctx, 
         event_listener_create((void *)hit_button, button_notify_hit)
     );
-    button_ctx_register_move_button(button_ctx, hit_button);
     return hit_button;
 }
 
-Button* widget_stand_button_initialize(InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
+Button* widget_stand_button_initialize(InputContext *input_ctx, EventContext *event_ctx){
     Button *stand_button = button_create(
         0.f, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         false, 
@@ -69,22 +66,25 @@ Button* widget_stand_button_initialize(InputContext *input_ctx, EventContext *ev
         event_ctx, 
         event_listener_create((void *)stand_button, button_notify_stand)
     );
-    button_ctx_register_move_button(button_ctx, stand_button);
     return stand_button;
 }
 
-Container* ui_buttons_initialize(InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx){
-    Container *buttons = container_create(
+Container* ui_move_buttons_initialize(InputContext *input_ctx, EventContext *event_ctx){
+    Container *move_buttons = container_create(
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
         true
     );
-    Button* deal_button = widget_deal_button_initialize(input_ctx, event_ctx, button_ctx);
-    container_add_widget(buttons, (Widget *)deal_button);
-    Button* hit_button = widget_hit_button_initialize(input_ctx, event_ctx, button_ctx);
-    container_add_widget(buttons, (Widget *)hit_button);
-    Button *stand_button = widget_stand_button_initialize(input_ctx, event_ctx, button_ctx);
-    container_add_widget(buttons, (Widget *)stand_button);
-    return buttons;
+    Button* deal_button = widget_deal_button_initialize(input_ctx, event_ctx);
+    container_add_widget(move_buttons, (Widget *)deal_button);
+    Button* hit_button = widget_hit_button_initialize(input_ctx, event_ctx);
+    container_add_widget(move_buttons, (Widget *)hit_button);
+    Button *stand_button = widget_stand_button_initialize(input_ctx, event_ctx);
+    container_add_widget(move_buttons, (Widget *)stand_button);
+    event_ctx_listener_register(
+        event_ctx, 
+        (EventListener){.self=(void*)move_buttons, moveb_container_notify}
+    );
+    return move_buttons;
 }
 
 Label* widget_player_money_label_initialize(font_hash* font_map){
@@ -149,11 +149,11 @@ Container* ui_labels_initialize(font_hash* font_map, EventContext *event_ctx){
     return labels;
 }
 
-Container* ui_root_initialize(InputContext *input_ctx, EventContext *event_ctx, ButtonContext *button_ctx, font_hash* font_map){
+Container* ui_root_initialize(InputContext *input_ctx, EventContext *event_ctx, font_hash* font_map){
     Container *root = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true);
     
-    Container *buttons = ui_buttons_initialize(input_ctx, event_ctx, button_ctx);
-    container_add_widget(root, (Widget *)buttons);
+    Container *move_buttons = ui_move_buttons_initialize(input_ctx, event_ctx);
+    container_add_widget(root, (Widget *)move_buttons);
 
     Container *labels = ui_labels_initialize(font_map, event_ctx);
     container_add_widget(root, (Widget *)labels);
@@ -184,25 +184,4 @@ void widgets_teardown(Container *root){
         children[i] = NULL;
     }
     container_destroy(root);
-    root = NULL;
-}
-
-UIContext* ui_context_create(font_hash* font_map, texture_hash *texture_map, InputContext *input_ctx, EventContext *event_ctx){
-    UIContext ui_ctx;
-    ui_ctx.button_ctx = button_context_create();
-    ui_ctx.root = ui_root_initialize(input_ctx, event_ctx, ui_ctx.button_ctx, font_map);
-    UIContext *p_ui_ctx = malloc(sizeof(UIContext));
-    if (p_ui_ctx == NULL){
-        abort();
-    }
-    *p_ui_ctx = ui_ctx;
-    return p_ui_ctx;
-}
-
-void ui_context_destroy(UIContext *ui_ctx){
-    button_context_destroy(ui_ctx->button_ctx);
-    ui_ctx->button_ctx = NULL;
-    widgets_teardown(ui_ctx->root);
-    ui_ctx->root = NULL;
-    free(ui_ctx);
 }

@@ -56,7 +56,7 @@ AppState* app_state_create(void){
     as.game_ctx = game_context_create();
     as.event_ctx = event_context_create();
     as.anim_ctx = animation_context_create();
-    as.ui_ctx = ui_context_create(as.font_map, as.texture_map, as.input_ctx, as.event_ctx);
+    as.ui_root = ui_root_initialize(as.input_ctx, as.event_ctx, as.font_map);
     as.should_quit = false;
     AppState *p_as = malloc(sizeof(AppState));
     if (p_as == NULL){
@@ -67,7 +67,7 @@ AppState* app_state_create(void){
 }
 
 void app_state_destroy(AppState *as){
-    ui_context_destroy(as->ui_ctx);
+    widgets_teardown(as->ui_root);
     animation_context_destroy(as->anim_ctx);
     event_context_destroy(as->event_ctx);
     game_context_destroy(as->game_ctx);

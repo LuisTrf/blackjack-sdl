@@ -21,3 +21,5 @@ Widget** container_get_children(Container *container);
 
 void container_add_widget(Container *container, Widget *widget);
 Widget* container_remove_widget(Container *container, Widget *widget);
+
+void moveb_container_notify(void *self, Event event, void* dependencies);

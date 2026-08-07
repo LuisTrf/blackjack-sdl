@@ -77,25 +77,9 @@ Button* button_create(
     return p_button;
 }
 
-ButtonContext* button_context_create(void){
-    ButtonContext button_ctx = {NULL};
-    ButtonContext *p_button_ctx = malloc(sizeof(ButtonContext));
-    if (p_button_ctx == NULL){
-        abort();
-    }
-    *p_button_ctx = button_ctx;
-    return p_button_ctx;
-}
-
 void button_destroy(Button *p_button){
     free(p_button);
     p_button = NULL;
-}
-
-void button_context_destroy(ButtonContext *button_ctx){
-    arrfree(button_ctx->moveb_refs);
-    button_ctx->moveb_refs = NULL;
-    free(button_ctx);
 }
 
 Event button_get_release_event(Button *button){
@@ -121,33 +105,24 @@ void button_restore_prev_state(Button *button){
     button->_prev_state = temp;
 }
 
-void button_ctx_register_move_button(ButtonContext *button_ctx, Button *button){
-    arrput(button_ctx->moveb_refs, button);
-}
-
-int button_ctx_get_visible_move_buttons(ButtonContext *button_ctx){
+void reposition_visible_move_buttons(Widget** moveb_widgets){
     int visible_move_button_count = 0;
-    for (int i = 0; i < arrlen(button_ctx->moveb_refs); i++){
-        if (button_ctx->moveb_refs[i]->widget.rect.visible){
+    for (int i = 0; i < arrlen(moveb_widgets); i++){
+        if (moveb_widgets[i]->rect.visible){
             visible_move_button_count++;
         }
     }
-    return visible_move_button_count;
-}
-
-void button_ctx_reposition_visible_move_buttons(ButtonContext *button_ctx){
-    int visible_move_button_count = button_ctx_get_visible_move_buttons(button_ctx);
     int remaining_visible_move_button_count = visible_move_button_count;
-    for (int i = 0; i < arrlen(button_ctx->moveb_refs); i++){
-        if (button_ctx->moveb_refs[i]->widget.rect.visible){
-            button_ctx->moveb_refs[i]->widget.rect.pos.x = 
+    for (int i = 0; i < arrlen(moveb_widgets); i++){
+        if (moveb_widgets[i]->rect.visible){
+            moveb_widgets[i]->rect.pos.x = 
                 MOVE_BUTTON_ORIGIN_X
                 + 0.5f * (visible_move_button_count - 1) * MOVE_BUTTON_WIDTH
                 - 0.5f * (remaining_visible_move_button_count - 1) * (MOVE_BUTTON_STEP_X + MOVE_BUTTON_WIDTH);
             remaining_visible_move_button_count--;
         }
         else {
-            button_ctx->moveb_refs[i]->widget.rect.pos.x = MOVE_BUTTON_ORIGIN_X;
+            moveb_widgets[i]->rect.pos.x = MOVE_BUTTON_ORIGIN_X;
         }
     }
 }

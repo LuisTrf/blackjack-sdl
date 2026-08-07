@@ -22,10 +22,6 @@ typedef struct Button {
     TEXTURE_ID tid;
 } Button;
 
-typedef struct ButtonContext{
-    Button** moveb_refs;
-} ButtonContext;
-
 Button* button_create(
     float x, float y, 
     int width, int height, 
@@ -36,17 +32,12 @@ Button* button_create(
 );
 void button_destroy(Button *button);
 
-ButtonContext* button_context_create(void);
-void button_context_destroy(ButtonContext *button_ctx);
-
 void button_set_state(Button *button, BUTTON_STATE state);
 BUTTON_STATE button_get_state(Button *button);
 BUTTON_STATE button_get_prev_state(Button *button);
 void button_restore_prev_state(Button *button);
 
-void button_ctx_register_move_button(ButtonContext *button_ctx, Button *button);
-int button_ctx_get_visible_move_buttons(ButtonContext *button_ctx);
-void button_ctx_reposition_visible_move_buttons(ButtonContext *button_ctx);
+void reposition_visible_move_buttons(Widget** moveb_widgets);
 
 void button_notify_deal(void *self, Event event, void *dependencies);
 void button_notify_hit(void *self, Event event, void *dependencies);

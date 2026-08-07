@@ -8,7 +8,6 @@
 #include "../../include/game/game.h"
 #include "../../include/event/event.h"
 #include "../../include/ui/label.h"
-#include "../../include/ui/button.h"
 #include "../../include/main.h"
 #include "../../include/update/update.h"
 
@@ -153,7 +152,6 @@ void update(AppState *as){
             case STATE_EVENT_STAND: {
                 label_notify_dependencies label_dependencies = {as->font_map};
                 event_ctx_listeners_notify_all(as->event_ctx, event, (void *)&label_dependencies);
-                button_ctx_reposition_visible_move_buttons(as->ui_ctx->button_ctx);
                 break;
             }
             default: {

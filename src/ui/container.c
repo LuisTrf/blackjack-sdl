@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include "../../include/ui/container.h"
+#include "../../include/ui/button.h"
 #include "../../include/stb_ds.h"
 
 #include <stdio.h>
@@ -53,4 +54,17 @@ Widget* container_remove_widget(Container *p_container, Widget *p_widget){
         }
     }
     return NULL;
+}
+
+void moveb_container_notify(void *self, Event event, void* dependencies){
+    Container *container = (Container*)self;
+    switch(event.type){
+        case STATE_EVENT_DEAL:
+        case STATE_EVENT_HIT:
+        case STATE_EVENT_STAND:
+            reposition_visible_move_buttons(container->children);
+            break;
+        default:
+            break;
+    }
 }
