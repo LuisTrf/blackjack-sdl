@@ -262,7 +262,7 @@ void render(AppState *as){
         NULL, 
         NULL
     );
-    render_cards(as->renderer, as->texture_map, as->game_ctx);
+    render_cards(as->renderer, as->texture_map, as->gctx);
     render_widgets(as->renderer, as->texture_map, as->font_map, as->ui_root);
     SDL_RenderPresent(as->renderer);
 }

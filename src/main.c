@@ -10,6 +10,9 @@
 #include "../include/stb_ds.h"
 
 #include "../include/constants.h"
+#include "../include/input/input.h"
+#include "../include/render/render.h"
+#include "../include/update/update.h"
 #include "../include/main.h"
 
 AppState* app_state_create(void){
@@ -49,14 +52,26 @@ AppState* app_state_create(void){
         SDL_Log("Error initializing SDL_ttf: %s\n", SDL_GetError());
         exit(1);
     }
-    as.input_ctx = input_context_create();
-    as.update_ctx = update_context_create();
     as.font_map = font_map_create();
     as.texture_map = texture_map_create(as.renderer, as.font_map);
-    as.game_ctx = game_context_create();
-    as.event_ctx = event_context_create();
-    as.anim_ctx = animation_context_create();
-    as.ui_root = ui_root_initialize(as.input_ctx, as.event_ctx, as.font_map);
+    as.p_input_listeners = malloc(sizeof(InputListener*));
+    if (as.p_input_listeners == NULL){
+        abort();
+    }
+    *as.p_input_listeners = NULL;
+    arrsetlen(*as.p_input_listeners, 0);
+    as.prev_frametime = SDL_GetTicks();
+    as.delta_time = 0.f;
+    as.event_queue = event_queue_create(32);
+    as.p_event_listeners = malloc(sizeof(EventListener*));
+    if (as.p_event_listeners == NULL){
+        abort();
+    }
+    *as.p_event_listeners = NULL;
+    arrsetlen(*as.p_input_listeners, 0);
+    as.gctx = game_context_create();
+    as.anim_queue = anim_queue_create(16);
+    as.ui_root = ui_root_initialize(as.p_input_listeners, as.p_event_listeners, as.font_map);
     as.should_quit = false;
     AppState *p_as = malloc(sizeof(AppState));
     if (p_as == NULL){
@@ -68,13 +83,15 @@ AppState* app_state_create(void){
 
 void app_state_destroy(AppState *as){
     widgets_teardown(as->ui_root);
-    animation_context_destroy(as->anim_ctx);
-    event_context_destroy(as->event_ctx);
-    game_context_destroy(as->game_ctx);
+    anim_queue_destroy(as->anim_queue);
+    game_context_destroy(as->gctx);
+    arrfree(*as->p_event_listeners);
+    free(as->p_event_listeners);
+    event_queue_destroy(as->event_queue);
+    arrfree(*as->p_input_listeners);
+    free(as->p_input_listeners);
     texture_map_destroy(as->texture_map);
     font_map_destroy(as->font_map);
-    update_context_destroy(as->update_ctx);
-    input_context_destroy(as->input_ctx);
     SDL_DestroyRenderer(as->renderer);
     SDL_DestroyWindow(as->window);
     free(as);

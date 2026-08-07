@@ -1,7 +1,7 @@
 #pragma once
 
 #include "render_types.h"
-#include "../app_state.h"
+#include "../main.h"
 
 font_hash* font_map_create(void);
 void font_map_destroy(font_hash* font_map);

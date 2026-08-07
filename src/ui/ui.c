@@ -12,7 +12,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-Button* widget_deal_button_initialize(InputContext *input_ctx, EventContext *event_ctx){
+Button* widget_deal_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
     Button *deal_button = button_create(
         MOVE_BUTTON_ORIGIN_X, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT, 
         true,
@@ -20,18 +20,18 @@ Button* widget_deal_button_initialize(InputContext *input_ctx, EventContext *eve
         BUTTON_STATE_IDLE, 
         TEXTURE_ID_DEAL_BUTTON_SPRITESHEET
     );
-    input_ctx_listener_register(
-        input_ctx, 
-        input_listener_create((void *)deal_button, input_handle_button_mouse_events)
+    input_listener_register(
+        input_listeners, 
+        (InputListener){(void *)deal_button, input_handle_button_mouse_events}
     );
-    event_ctx_listener_register(
-        event_ctx, 
-        event_listener_create((void *)deal_button, button_notify_deal)
+    event_listener_register(
+        event_listeners, 
+        (EventListener){(void *)deal_button, button_notify_deal}
     );
     return deal_button;
 }
 
-Button* widget_hit_button_initialize(InputContext *input_ctx, EventContext *event_ctx){
+Button* widget_hit_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
     Button *hit_button = button_create(
         0.f, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         false, 
@@ -39,18 +39,18 @@ Button* widget_hit_button_initialize(InputContext *input_ctx, EventContext *even
         BUTTON_STATE_DISABLED,
         TEXTURE_ID_HIT_BUTTON_SPRITESHEET
     );
-    input_ctx_listener_register(
-        input_ctx, 
-        input_listener_create((void *)hit_button, input_handle_button_mouse_events)
+    input_listener_register(
+        input_listeners, 
+        (InputListener){(void *)hit_button, input_handle_button_mouse_events}
     );
-    event_ctx_listener_register(
-        event_ctx, 
-        event_listener_create((void *)hit_button, button_notify_hit)
+    event_listener_register(
+        event_listeners, 
+        (EventListener){(void *)hit_button, button_notify_hit}
     );
     return hit_button;
 }
 
-Button* widget_stand_button_initialize(InputContext *input_ctx, EventContext *event_ctx){
+Button* widget_stand_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
     Button *stand_button = button_create(
         0.f, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         false, 
@@ -58,30 +58,30 @@ Button* widget_stand_button_initialize(InputContext *input_ctx, EventContext *ev
         BUTTON_STATE_DISABLED,
         TEXTURE_ID_STAND_BUTTON_SPRITESHEET
     );
-    input_ctx_listener_register(
-        input_ctx, 
-        input_listener_create((void *)stand_button, input_handle_button_mouse_events)
+    input_listener_register(
+        input_listeners, 
+        (InputListener){(void *)stand_button, input_handle_button_mouse_events}
     );
-    event_ctx_listener_register(
-        event_ctx, 
-        event_listener_create((void *)stand_button, button_notify_stand)
+    event_listener_register(
+        event_listeners, 
+        (EventListener){(void *)stand_button, button_notify_stand}
     );
     return stand_button;
 }
 
-Container* ui_move_buttons_initialize(InputContext *input_ctx, EventContext *event_ctx){
+Container* ui_move_buttons_initialize(InputListener **input_listeners, EventListener **event_listeners){
     Container *move_buttons = container_create(
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
         true
     );
-    Button* deal_button = widget_deal_button_initialize(input_ctx, event_ctx);
+    Button* deal_button = widget_deal_button_initialize(input_listeners, event_listeners);
     container_add_widget(move_buttons, (Widget *)deal_button);
-    Button* hit_button = widget_hit_button_initialize(input_ctx, event_ctx);
+    Button* hit_button = widget_hit_button_initialize(input_listeners, event_listeners);
     container_add_widget(move_buttons, (Widget *)hit_button);
-    Button *stand_button = widget_stand_button_initialize(input_ctx, event_ctx);
+    Button *stand_button = widget_stand_button_initialize(input_listeners, event_listeners);
     container_add_widget(move_buttons, (Widget *)stand_button);
-    event_ctx_listener_register(
-        event_ctx, 
+    event_listener_register(
+        event_listeners, 
         (EventListener){.self=(void*)move_buttons, moveb_container_notify}
     );
     return move_buttons;
@@ -99,7 +99,7 @@ Label* widget_player_money_label_initialize(font_hash* font_map){
     return player_money_label;
 }
 
-Label* widget_dealer_hand_label_initialize(font_hash* font_map, EventContext *event_ctx){
+Label* widget_dealer_hand_label_initialize(font_hash* font_map, EventListener **event_listeners){
     Label *dealer_hand_label = label_create(
         font_map,
         HAND_LABEL_ORIGIN_X, HAND_LABEL_ORIGIN_Y_DEALER,
@@ -108,14 +108,14 @@ Label* widget_dealer_hand_label_initialize(font_hash* font_map, EventContext *ev
         TEXTURE_ID_LABEL_DEALER_HAND
     );
     label_align_y(dealer_hand_label, dealer_hand_label->widget.rect.pos.y);
-    event_ctx_listener_register(
-        event_ctx,
+    event_listener_register(
+        event_listeners,
         (EventListener){(void *)dealer_hand_label, label_notify_dealer_hand}
     );
     return dealer_hand_label;
 }
 
-Label* widget_player_hand_label_initialize(font_hash* font_map, EventContext *event_ctx){
+Label* widget_player_hand_label_initialize(font_hash* font_map, EventListener **event_listeners){
     Label *player_hand_label = label_create(
         font_map,
         HAND_LABEL_ORIGIN_X, HAND_LABEL_ORIGIN_Y_PLAYER,
@@ -124,14 +124,14 @@ Label* widget_player_hand_label_initialize(font_hash* font_map, EventContext *ev
         TEXTURE_ID_LABEL_PLAYER_HAND
     );
     label_align_y(player_hand_label, player_hand_label->widget.rect.pos.y);
-    event_ctx_listener_register(
-        event_ctx,
+    event_listener_register(
+        event_listeners,
         (EventListener){(void *)player_hand_label, label_notify_player_hand}
     );
     return player_hand_label;
 }
 
-Container* ui_labels_initialize(font_hash* font_map, EventContext *event_ctx){
+Container* ui_labels_initialize(font_hash* font_map, EventListener **event_listeners){
     Container *labels = container_create(
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
         true
@@ -140,22 +140,22 @@ Container* ui_labels_initialize(font_hash* font_map, EventContext *event_ctx){
     Label *player_money_label = widget_player_money_label_initialize(font_map);
     container_add_widget(labels, (Widget *)player_money_label);
 
-    Label *dealer_hand_label = widget_dealer_hand_label_initialize(font_map, event_ctx);
+    Label *dealer_hand_label = widget_dealer_hand_label_initialize(font_map, event_listeners);
     container_add_widget(labels, (Widget *)dealer_hand_label);
 
-    Label *player_hand_label = widget_player_hand_label_initialize(font_map, event_ctx);
+    Label *player_hand_label = widget_player_hand_label_initialize(font_map, event_listeners);
     container_add_widget(labels, (Widget *)player_hand_label);
 
     return labels;
 }
 
-Container* ui_root_initialize(InputContext *input_ctx, EventContext *event_ctx, font_hash* font_map){
+Container* ui_root_initialize(InputListener **input_listeners, EventListener **event_listeners, font_hash* font_map){
     Container *root = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true);
     
-    Container *move_buttons = ui_move_buttons_initialize(input_ctx, event_ctx);
+    Container *move_buttons = ui_move_buttons_initialize(input_listeners, event_listeners);
     container_add_widget(root, (Widget *)move_buttons);
 
-    Container *labels = ui_labels_initialize(font_map, event_ctx);
+    Container *labels = ui_labels_initialize(font_map, event_listeners);
     container_add_widget(root, (Widget *)labels);
 
     return root;

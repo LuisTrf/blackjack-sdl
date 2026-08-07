@@ -1,11 +1,9 @@
 #pragma once
 
-#include "app_state.h"
-
 #include <SDL3/SDL.h>
-#include "input/input.h"
-#include "update/update.h"
-#include "render/render.h"
+#include <SDL3/SDL_stdinc.h>
+#include "input/input_listener.h"
+#include "render/render_types.h"
 #include "game/game.h"
 #include "event/event.h"
 #include "update/animation.h"
@@ -14,14 +12,16 @@
 
 typedef struct AppState {
     SDL_Window *window;
+    bool should_quit;
     SDL_Renderer *renderer;
-    InputContext *input_ctx;
-    UpdateContext *update_ctx;
     font_hash* font_map;
     texture_hash* texture_map;
-    GameContext *game_ctx;
-    EventContext *event_ctx;
-    AnimationContext *anim_ctx;
+    InputListener **p_input_listeners;
+    Uint64 prev_frametime;
+    float delta_time;
+    EventQueue *event_queue;
+    EventListener **p_event_listeners;
+    GameContext *gctx;
+    AnimationQueue *anim_queue;
     Container* ui_root;
-    bool should_quit;
 } AppState;

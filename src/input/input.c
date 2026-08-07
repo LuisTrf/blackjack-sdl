@@ -1,10 +1,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
 #include <stdbool.h>
-#include <stdlib.h>
 
 #include "../../include/stb_ds.h"
-#include "../../include/ui/widget.h"
 #include "../../include/event/event.h"
 #include "../../include/ui/button.h"
 #include "../../include/input/input.h"
@@ -24,44 +22,28 @@ bool handle_quit(SDL_Event sdl_event){
     return false;
 }
 
-InputContext* input_context_create(void){
-    InputContext input_ctx = {NULL};
-    InputContext *p_input_ctx = malloc(sizeof(InputContext));
-    if (p_input_ctx == NULL){
-        abort();
-    }
-    *p_input_ctx = input_ctx;
-    return p_input_ctx;
-}
-
-void input_context_destroy(InputContext *input_ctx){
-    arrfree(input_ctx->input_listeners);
-    input_ctx->input_listeners = NULL;
-    free(input_ctx);
-}
-
 InputListener input_listener_create(void * self, Event (*input_func)(void *self, SDL_Event sdl_event)){
     InputListener input_listener = {self, input_func};
     return input_listener;
 }
 
-void input_ctx_listener_register(InputContext *input_ctx, InputListener input_listener){
-    arrput(input_ctx->input_listeners, input_listener);
+void input_listener_register(InputListener **input_listeners, InputListener input_listener){
+    arrput(*input_listeners, input_listener);
 }
 
-void input_ctx_listener_remove(InputContext *input_ctx, InputListener input_listener){
-    for (int i = 0; i < arrlen(input_ctx->input_listeners); i++){
-        if (input_ctx->input_listeners[i].self == input_listener.self){
-            arrdel(input_ctx->input_listeners, i);
+void input_listener_remove(InputListener **input_listeners, InputListener input_listener){
+    for (int i = 0; i < arrlen(*input_listeners); i++){
+        if ((*input_listeners)[i].self == input_listener.self){
+            arrdel(*input_listeners, i);
         }
     }
 }
 
-void input_ctx_listeners_notify_all(EventContext *event_ctx, InputContext* input_ctx, SDL_Event sdl_event){;
-    for (int i = 0; i < arrlen(input_ctx->input_listeners); i++){
-        Event e = input_ctx->input_listeners[i].input_func(input_ctx->input_listeners[i].self, sdl_event);
-        if (!event_is_null(e)){
-            event_enqueue(event_ctx->queue, e);
+void input_listeners_notify_all(EventQueue *queue, InputListener **input_listeners, SDL_Event sdl_event){;
+    for (int i = 0; i < arrlen(*input_listeners); i++){
+        Event event = (*input_listeners)[i].input_func((*input_listeners)[i].self, sdl_event);
+        if (!event_is_null(event)){
+            event_enqueue(queue, event);
         }
     }
 }
@@ -117,9 +99,9 @@ bool input_handle(AppState *as){
     SDL_Event sdl_event;
     while (SDL_PollEvent(&sdl_event)){
         should_quit = handle_quit(sdl_event);
-        input_ctx_listeners_notify_all(
-            as->event_ctx, 
-            as->input_ctx,
+        input_listeners_notify_all(
+            as->event_queue, 
+            as->p_input_listeners,
             sdl_event
         );
     }

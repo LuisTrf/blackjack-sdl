@@ -2,7 +2,6 @@
 
 #include "../event/event.h"
 #include "../vec2.h"
-#include "../app_state.h"
 
 typedef enum ANIMATION_STATE {
     _ANIMATION_STATE_NONE,
@@ -31,14 +30,10 @@ typedef struct AnimationQueue {
     int size;
     int head;
     int tail;
-    Animation* arr;
-} AnimationQueue;
-
-typedef struct AnimationContext {
-    AnimationQueue *queue;
-    Animation *playing_blocking_anim;
     bool queue_is_blocking;
-} AnimationContext;
+    Animation *playing_blocking_anim;
+    Animation *arr;
+} AnimationQueue;
 
 Animation animation_create(Rect *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time));
 AnimationQueue* anim_queue_create(int size);
@@ -51,8 +46,5 @@ bool anim_is_null(Animation anim);
 
 Event animation_draw_card(Animation *self, float delta_time);
 
-AnimationContext* animation_context_create(void);
-void animation_context_destroy(AnimationContext *anim_ctx);
-
-void animate_from_queue(AnimationContext *anim_ctx, EventContext *event_ctx, float delta_time);
-void animate(AppState *as);
+void animate_from_queue(AnimationQueue *anim_queue, EventQueue *event_queue, float delta_time);
+void animate(AnimationQueue *anim_queue, EventQueue *event_queue, float delta_time);

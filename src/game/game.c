@@ -108,8 +108,8 @@ GameContext* game_context_create(void){
         GAME_STATE_NEW,
         _GAME_STATE_NONE,
         deck_create(),
-        player_create(),
         dealer_create(),
+        player_create(),
     };
     GameContext *p_game_ctx = malloc(sizeof(GameContext));
     if (p_game_ctx == NULL){
@@ -203,7 +203,7 @@ void game_reset(GameContext *game_ctx){
     game_ctx->player->hand_value = 0;
     game_ctx->player->aces_in_hand_worth_11 = 0;
     game_ctx->player->bet = 0;
-    game_ctx->player->betted_chips = 0;
+    game_ctx->player->bet_count = 0;
 
     game_ctx->deck->top = 51;
 }
@@ -292,18 +292,18 @@ Card* player_hit(Deck *deck, Player *player){
 }
 
 bool player_is_bet_history_empty(Player *player){
-    return (player->betted_chips == 0);
+    return (player->bet_count == 0);
 }
 
 bool player_is_bet_history_full(Player *player){
-    return (player->betted_chips == MAXIMUM_BETTED_CHIPS);
+    return (player->bet_count == MAXIMUM_BETTED_CHIPS);
 }
 
 bool game_player_bet_push(Player *player, CHIP_VALUE val){
     if (!player_is_bet_history_full(player)){
-        player->bet_history[player->betted_chips] = val;
+        player->bet_stack[player->bet_count] = val;
         player->bet += val;
-        player->betted_chips++;
+        player->bet_count++;
         return true;
     }
     else{
@@ -313,9 +313,9 @@ bool game_player_bet_push(Player *player, CHIP_VALUE val){
 
 CHIP_VALUE player_bet_pop(Player *player){
     if (!player_is_bet_history_empty(player)){
-        player->bet -= player->bet_history[player->betted_chips-1];
-        player->betted_chips--;
-        return player->bet_history[player->betted_chips];
+        player->bet -= player->bet_stack[player->bet_count-1];
+        player->bet_count--;
+        return player->bet_stack[player->bet_count];
     }
     else {
         return _CHIP_VALUE_NONE;
@@ -324,7 +324,7 @@ CHIP_VALUE player_bet_pop(Player *player){
 
 CHIP_VALUE player_bet_peek(Player *player){
     if (!player_is_bet_history_empty(player)){
-        return player->bet_history[player->betted_chips-1];
+        return player->bet_stack[player->bet_count-1];
     }
     else {
         return _CHIP_VALUE_NONE;

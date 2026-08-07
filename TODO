@@ -16,3 +16,5 @@ which is then enqueued with the data in the tagged union.
 animate() runs after polling this event queue and then the internal animation event queue is polled.
 
 state event queue and animation event queue
+
+ui notify methods should be in separate source file.

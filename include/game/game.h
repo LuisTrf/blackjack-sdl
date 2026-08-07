@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include "game_constants.h"
 #include "../rect.h"
-#include "game.h"
 #include "../vec2.h"
 
 typedef enum CARD_LOCATION {
@@ -54,9 +53,8 @@ typedef struct Player {
     int aces_in_hand_worth_11;
     float money;
     float bet;
-    int betted_chips;
-    /* replace array via stb dynamic arr */
-    CHIP_VALUE *bet_history;
+    int bet_count;
+    CHIP_VALUE *bet_stack;
 } Player;
 
 typedef struct Dealer{
@@ -70,8 +68,8 @@ typedef struct GameContext {
     GAME_STATE game_state;
     GAME_STATE prev_game_state;
     Deck *deck;
-    Player *player;
     Dealer *dealer;
+    Player *player;
 } GameContext;
 
 GameContext* game_context_create(void);

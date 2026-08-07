@@ -87,38 +87,14 @@ bool event_is_null(Event event){
     }
 }
 
-EventContext* event_context_create(void){
-    EventQueue *queue = event_queue_create(32);
-    EventContext event_ctx = {queue, NULL};
-    EventContext *p_event_ctx = malloc(sizeof(EventContext));
-    if (p_event_ctx == NULL){
-        abort();
-    }
-    *p_event_ctx = event_ctx;
-    return p_event_ctx;
-}
-
-void event_context_destroy(EventContext *event_ctx){
-    event_queue_destroy(event_ctx->queue);
-    event_ctx->queue = NULL;
-    arrfree(event_ctx->event_listeners);
-    event_ctx->event_listeners = NULL;
-    free(event_ctx);
-}
-
-EventListener event_listener_create(void *self, void (*notify_func)(void *self, Event event, void *dependencies)){
-    EventListener event_listener = {self, notify_func};
-    return event_listener;
-}
-
-void event_ctx_listeners_notify_all(EventContext *event_ctx, Event event, void *dependencies){
-    for (int i = 0; i < arrlen(event_ctx->event_listeners); i++){
-        event_ctx->event_listeners[i].notify_func(event_ctx->event_listeners[i].self, event, dependencies);
+void event_listeners_notify_all(EventListener **event_listeners, Event event, void *dependencies){
+    for (int i = 0; i < arrlen(*event_listeners); i++){
+        (*event_listeners)[i].notify_func((void *)(*event_listeners)[i].self, event, dependencies);
     }
 }
 
-void event_ctx_listener_register(EventContext *event_ctx, EventListener event_listener){
-    arrput(event_ctx->event_listeners, event_listener);
+void event_listener_register(EventListener **event_listeners, EventListener event_listener){
+    arrput(*event_listeners, event_listener);
 }
 
 /*
