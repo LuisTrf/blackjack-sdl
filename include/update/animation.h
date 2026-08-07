@@ -2,7 +2,6 @@
 
 #include "../event/event.h"
 #include "../vec2.h"
-#include "../cargo.h"
 #include "../app_state.h"
 
 typedef enum ANIMATION_STATE {

@@ -4,18 +4,6 @@
 #include "../../include/stb_ds.h"
 #include "../../include/event/event.h"
 
-Event common_event_create(EventType event_type){
-    CommonEvent ce = {.type = event_type};
-    Event e = {.common = ce};
-    return e;
-}
-
-Event animation_event_create(EventType event_type, Rect *target){
-    AnimationEvent ae = {event_type, target};
-    Event e = {.anim = ae};
-    return e;
-}
-
 EventQueue* event_queue_create(int size){
     Event* arr = calloc(size, sizeof(Event));
     if (arr == NULL){
@@ -118,17 +106,14 @@ void event_context_destroy(EventContext *event_ctx){
     free(event_ctx);
 }
 
-EventListener event_listener_create(void *self, Event (*notify_func)(void *self, Event event, Cargo *cargo)){
+EventListener event_listener_create(void *self, void (*notify_func)(void *self, Event event, void *dependencies)){
     EventListener event_listener = {self, notify_func};
     return event_listener;
 }
 
-void event_ctx_listeners_notify_all(EventContext *event_ctx, Event event, Cargo *cargo){
+void event_ctx_listeners_notify_all(EventContext *event_ctx, Event event, void *dependencies){
     for (int i = 0; i < arrlen(event_ctx->event_listeners); i++){
-        Event e = event_ctx->event_listeners[i].notify_func(event_ctx->event_listeners[i].self, event, cargo);
-        if (!event_is_null(e)){
-            event_enqueue(event_ctx->queue, e);
-        }
+        event_ctx->event_listeners[i].notify_func(event_ctx->event_listeners[i].self, event, dependencies);
     }
 }
 

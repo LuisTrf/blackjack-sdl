@@ -175,7 +175,7 @@ Event animation_draw_card(Animation *self, float delta_time){
     );
     if (self->state == ANIMATION_STATE_PLAYING && self->target->pos.x == self->dst.x && self->target->pos.y == self->dst.y){
         self->state = ANIMATION_STATE_COMPLETED;
-        return animation_event_create(ANIMATION_EVENT_ANIMATION_CARD_DRAW_COMPLETED, self->target);
+        return (Event){.anim={.type=ANIMATION_EVENT_ANIMATION_CARD_DRAW_COMPLETED, .target=self->target}};
     }
     return NULL_EVENT;
 }
@@ -183,16 +183,14 @@ Event animation_draw_card(Animation *self, float delta_time){
 void block(AnimationContext *anim_ctx, EventContext *event_ctx){
     if ((!anim_queue_empty(anim_ctx->queue) || !anim_is_null(*anim_ctx->playing_blocking_anim)) && !anim_ctx->queue_is_blocking){
         anim_ctx->queue_is_blocking = true;
-        Event event = {.common={EVENT_ANIM_QUEUE_BLOCKING}};
-        event_enqueue(event_ctx->queue, event);
+        event_enqueue(event_ctx->queue, (Event){.anim={.type=ANIMATION_EVENT_QUEUE_BLOCKING, .target=NULL}});
     }
 }
 
 void unblock(AnimationContext *anim_ctx, EventContext *event_ctx){
     if (anim_queue_empty(anim_ctx->queue) && anim_is_null(*anim_ctx->playing_blocking_anim) && anim_ctx->queue_is_blocking){
         anim_ctx->queue_is_blocking = false;
-        Event event = common_event_create(EVENT_ANIM_QUEUE_NONBLOCKING);
-        event_enqueue(event_ctx->queue, event);
+        event_enqueue(event_ctx->queue, (Event){.anim={.type=ANIMATION_EVENT_QUEUE_NONBLOCKING, .target=NULL}});
     }
 }
 

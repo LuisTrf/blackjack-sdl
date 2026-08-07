@@ -1,30 +1,45 @@
 #pragma once
 
 #include "../rect.h"
+#include "../render/render_types.h"
 
 typedef enum EventType {
     EVENT_NONE,
-    EVENT_ANIM_QUEUE_BLOCKING,
-    EVENT_ANIM_QUEUE_NONBLOCKING,
-    BUTTON_EVENT_RELEASE_DEAL,
-    BUTTON_EVENT_RELEASE_HIT,
-    BUTTON_EVENT_RELEASE_STAND,
+    INPUT_EVENT_BUTTON_RELEASE_DEAL,
+    INPUT_EVENT_BUTTON_RELEASE_HIT,
+    INPUT_EVENT_BUTTON_RELEASE_STAND,
+    STATE_EVENT_DEAL,
+    STATE_EVENT_HIT,
+    STATE_EVENT_STAND,
     ANIMATION_EVENT_ANIMATION_CARD_DRAW_COMPLETED,
-    EVENT_NEW_GAME
+    ANIMATION_EVENT_QUEUE_BLOCKING,
+    ANIMATION_EVENT_QUEUE_NONBLOCKING,
 } EventType;
 
-typedef struct CommonEvent {
+typedef struct InputEvent {
     EventType type;
-} CommonEvent;
+    union {
+    } data;
+} InputEvent;
+
+typedef struct StateEvent {
+    EventType type;
+    union {
+        struct {int dealer_cards_in_hand, dealer_hand_value, player_cards_in_hand, player_hand_value;} hand;
+    } data;
+} StateEvent;
 
 typedef struct AnimationEvent {
     EventType type;
     Rect *target;
+    union {
+    } data;
 } AnimationEvent;
 
 typedef union Event {
     EventType type;
-    CommonEvent common;
+    InputEvent input;
+    StateEvent state;
     AnimationEvent anim;
 } Event;
 

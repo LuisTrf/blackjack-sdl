@@ -17,7 +17,7 @@ Button* widget_deal_button_initialize(InputContext *input_ctx, EventContext *eve
     Button *deal_button = button_create(
         MOVE_BUTTON_ORIGIN_X, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT, 
         true,
-        BUTTON_EVENT_RELEASE_DEAL,
+        INPUT_EVENT_BUTTON_RELEASE_DEAL,
         BUTTON_STATE_IDLE, 
         TEXTURE_ID_DEAL_BUTTON_SPRITESHEET
     );
@@ -37,7 +37,7 @@ Button* widget_hit_button_initialize(InputContext *input_ctx, EventContext *even
     Button *hit_button = button_create(
         0.f, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         false, 
-        BUTTON_EVENT_RELEASE_HIT,
+        INPUT_EVENT_BUTTON_RELEASE_HIT,
         BUTTON_STATE_DISABLED,
         TEXTURE_ID_HIT_BUTTON_SPRITESHEET
     );
@@ -57,7 +57,7 @@ Button* widget_stand_button_initialize(InputContext *input_ctx, EventContext *ev
     Button *stand_button = button_create(
         0.f, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         false, 
-        BUTTON_EVENT_RELEASE_STAND,
+        INPUT_EVENT_BUTTON_RELEASE_STAND,
         BUTTON_STATE_DISABLED,
         TEXTURE_ID_STAND_BUTTON_SPRITESHEET
     );

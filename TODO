@@ -32,3 +32,5 @@ typedef struct {
 The button_released_event will run game code, then this creates a new game event to notify the game state has been updated
 which is then enqueued with the data in the tagged union.
 animate() runs after polling this event queue and then the internal animation event queue is polled.
+
+state event queue and animation event queue

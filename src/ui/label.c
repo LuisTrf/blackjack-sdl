@@ -6,7 +6,6 @@
 #include "../../include/stb_ds.h"
 #include "../../include/ui/label.h"
 #include "../../include/ui/label_constants.h"
-#include "../../include/cargo.h"
 #include "../../include/game/game.h"
 
 void label_update_dimensions(Label *label, font_hash* font_map){
@@ -71,15 +70,16 @@ void label_align_y(Label *label, float target_y){
     label->widget.rect.pos.y = target_y - (label->widget.rect.height)/2.f;
 }
 
-Event label_notify_dealer_hand(void *self, Event event, Cargo cargo[]){
+void label_notify_dealer_hand(void *self, Event event, void *dependencies){
     Label *label = (Label *)self;
     switch (event.type){
-        case BUTTON_EVENT_RELEASE_DEAL: {
-            font_hash* font_map = cargo[0].font_hashmap;
-            int dealer_cards_in_hand = cargo[1].integer;
-            int dealer_hand_value = cargo[2].integer;
-            int player_cards_in_hand = cargo[3].integer;
-            int player_hand_value = cargo[4].integer;
+        case STATE_EVENT_DEAL: {
+            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
+            font_hash* font_map = label_dependencies->font_map;
+            int dealer_cards_in_hand = event.state.data.hand.dealer_cards_in_hand;
+            int dealer_hand_value = event.state.data.hand.dealer_hand_value;
+            int player_cards_in_hand = event.state.data.hand.player_cards_in_hand;
+            int player_hand_value = event.state.data.hand.player_hand_value;
             label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X + dealer_cards_in_hand*HAND_LABEL_STEP_X;
             label->widget.rect.visible = true;
             if (blackjack(player_cards_in_hand, player_hand_value)){
@@ -90,20 +90,22 @@ Event label_notify_dealer_hand(void *self, Event event, Cargo cargo[]){
             }
             break;
         }
-        case BUTTON_EVENT_RELEASE_HIT: {
-            font_hash* font_map = cargo[0].font_hashmap;
-            int dealer_hand_value = cargo[2].integer;
-            int player_hand_value = cargo[4].integer;
+        case STATE_EVENT_HIT: {
+            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
+            font_hash* font_map = label_dependencies->font_map;
+            int dealer_hand_value = event.state.data.hand.dealer_hand_value;
+            int player_hand_value = event.state.data.hand.player_hand_value;
             if (bust(player_hand_value)){
                 label_write(label, font_map, "%d, DEALER WINS!", dealer_hand_value);
             }
             break;
         }
-        case BUTTON_EVENT_RELEASE_STAND: {
-            font_hash* font_map = cargo[0].font_hashmap;
-            int dealer_cards_in_hand = cargo[1].integer;
-            int dealer_hand_value = cargo[2].integer;
-            int player_hand_value = cargo[4].integer;
+        case STATE_EVENT_STAND: {
+            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
+            font_hash* font_map = label_dependencies->font_map;
+            int dealer_cards_in_hand = event.state.data.hand.dealer_cards_in_hand;
+            int dealer_hand_value = event.state.data.hand.dealer_hand_value;
+            int player_hand_value = event.state.data.hand.player_hand_value;
             if (blackjack(dealer_cards_in_hand, dealer_hand_value)){
                 label_write(label, font_map, "BLACKJACK!");
                 label->widget.rect.visible = true;
@@ -127,25 +129,25 @@ Event label_notify_dealer_hand(void *self, Event event, Cargo cargo[]){
             }
             break;
         }
-        case EVENT_ANIM_QUEUE_BLOCKING:
+        case ANIMATION_EVENT_QUEUE_BLOCKING:
             label->widget.rect.visible = false;
             break;
-        case EVENT_ANIM_QUEUE_NONBLOCKING:
+        case ANIMATION_EVENT_QUEUE_NONBLOCKING:
             label->widget.rect.visible = true;
             break;
         default:
             break;
     }
-    return NULL_EVENT;
 }
 
-Event label_notify_player_hand(void *self, Event event, Cargo cargo[]){
+void label_notify_player_hand(void *self, Event event, void *dependencies){
     Label *label = (Label *)self;
     switch(event.type){
-        case BUTTON_EVENT_RELEASE_DEAL: {
-            font_hash* font_map = cargo[0].font_hashmap;
-            int player_cards_in_hand = cargo[3].integer;
-            int player_hand_value = cargo[4].integer;
+        case STATE_EVENT_DEAL: {
+            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
+            font_hash* font_map = label_dependencies->font_map;
+            int player_cards_in_hand = event.state.data.hand.player_cards_in_hand;
+            int player_hand_value = event.state.data.hand.player_hand_value;
             label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X + player_cards_in_hand*HAND_LABEL_STEP_X;
             if (blackjack(player_cards_in_hand, player_hand_value)){
                 label_write(label, font_map, "BLACKJACK!");
@@ -155,10 +157,11 @@ Event label_notify_player_hand(void *self, Event event, Cargo cargo[]){
             }
             break;
         }
-        case BUTTON_EVENT_RELEASE_HIT: {
-            font_hash* font_map = cargo[0].font_hashmap;
-            int player_cards_in_hand = cargo[3].integer;
-            int player_hand_value = cargo[4].integer;
+        case STATE_EVENT_HIT: {
+            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
+            font_hash* font_map = label_dependencies->font_map;
+            int player_cards_in_hand = event.state.data.hand.player_cards_in_hand;
+            int player_hand_value = event.state.data.hand.player_hand_value;
             label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X + player_cards_in_hand*HAND_LABEL_STEP_X;
             if (bust(player_hand_value)) {
                 label_write(label, font_map, "%d, BUST!", player_hand_value);
@@ -168,12 +171,13 @@ Event label_notify_player_hand(void *self, Event event, Cargo cargo[]){
             }
             break;
         }
-        case BUTTON_EVENT_RELEASE_STAND: {
-            font_hash* font_map = cargo[0].font_hashmap;
-            int dealer_cards_in_hand = cargo[1].integer;
-            int dealer_hand_value = cargo[2].integer;
-            int player_cards_in_hand = cargo[3].integer;
-            int player_hand_value = cargo[4].integer;
+        case STATE_EVENT_STAND: {
+            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
+            font_hash* font_map = label_dependencies->font_map;
+            int dealer_cards_in_hand = event.state.data.hand.dealer_cards_in_hand;
+            int dealer_hand_value = event.state.data.hand.dealer_hand_value;
+            int player_cards_in_hand = event.state.data.hand.player_cards_in_hand;
+            int player_hand_value = event.state.data.hand.player_hand_value;
             label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X + player_cards_in_hand*HAND_LABEL_STEP_X;
             if (blackjack(dealer_cards_in_hand, dealer_hand_value)){
                 label_write(label, font_map, "%d, PLAYER LOSES...", player_hand_value);
@@ -194,14 +198,13 @@ Event label_notify_player_hand(void *self, Event event, Cargo cargo[]){
             }
             break;
         }
-        case EVENT_ANIM_QUEUE_BLOCKING:
+        case ANIMATION_EVENT_QUEUE_BLOCKING:
             label->widget.rect.visible = false;
             break;
-        case EVENT_ANIM_QUEUE_NONBLOCKING:
+        case ANIMATION_EVENT_QUEUE_NONBLOCKING:
             label->widget.rect.visible = true;
             break;
         default:
             break;
     }
-    return NULL_EVENT;
 }
