@@ -14,7 +14,7 @@
 
 Button* widget_deal_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
     Button *deal_button = button_create(
-        MOVE_BUTTON_ORIGIN_X, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT, 
+        462.f, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT, 
         true,
         INPUT_EVENT_BUTTON_RELEASE_DEAL,
         BUTTON_STATE_IDLE, 
@@ -69,6 +69,26 @@ Button* widget_stand_button_initialize(InputListener **input_listeners, EventLis
     return stand_button;
 }
 
+Button *widget_bet_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *bet_button = button_create(
+        640.f, MOVE_BUTTON_ORIGIN_Y,
+        MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        true,
+        INPUT_EVENT_BUTTON_RELEASE_BET,
+        BUTTON_STATE_IDLE,
+        TEXTURE_ID_BET_BUTTON_SPRITESHEET
+    );
+    input_listener_register(
+        input_listeners,
+        (InputListener){(void *)bet_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)bet_button, button_notify_bet}
+    );
+    return bet_button;
+}
+
 Container* ui_move_buttons_initialize(InputListener **input_listeners, EventListener **event_listeners){
     Container *move_buttons = container_create(
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
@@ -80,11 +100,65 @@ Container* ui_move_buttons_initialize(InputListener **input_listeners, EventList
     container_add_widget(move_buttons, (Widget *)hit_button);
     Button *stand_button = widget_stand_button_initialize(input_listeners, event_listeners);
     container_add_widget(move_buttons, (Widget *)stand_button);
+    Button *bet_button = widget_bet_button_initialize(input_listeners, event_listeners);
+    container_add_widget(move_buttons, (Widget *)bet_button);
     event_listener_register(
         event_listeners, 
         (EventListener){.self=(void*)move_buttons, moveb_container_notify}
     );
     return move_buttons;
+}
+
+Button* widget_stack_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *stack_button = button_create(
+        STACK_BUTTON_ORIGIN_X, STACK_BUTTON_ORIGIN_Y,
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
+        false,
+        INPUT_EVENT_BUTTON_RELEASE_STACK,
+        BUTTON_STATE_DISABLED,
+        TEXTURE_ID_NULL
+    );
+    input_listener_register(
+        input_listeners,
+        (InputListener){(void *)stack_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)stack_button, button_notify_stack}
+    );
+    return stack_button;
+}
+
+Button* widget_white_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *white_button = button_create(
+        CHIP_BUTTON_X(0), CHIP_BUTTON_Y(0),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
+        false,
+        INPUT_EVENT_BUTTON_RELEASE_WHITE,
+        BUTTON_STATE_DISABLED,
+        TEXTURE_ID_WHITE_BUTTON_SPRITESHEET
+    );
+    input_listener_register(
+        input_listeners,
+        (InputListener){(void *)white_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)white_button, button_notify_white}
+    );
+    return white_button;
+}
+
+Container* ui_chip_buttons_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Container *chip_buttons = container_create(
+        0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
+        true
+    );
+    Button *stack_button = widget_stack_button_initialize(input_listeners, event_listeners);
+    container_add_widget(chip_buttons, (Widget *)stack_button);
+    Button *white_button = widget_white_button_initialize(input_listeners, event_listeners);
+    container_add_widget(chip_buttons, (Widget *)white_button);
+    return chip_buttons;
 }
 
 Label* widget_player_money_label_initialize(font_hash* font_map){
@@ -154,6 +228,9 @@ Container* ui_root_initialize(InputListener **input_listeners, EventListener **e
     
     Container *move_buttons = ui_move_buttons_initialize(input_listeners, event_listeners);
     container_add_widget(root, (Widget *)move_buttons);
+
+    Container *chip_buttons = ui_chip_buttons_initialize(input_listeners, event_listeners);
+    container_add_widget(root, (Widget *)chip_buttons);
 
     Container *labels = ui_labels_initialize(font_map, event_listeners);
     container_add_widget(root, (Widget *)labels);

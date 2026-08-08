@@ -129,6 +129,14 @@ void label_notify_dealer_hand(void *self, Event event, void *dependencies){
             }
             break;
         }
+        case STATE_EVENT_BET: {
+            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
+            font_hash* font_map = label_dependencies->font_map;
+            label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X;
+            label_write(label, font_map, "");
+            label->widget.rect.visible = false;
+            break;
+        }
         case ANIMATION_EVENT_QUEUE_BLOCKING:
             label->widget.rect.visible = false;
             break;
@@ -196,6 +204,14 @@ void label_notify_player_hand(void *self, Event event, void *dependencies){
             else {
                 label_write(label, font_map, "%d, PUSH.", player_hand_value);
             }
+            break;
+        }
+        case STATE_EVENT_BET: {
+            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
+            font_hash* font_map = label_dependencies->font_map;
+            label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X;
+            label_write(label, font_map, "");
+            label->widget.rect.visible = false;
             break;
         }
         case ANIMATION_EVENT_QUEUE_BLOCKING:

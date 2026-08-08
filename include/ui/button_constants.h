@@ -22,9 +22,9 @@
 
 #define ABS(a) (((a) < 0) ? -(a) : (a))
 #define CHIP_BUTTON_X(i) \
-    CHIP_BUTTON_X_ORIGIN \
+    CHIP_BUTTON_ORIGIN_X \
     + (i % 5) * (CHIP_BUTTON_WIDTH + CHIP_BUTTON_SEPARATION_X)
 #define CHIP_BUTTON_Y(i) \
-    CHIP_BUTTON_Y_ORIGIN \
+    CHIP_BUTTON_ORIGIN_Y \
     + (i / 5) * (CHIP_BUTTON_HEIGHT+CHIP_BUTTON_SEPARATION_Y) \
     - 30 * ABS(2 - (i % 5)) + 60

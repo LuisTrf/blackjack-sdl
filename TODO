@@ -18,3 +18,5 @@ animate() runs after polling this event queue and then the internal animation ev
 state event queue and animation event queue
 
 ui notify methods should be in separate source file.
+
+rename gctx in as to game_ctx

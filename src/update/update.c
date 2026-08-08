@@ -18,13 +18,10 @@ void update_delta_time(Uint64 *previous_frametime, float *delta_time){
     *previous_frametime = SDL_GetTicks();
 }
 
-void update_on_new_game(GameContext *game_ctx){
-    game_context_set_game_state(game_ctx, GAME_STATE_NEW);
-    game_reset(game_ctx);
-}
-
 void update_on_button_deal_released(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
-    game_reset(game_ctx);
+    if (game_context_get_game_state(game_ctx) != GAME_STATE_BETTING) {
+        game_reset(game_ctx);
+    }
     game_context_set_game_state(game_ctx, GAME_STATE_PLAYING);
 
     deck_shuffle(game_ctx->deck);
@@ -131,9 +128,16 @@ void update(AppState *as){
                 update_on_button_stand_released(as->gctx, as->anim_queue, as->event_queue);
                 event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
+            case INPUT_EVENT_BUTTON_RELEASE_BET:
+                game_reset(as->gctx);
+                game_context_set_game_state(as->gctx, GAME_STATE_BETTING);
+                event_enqueue(as->event_queue, (Event){.state={.type=STATE_EVENT_BET}});
+                event_listeners_notify_all(as->p_event_listeners, event, NULL);
+                break;
             case STATE_EVENT_DEAL: 
             case STATE_EVENT_HIT: 
-            case STATE_EVENT_STAND: {
+            case STATE_EVENT_STAND:
+            case STATE_EVENT_BET: {
                 label_notify_dependencies label_dependencies = {as->font_map};
                 event_listeners_notify_all(as->p_event_listeners, event, (void *)&label_dependencies);
                 break;

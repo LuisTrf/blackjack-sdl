@@ -71,6 +71,8 @@ texture_hash* texture_map_create(SDL_Renderer *renderer, font_hash* font_map){
     hmput(texture_map, TEXTURE_ID_DEAL_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/deal_spritesheet.png"));
     hmput(texture_map, TEXTURE_ID_HIT_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/hit_spritesheet.png"));
     hmput(texture_map, TEXTURE_ID_STAND_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/stand_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_BET_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/bet_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_WHITE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/white1_spritesheet.png"));
     hmput(texture_map, TEXTURE_ID_LABEL_DEALER_HAND, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
     hmput(texture_map, TEXTURE_ID_LABEL_PLAYER_HAND, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
     hmput(texture_map, TEXTURE_ID_LABEL_PLAYER_MONEY, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
