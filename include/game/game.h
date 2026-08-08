@@ -4,6 +4,7 @@
 #include "game_constants.h"
 #include "../rect.h"
 #include "../vec2.h"
+#include "../render/render_types.h"
 
 typedef enum CARD_LOCATION {
     CARD_LOCATION_DECK,
@@ -18,19 +19,32 @@ typedef enum GAME_STATE {
     GAME_STATE_PLAYING
 } GAME_STATE;
 
-typedef enum CHIP_VALUE {
-    _CHIP_VALUE_NONE = 0,
-    CHIP_VALUE_ONE = 1,
-    CHIP_VALUE_FIVE = 5,
-    CHIP_VALUE_TEN = 10,
-    CHIP_VALUE_TWENTY_FIVE = 25,
-    CHIP_VALUE_HUNDRED = 100,
-    CHIP_VALUE_FIVE_HUNDRED = 500,
-    CHIP_VALUE_ONE_K = 1000,
-    CHIP_VALUE_FIVE_K = 5000,
-    CHIP_VALUE_TWENTY_FIVE_K = 25000,
-    CHIP_VALUE_HUNDRED_K = 100000
-} CHIP_VALUE;
+typedef enum CHEQUE_VALUE {
+    _CHEQUE_VALUE_NONE = 0,
+    CHEQUE_VALUE_ONE = 1,
+    CHEQUE_VALUE_FIVE = 5,
+    CHEQUE_VALUE_TEN = 10,
+    CHEQUE_VALUE_TWENTY_FIVE = 25,
+    CHEQUE_VALUE_HUNDRED = 100,
+    CHEQUE_VALUE_FIVE_HUNDRED = 500,
+    CHEQUE_VALUE_ONE_K = 1000,
+    CHEQUE_VALUE_FIVE_K = 5000,
+    CHEQUE_VALUE_TWENTY_FIVE_K = 25000,
+    CHEQUE_VALUE_HUNDRED_K = 100000
+} CHEQUE_VALUE;
+
+typedef struct Cheque {
+    Rect rect;
+    CHEQUE_VALUE val;
+    TEXTURE_ID tid;
+} Cheque;
+
+typedef struct ChequeRingBuffer {
+    int size;
+    int head;
+    int tail;
+    Cheque *arr;
+} ChequeRingBuffer;
 
 typedef struct Card {
     Rect rect;
@@ -41,24 +55,19 @@ typedef struct Card {
     bool face_down;
 } Card;
 
-typedef struct Deck {
-    int top;
-    Card *arr;
-} Deck;
-
 typedef struct Player {
-    Card *hand[MAXIMUM_HAND_SIZE];
+    Card* hand[MAXIMUM_HAND_SIZE];
     int hand_value;
     int cards_in_hand;
     int aces_in_hand_worth_11;
     float money;
     float bet;
     int bet_count;
-    CHIP_VALUE *bet_stack;
+    CHEQUE_VALUE *bet_stack;
 } Player;
 
 typedef struct Dealer{
-    Card *hand[MAXIMUM_HAND_SIZE];
+    Card* hand[MAXIMUM_HAND_SIZE];
     int hand_value;
     int cards_in_hand;
     int aces_in_hand_worth_11;
@@ -67,7 +76,9 @@ typedef struct Dealer{
 typedef struct GameContext {
     GAME_STATE game_state;
     GAME_STATE prev_game_state;
-    Deck *deck;
+    ChequeRingBuffer *cheque_ring_buffer;
+    Card* deck;
+    int *deck_top_index_ptr;
     Dealer *dealer;
     Player *player;
 } GameContext;
@@ -79,8 +90,7 @@ GAME_STATE game_context_get_prev_game_state(GameContext *game_ctx);
 void game_context_set_game_state(GameContext *game_ctx, GAME_STATE state);
 void game_reset(GameContext *game_ctx);
 
-void deck_shuffle(Deck *deck);
-int deck_get_card_count(Deck *deck);
+void deck_shuffle(Card *deck, int *deck_top_index_ptr);
 
 bool bust(int hand_value);
 bool blackjack(int cards_in_hand, int hand_value);
@@ -90,15 +100,15 @@ bool can_hit(int cards_in_hand, int hand_value);
 bool dealer_is_hiding_second_card(Dealer *dealer);
 void dealer_reveal_second_card(Dealer *dealer);
 bool is_second_dealer_card(Dealer *dealer, Card *card);
-Card* dealer_hit(Deck* deck, Dealer *dealer);
+Card* dealer_hit(Card* deck, int *deck_top_index_ptr, Dealer *dealer);
 Card** dealer_get_hand(Dealer *dealer);
 bool can_insure(Dealer *dealer);
 
-Card* player_hit(Deck *deck, Player *player);
+Card* player_hit(Card *deck, int *deck_top_index_ptr, Player *player);
 bool player_is_bet_history_empty(Player *player);
 bool player_is_bet_history_full(Player *player);
-bool player_bet_push(Player *player, CHIP_VALUE val);
-CHIP_VALUE player_bet_pop(Player *player);
-CHIP_VALUE player_bet_peek(Player *player);
+bool player_bet_push(Player *player, CHEQUE_VALUE val);
+CHEQUE_VALUE player_bet_pop(Player *player);
+CHEQUE_VALUE player_bet_peek(Player *player);
 bool player_can_bet(Player *player);
 bool player_can_double_down(Player *player);

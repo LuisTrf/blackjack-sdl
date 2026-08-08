@@ -24,28 +24,28 @@ void update_on_button_deal_released(GameContext *game_ctx, AnimationQueue *anim_
     }
     game_context_set_game_state(game_ctx, GAME_STATE_PLAYING);
 
-    deck_shuffle(game_ctx->deck);
+    deck_shuffle(game_ctx->deck, game_ctx->deck_top_index_ptr);
 
-    Card* dc1 = dealer_hit(game_ctx->deck, game_ctx->dealer);
+    Card* dc1 = dealer_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->dealer);
     anim_enqueue(anim_queue, animation_create(
         &(dc1->rect), 
         vec2_create(HAND_ORIGIN_X, HAND_ORIGIN_Y_DEALER),
         animation_draw_card
     ));
-    Card* dc2 = dealer_hit(game_ctx->deck, game_ctx->dealer);
+    Card* dc2 = dealer_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->dealer);
     anim_enqueue(anim_queue, animation_create(
         &(dc2->rect), 
         vec2_create((HAND_ORIGIN_X + HAND_STEP_X), HAND_ORIGIN_Y_DEALER),
         animation_draw_card
     ));
 
-    Card *pc1 = player_hit(game_ctx->deck, game_ctx->player);
+    Card *pc1 = player_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->player);
     anim_enqueue(anim_queue, animation_create(
         &(pc1->rect), 
         vec2_create(HAND_ORIGIN_X, HAND_ORIGIN_Y_PLAYER),
         animation_draw_card
     ));
-    Card *pc2 = player_hit(game_ctx->deck, game_ctx->player);
+    Card *pc2 = player_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->player);
     anim_enqueue(anim_queue, animation_create(
         &(pc2->rect), 
         vec2_create((HAND_ORIGIN_X + HAND_STEP_X), HAND_ORIGIN_Y_PLAYER),
@@ -66,7 +66,7 @@ void update_on_button_deal_released(GameContext *game_ctx, AnimationQueue *anim_
 }
 
 void update_on_button_hit_released(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
-    Card *pc = player_hit(game_ctx->deck, game_ctx->player);
+    Card *pc = player_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->player);
     anim_enqueue(anim_queue, animation_create(
         &(pc->rect), 
         vec2_create((HAND_ORIGIN_X + HAND_STEP_X*(game_ctx->player->cards_in_hand-1)), HAND_ORIGIN_Y_PLAYER),
@@ -88,7 +88,7 @@ void update_on_button_hit_released(GameContext *game_ctx, AnimationQueue *anim_q
 void update_on_button_stand_released(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
     dealer_reveal_second_card(game_ctx->dealer);
     while (game_ctx->dealer->hand_value < 17){
-        Card *dc = dealer_hit(game_ctx->deck, game_ctx->dealer);
+        Card *dc = dealer_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->dealer);
         anim_enqueue(anim_queue, animation_create(
             &(dc->rect), 
             vec2_create((HAND_ORIGIN_X + HAND_STEP_X*(game_ctx->dealer->cards_in_hand-1)), HAND_ORIGIN_Y_DEALER),

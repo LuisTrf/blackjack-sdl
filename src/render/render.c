@@ -227,9 +227,9 @@ void render_card(SDL_Renderer *renderer, texture_hash *texture_map, Card card){
 }
 
 void render_cards(SDL_Renderer *renderer, texture_hash* texture_map, GameContext *game_ctx){
-    int deck_card_count = deck_get_card_count(game_ctx->deck);
+    int deck_card_count = *game_ctx->deck_top_index_ptr + 1;
     for (int i = 0; i < deck_card_count; i++){
-        render_card(renderer, texture_map, game_ctx->deck->arr[i]);
+        render_card(renderer, texture_map, game_ctx->deck[i]);
     }
     /*
     i.e render cards outside of deck NOT being animated/which are visually in-hand in order of when
@@ -237,10 +237,10 @@ void render_cards(SDL_Renderer *renderer, texture_hash* texture_map, GameContext
     */
     for (int i = deck_card_count; i < 52; i++){
         if (
-            game_ctx->deck->arr[i].rect.pos.x == DECK_ORIGIN_X - (51 - i) 
-            && game_ctx->deck->arr[i].rect.pos.y == DECK_ORIGIN_Y + (51 - i)
+            game_ctx->deck[i].rect.pos.x == DECK_ORIGIN_X - (51 - i) 
+            && game_ctx->deck[i].rect.pos.y == DECK_ORIGIN_Y + (51 - i)
         ){
-            render_card(renderer, texture_map, game_ctx->deck->arr[i]);
+            render_card(renderer, texture_map, game_ctx->deck[i]);
         }
     }
     /*
@@ -249,10 +249,10 @@ void render_cards(SDL_Renderer *renderer, texture_hash* texture_map, GameContext
     */
     for (int i = 51; i >= deck_card_count; i--){
         if (
-            game_ctx->deck->arr[i].rect.pos.x != DECK_ORIGIN_X - (51 - i) 
-            && game_ctx->deck->arr[i].rect.pos.y != DECK_ORIGIN_Y + (51 - i)
+            game_ctx->deck[i].rect.pos.x != DECK_ORIGIN_X - (51 - i) 
+            && game_ctx->deck[i].rect.pos.y != DECK_ORIGIN_Y + (51 - i)
         ){
-            render_card(renderer, texture_map, game_ctx->deck->arr[i]);
+            render_card(renderer, texture_map, game_ctx->deck[i]);
         }
     }
 }
