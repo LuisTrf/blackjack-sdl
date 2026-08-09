@@ -3,29 +3,10 @@ this does the job for now).
 
 Remove constructors which do not dynamically alloc memory with type casting.
 
-Write separate poll events method which is called from update().
-Poll events should dispatch to an input event queue and an animation event queue.
-Rewrite event_types to have an input_event type and anim_event type. Separate input and anim event queues which get
-polled separately.
-
-Condense appstate struct members/remove redundant members.
-Replace button_context with an eventlistener attached to buttons container widget.
-
-The button_released_event will run game code, then this creates a new game event to notify the game state has been updated
-which is then enqueued with the data in the tagged union.
-animate() runs after polling this event queue and then the internal animation event queue is polled.
-
-state event queue and animation event queue
-
 ui notify methods should be in separate source file.
 
-rename gctx in as to game_ctx
 go through game.h/game.c again to rename appropriately and optimise.
 types.h?
 build objects directly on heap dont build on stack then deference.
 
 Replace calloc with [] for fixed arrays (e.g. deck, queues).
-
-anim pool iter through array and call remove if animation state is ANIMATION_STATE_COMPLETED
-
-Rewrite my event queues to use the new queue in game.c for ChequeRingBuffer

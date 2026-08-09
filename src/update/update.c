@@ -111,8 +111,6 @@ void update_on_button_stand_released(GameContext *game_ctx, AnimationQueue *anim
     }});
 }
 
-#include <stdio.h>
-
 void update(AppState *as){
     update_delta_time(&(as->prev_frametime), &(as->delta_time));
     /*
