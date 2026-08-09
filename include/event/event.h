@@ -7,6 +7,7 @@
 
 typedef struct EventQueue {
     int size;
+    int count;
     int head;
     int tail;
     Event* arr;

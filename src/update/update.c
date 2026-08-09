@@ -6,8 +6,11 @@
 #include "../../include/game/card_constants.h"
 #include "../../include/game/game.h"
 #include "../../include/event/event.h"
+#include "../../include/ui/button_constants.h"
 #include "../../include/ui/label.h"
 #include "../../include/main.h"
+
+#include <stdio.h>
 
 void update_delta_time(Uint64 *previous_frametime, float *delta_time){
     float time_to_wait = TARGET_FRAME_TIME - (SDL_GetTicks() - *previous_frametime);
@@ -108,6 +111,8 @@ void update_on_button_stand_released(GameContext *game_ctx, AnimationQueue *anim
     }});
 }
 
+#include <stdio.h>
+
 void update(AppState *as){
     update_delta_time(&(as->prev_frametime), &(as->delta_time));
     /*
@@ -117,23 +122,36 @@ void update(AppState *as){
         Event event = event_dequeue(as->event_queue);
         switch (event.type){
             case INPUT_EVENT_BUTTON_RELEASE_DEAL:
-                update_on_button_deal_released(as->gctx, as->anim_queue, as->event_queue);
+                update_on_button_deal_released(as->game_ctx, as->anim_queue, as->event_queue);
                 event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_HIT:
-                update_on_button_hit_released(as->gctx, as->anim_queue, as->event_queue);
+                update_on_button_hit_released(as->game_ctx, as->anim_queue, as->event_queue);
                 event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_STAND:
-                update_on_button_stand_released(as->gctx, as->anim_queue, as->event_queue);
+                update_on_button_stand_released(as->game_ctx, as->anim_queue, as->event_queue);
                 event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_BET:
-                game_reset(as->gctx);
-                game_context_set_game_state(as->gctx, GAME_STATE_BETTING);
+                game_reset(as->game_ctx);
+                game_context_set_game_state(as->game_ctx, GAME_STATE_BETTING);
                 event_enqueue(as->event_queue, (Event){.state={.type=STATE_EVENT_BET}});
                 event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
+            case INPUT_EVENT_BUTTON_RELEASE_WHITE: {
+                int cheque_idx = as->game_ctx->cheque_ring_buffer->tail;
+                cheque_ring_buffer_enqueue(
+                    as->game_ctx->cheque_ring_buffer,
+                    (Cheque){{{CHIP_BUTTON_X(0), CHIP_BUTTON_Y(0)},CHIP_BUTTON_WIDTH,CHIP_BUTTON_HEIGHT,true},CHEQUE_VALUE_ONE,TEXTURE_ID_WHITE_CHEQUE}
+                );
+                anim_add(as->anim_pool, animation_create(
+                    &(as->game_ctx->cheque_ring_buffer->arr[cheque_idx].rect), 
+                    (vec2){.x=STACK_BUTTON_ORIGIN_X, .y=STACK_BUTTON_ORIGIN_Y},
+                    animation_cheque_move
+                ));
+                break;
+            }
             case STATE_EVENT_DEAL: 
             case STATE_EVENT_HIT: 
             case STATE_EVENT_STAND:
@@ -151,19 +169,25 @@ void update(AppState *as){
     /*
     Process animation-related events here.
     */
-    animate(as->anim_queue, as->event_queue, as->delta_time);
+    animate(as->anim_queue, as->anim_pool, as->event_queue, as->delta_time);
     while (!event_queue_empty(as->event_queue)){
         Event event = event_dequeue(as->event_queue);
         switch(event.type){
             case ANIMATION_EVENT_ANIMATION_CARD_DRAW_COMPLETED:
-                if (bust(as->gctx->player->hand_value) || blackjack(as->gctx->player->cards_in_hand, as->gctx->player->hand_value)) {
-                    dealer_reveal_second_card(as->gctx->dealer);
+                if (
+                    bust(as->game_ctx->player->hand_value) 
+                    || blackjack(as->game_ctx->player->cards_in_hand, as->game_ctx->player->hand_value)
+                ) {
+                    dealer_reveal_second_card(as->game_ctx->dealer);
                 }
                 flip_card(
                     (Card *)event.anim.target, 
-                    is_second_dealer_card(as->gctx->dealer, (Card *)event.anim.target),
-                    dealer_is_hiding_second_card(as->gctx->dealer)
+                    is_second_dealer_card(as->game_ctx->dealer, (Card *)event.anim.target),
+                    dealer_is_hiding_second_card(as->game_ctx->dealer)
                 );
+                break;
+            case ANIMATION_EVENT_ANIMATION_CHEQUE_COMPLETED:
+                cheque_ring_buffer_dequeue(as->game_ctx->cheque_ring_buffer);
                 break;
             default: {
                 event_listeners_notify_all(as->p_event_listeners, event, NULL);

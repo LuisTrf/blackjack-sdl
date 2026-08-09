@@ -67,7 +67,7 @@ Button* button_create(
         .release_event=(Event){.input={.type=release_eventtype}}, 
         ._state=button_state_initial, 
         ._prev_state=_BUTTON_STATE_NONE, 
-        .tid=tid, 
+        .tid=tid
     };
     Button *p_button = malloc(sizeof(Button));
     if (p_button == NULL){

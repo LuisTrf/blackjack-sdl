@@ -1,6 +1,5 @@
 #include <SDL3/SDL.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include "../../include/stb_ds.h"
 #include "../../include/event/event.h"
 
@@ -9,7 +8,7 @@ EventQueue* event_queue_create(int size){
     if (arr == NULL){
         abort();
     }
-    EventQueue queue = {.size=size, .head=0, .tail=0, .arr=arr};
+    EventQueue queue = {.size=size, .count=0, .head=0, .tail=0, .arr=arr};
     EventQueue *p_queue = malloc(sizeof(queue));
     if (p_queue == NULL){
         abort();
@@ -25,66 +24,34 @@ void event_queue_destroy(EventQueue *queue){
 }
 
 bool event_queue_full(EventQueue *queue){
-    if (
-        queue->head==queue->tail+1 
-        || (queue->head==0 && queue->tail==queue->size-1)
-    ){
-        return true;
-    }
-    else {
-        return false;
-    }
+    return (queue->count == queue->size);
 }
 
 bool event_queue_empty(EventQueue *queue){
-    if (queue->head==queue->tail) {
-        return true;
-    }
-    else {
-        return false;
-    }
+    return (queue->count == 0);
 }
 
 void event_enqueue(EventQueue *queue, Event event){
     if (event_queue_full(queue)){
-        fprintf(stderr, "EVENT QUEUE OVERFLOW!");
         return;
     }
-    else{
-        queue->arr[queue->tail] = event;
-        if (queue->tail==queue->size-1){
-            queue->tail=0;
-        }
-        else {
-            queue->tail++;
-        }
-    }
+    queue->arr[queue->tail] = event;
+    queue->tail = (queue->tail + 1) % queue->size;
+    ++queue->count;
 }
 
 Event event_dequeue(EventQueue *queue){
     if (event_queue_empty(queue)){
-        fprintf(stderr, "EVENT QUEUE UNDERFLOW!");
         return NULL_EVENT;
     }
-    else {
-        Event e = queue->arr[queue->head];
-        if (queue->head==queue->size-1){
-            queue->head=0;
-        }
-        else {
-            queue->head++;
-        }
-        return e;
-    }
+    Event e = queue->arr[queue->head];
+    queue->head = (queue->head + 1) % queue->size;
+    --queue->count;
+    return e;
 }
 
 bool event_is_null(Event event){
-    if (event.type == NULL_EVENT.type){
-        return true;
-    }
-    else {
-        return false;
-    }
+    return (event.type == NULL_EVENT.type);
 }
 
 void event_listeners_notify_all(EventListener **event_listeners, Event event, void *dependencies){

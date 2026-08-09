@@ -7,7 +7,7 @@
 #define STANDARD_BET_PAYOUT 2.f
 #define PLAYER_BLACKJACK_BET_PAYOUT 1.5f
 
-#define MAXIMUM_ALIVE_CHIPS 16
+#define MAXIMUM_ALIVE_CHEQUES 16
 
 extern const char SUITS[4];
 extern const char RANKS[13];

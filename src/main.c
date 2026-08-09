@@ -69,8 +69,9 @@ AppState* app_state_create(void){
     }
     *as.p_event_listeners = NULL;
     arrsetlen(*as.p_input_listeners, 0);
-    as.gctx = game_context_create();
+    as.game_ctx = game_context_create();
     as.anim_queue = anim_queue_create(16);
+    as.anim_pool = anim_pool_create(ANIMATION_POOL_MAXIMUM_ANIMATIONS);
     as.ui_root = ui_root_initialize(as.p_input_listeners, as.p_event_listeners, as.font_map);
     as.should_quit = false;
     AppState *p_as = malloc(sizeof(AppState));
@@ -83,8 +84,9 @@ AppState* app_state_create(void){
 
 void app_state_destroy(AppState *as){
     widgets_teardown(as->ui_root);
+    anim_pool_destroy(as->anim_pool);
     anim_queue_destroy(as->anim_queue);
-    game_context_destroy(as->gctx);
+    game_context_destroy(as->game_ctx);
     arrfree(*as->p_event_listeners);
     free(as->p_event_listeners);
     event_queue_destroy(as->event_queue);

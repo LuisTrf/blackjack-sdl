@@ -21,7 +21,8 @@ typedef struct AppState {
     float delta_time;
     EventQueue *event_queue;
     EventListener **p_event_listeners;
-    GameContext *gctx;
+    GameContext *game_ctx;
     AnimationQueue *anim_queue;
+    AnimationPool *anim_pool;
     Container* ui_root;
 } AppState;

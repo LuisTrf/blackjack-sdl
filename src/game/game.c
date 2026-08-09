@@ -97,7 +97,7 @@ ChequeRingBuffer* cheque_ring_buffer_create(int size){
     if (arr == NULL){
         abort();
     }
-    ChequeRingBuffer crb = {size, 0, 0, arr};
+    ChequeRingBuffer crb = {size, 0, 0, 0, arr};
     ChequeRingBuffer *p_crb = malloc(sizeof(ChequeRingBuffer));
     if (p_crb == NULL){
         abort();
@@ -111,62 +111,37 @@ void cheque_ring_buffer_destroy(ChequeRingBuffer *cheque_ring_buffer){
 }
 
 bool cheque_ring_buffer_full(ChequeRingBuffer *cheque_ring_buffer){
-    if (
-        cheque_ring_buffer->head==cheque_ring_buffer->tail+1 
-        || (cheque_ring_buffer->head==0 && cheque_ring_buffer->tail==cheque_ring_buffer->size-1)
-    ){
-        return true;
-    }
-    else {
-        return false;
-    }
+    return cheque_ring_buffer->count == cheque_ring_buffer->size;
 }
 
 bool cheque_ring_buffer_empty(ChequeRingBuffer *cheque_ring_buffer){
-    if (cheque_ring_buffer->head==cheque_ring_buffer->tail) {
-        return true;
-    }
-    else {
-        return false;
-    }
+    return cheque_ring_buffer->count == 0;
 }
 
 void cheque_ring_buffer_enqueue(ChequeRingBuffer *cheque_ring_buffer, Cheque cheque){
     if (cheque_ring_buffer_full(cheque_ring_buffer)){
         return;
     }
-    else{
-        cheque_ring_buffer->arr[cheque_ring_buffer->tail] = cheque;
-        if (cheque_ring_buffer->tail == cheque_ring_buffer->size-1){
-            cheque_ring_buffer->tail = 0;
-        }
-        else {
-            cheque_ring_buffer->tail++;
-        }
-    }
+    cheque_ring_buffer->arr[cheque_ring_buffer->tail] = cheque;
+    cheque_ring_buffer->tail = (cheque_ring_buffer->tail + 1) % cheque_ring_buffer->size;
+    ++cheque_ring_buffer->count;
 }
 
 Cheque cheque_ring_buffer_dequeue(ChequeRingBuffer *cheque_ring_buffer){
     if (cheque_ring_buffer_empty(cheque_ring_buffer)){
         return (Cheque){{0, 0, 0, 0, false}, _CHEQUE_VALUE_NONE, TEXTURE_ID_NULL};
     }
-    else {
-        Cheque cheque = cheque_ring_buffer->arr[cheque_ring_buffer->head];
-        if (cheque_ring_buffer->head == cheque_ring_buffer->size-1){
-            cheque_ring_buffer->head=0;
-        }
-        else {
-            cheque_ring_buffer->head++;
-        }
-        return cheque;
-    }
+    Cheque cheque = cheque_ring_buffer->arr[cheque_ring_buffer->head];
+    cheque_ring_buffer->head = (cheque_ring_buffer->head + 1) % cheque_ring_buffer->size;
+    --cheque_ring_buffer->count;
+    return cheque;
 }
 
 GameContext* game_context_create(void){
     GameContext game_ctx = {
         GAME_STATE_NEW,
         _GAME_STATE_NONE,
-        cheque_ring_buffer_create(MAXIMUM_ALIVE_CHIPS),
+        cheque_ring_buffer_create(MAXIMUM_ALIVE_CHEQUES),
         deck_create(),
         malloc(sizeof(int)),
         dealer_create(),

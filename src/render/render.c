@@ -73,6 +73,7 @@ texture_hash* texture_map_create(SDL_Renderer *renderer, font_hash* font_map){
     hmput(texture_map, TEXTURE_ID_STAND_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/stand_spritesheet.png"));
     hmput(texture_map, TEXTURE_ID_BET_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/bet_spritesheet.png"));
     hmput(texture_map, TEXTURE_ID_WHITE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/white1_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_WHITE_CHEQUE, render_load_texture_from_png(renderer, "resources/white1.png"));
     hmput(texture_map, TEXTURE_ID_LABEL_DEALER_HAND, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
     hmput(texture_map, TEXTURE_ID_LABEL_PLAYER_HAND, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
     hmput(texture_map, TEXTURE_ID_LABEL_PLAYER_MONEY, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
@@ -257,6 +258,23 @@ void render_cards(SDL_Renderer *renderer, texture_hash* texture_map, GameContext
     }
 }
 
+void render_cheques(SDL_Renderer *renderer, texture_hash* texture_map, GameContext *game_ctx){
+    int head = game_ctx->cheque_ring_buffer->head;
+    int count = game_ctx->cheque_ring_buffer->count;
+    int size = game_ctx->cheque_ring_buffer->size;
+    int idx = head;
+    for (int i = 0; i < count; i++){
+        idx = (head + i) % size;
+        SDL_FRect dst_rect = {
+            game_ctx->cheque_ring_buffer->arr[idx].rect.pos.x,
+            game_ctx->cheque_ring_buffer->arr[idx].rect.pos.y,
+            game_ctx->cheque_ring_buffer->arr[idx].rect.width,
+            game_ctx->cheque_ring_buffer->arr[idx].rect.height
+        };
+        SDL_RenderTexture(renderer, hmget(texture_map, game_ctx->cheque_ring_buffer->arr[idx].tid), NULL, &dst_rect);
+    }
+}
+
 void render(AppState *as){
     SDL_RenderTexture(
         as->renderer, 
@@ -264,8 +282,9 @@ void render(AppState *as){
         NULL, 
         NULL
     );
-    render_cards(as->renderer, as->texture_map, as->gctx);
+    render_cards(as->renderer, as->texture_map, as->game_ctx);
     render_widgets(as->renderer, as->texture_map, as->font_map, as->ui_root);
+    render_cheques(as->renderer, as->texture_map, as->game_ctx);
     SDL_RenderPresent(as->renderer);
 }
 
