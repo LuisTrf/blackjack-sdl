@@ -282,9 +282,23 @@ void button_notify_stack(void *self, Event event, void *dependencies){
             button->widget.rect.visible = false;
             break;
         case STATE_EVENT_BET:
+            button->tid = TEXTURE_ID_NULL;
             button_set_state(button, BUTTON_STATE_IDLE);
             button->widget.rect.visible = true;
             break;
+        case STATE_EVENT_CHEQUE_PUSH_RECEIVED:
+            button->tid = event.state.data.cheque_push_received.tid;
+            if (button_get_state(button) == BUTTON_STATE_DISABLED){
+                button_set_state(button, BUTTON_STATE_IDLE);
+                button->widget.rect.visible = true;
+            }
+            break;
+        case STATE_EVENT_CHEQUE_POP_SENT: 
+            button->tid = event.state.data.cheque_pop_sent.tid;
+            if (event.state.data.cheque_pop_sent.bet == 0){
+                button_set_state(button, BUTTON_STATE_DISABLED);
+                button->widget.rect.visible = false;
+            }
         default:
             break;
     }
@@ -300,6 +314,17 @@ void button_notify_white(void *self, Event event, void *dependencies){
         case STATE_EVENT_BET:
             button_set_state(button, BUTTON_STATE_IDLE);
             button->widget.rect.visible = true;
+            break;
+        case STATE_EVENT_CHEQUE_PUSH_SENT:
+        case STATE_EVENT_CHEQUE_POP_RECEIVED:
+            if (event.state.data.cheque_push_sent.money < CHEQUE_VALUE_ONE){
+                button_set_state(button, BUTTON_STATE_DISABLED);
+                button->widget.rect.visible = false;
+            }
+            else {
+                button_set_state(button, BUTTON_STATE_IDLE);
+                button->widget.rect.visible = true;
+            }
             break;
         default:
             break;

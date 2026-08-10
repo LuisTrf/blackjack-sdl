@@ -33,3 +33,5 @@ typedef struct label_notify_dependencies_t {
 } label_notify_dependencies;
 void label_notify_dealer_hand(void *self, Event event, void *dependencies);
 void label_notify_player_hand(void *self, Event event, void *dependencies);
+void label_notify_player_money(void *self, Event event, void *dependencies);
+void label_notify_player_bet(void *self, Event event, void *dependencies);

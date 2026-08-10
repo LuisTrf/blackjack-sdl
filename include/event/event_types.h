@@ -15,6 +15,10 @@ typedef enum EventType {
     STATE_EVENT_HIT,
     STATE_EVENT_STAND,
     STATE_EVENT_BET,
+    STATE_EVENT_CHEQUE_PUSH_SENT,
+    STATE_EVENT_CHEQUE_PUSH_RECEIVED,
+    STATE_EVENT_CHEQUE_POP_SENT,
+    STATE_EVENT_CHEQUE_POP_RECEIVED,
     ANIMATION_EVENT_ANIMATION_CARD_DRAW_COMPLETED,
     ANIMATION_EVENT_ANIMATION_CHEQUE_COMPLETED,
     ANIMATION_EVENT_QUEUE_BLOCKING,
@@ -31,6 +35,10 @@ typedef struct StateEvent {
     EventType type;
     union {
         struct {int dealer_cards_in_hand, dealer_hand_value, player_cards_in_hand, player_hand_value;} hand;
+        struct {float money;} cheque_push_sent;
+        struct {float bet; TEXTURE_ID tid;} cheque_push_received;
+        struct {float money;} cheque_pop_received;
+        struct {float bet; TEXTURE_ID tid;} cheque_pop_sent;
     } data;
 } StateEvent;
 

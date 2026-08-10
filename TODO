@@ -10,3 +10,11 @@ types.h?
 build objects directly on heap dont build on stack then deference.
 
 Replace calloc with [] for fixed arrays (e.g. deck, queues).
+
+clean up the event queue, create functions and poll event method.
+create hashmap to get button spritesheet from cheque tid.
+proper 0 check func for floats
+reset stack button and bet label on bet released
+first clean up the code, create chequeval to tid hashmap lookup in game_ctx
+pass bx, by, bwidth, bheight in button event instead of hardcoded.
+create general function for the 10 event update methods.

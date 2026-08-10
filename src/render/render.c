@@ -77,6 +77,7 @@ texture_hash* texture_map_create(SDL_Renderer *renderer, font_hash* font_map){
     hmput(texture_map, TEXTURE_ID_LABEL_DEALER_HAND, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
     hmput(texture_map, TEXTURE_ID_LABEL_PLAYER_HAND, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
     hmput(texture_map, TEXTURE_ID_LABEL_PLAYER_MONEY, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
+    hmput(texture_map, TEXTURE_ID_LABEL_PLAYER_BET, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
     return texture_map;
 }
 

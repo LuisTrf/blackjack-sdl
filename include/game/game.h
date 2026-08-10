@@ -37,6 +37,7 @@ typedef struct Cheque {
     Rect rect;
     CHEQUE_VALUE val;
     TEXTURE_ID tid;
+    bool popped;
 } Cheque;
 
 typedef struct ChequeRingBuffer {
@@ -46,6 +47,18 @@ typedef struct ChequeRingBuffer {
     int tail;
     Cheque *arr;
 } ChequeRingBuffer;
+
+typedef struct cheque_data_t {
+    TEXTURE_ID cheque_tid;
+    TEXTURE_ID cheque_button_tid;
+    float cheque_button_x;
+    float cheque_button_y;
+} cheque_data;
+
+typedef struct cheque_data_hash_t {
+    CHEQUE_VALUE key;
+    cheque_data value;
+} cheque_data_hash;
 
 typedef struct Card {
     Rect rect;
@@ -78,6 +91,7 @@ typedef struct GameContext {
     GAME_STATE game_state;
     GAME_STATE prev_game_state;
     ChequeRingBuffer *cheque_ring_buffer;
+    cheque_data_hash* cheque_data_map;
     Card* deck;
     int *deck_top_index_ptr;
     Dealer *dealer;
@@ -109,9 +123,7 @@ Card** dealer_get_hand(Dealer *dealer);
 bool can_insure(Dealer *dealer);
 
 Card* player_hit(Card *deck, int *deck_top_index_ptr, Player *player);
-bool player_is_bet_history_empty(Player *player);
-bool player_is_bet_history_full(Player *player);
-bool player_bet_push(Player *player, CHEQUE_VALUE val);
+void player_bet_push(Player *player, CHEQUE_VALUE val);
 CHEQUE_VALUE player_bet_pop(Player *player);
 CHEQUE_VALUE player_bet_peek(Player *player);
 bool player_can_bet(Player *player);

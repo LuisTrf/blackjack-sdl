@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "../../include/stb_ds.h"
 #include "../../include/game/card_constants.h"
 #include "../../include/game/game_constants.h"
+#include "../../include/ui/button_constants.h"
 #include "../../include/game/game.h"
 
 /*
@@ -137,11 +139,28 @@ Cheque cheque_ring_buffer_dequeue(ChequeRingBuffer *cheque_ring_buffer){
     return cheque;
 }
 
+cheque_data_hash* cheque_data_map_create(void){
+    cheque_data_hash* cheque_data_map = NULL;
+    cheque_data cdata = {
+        TEXTURE_ID_WHITE_CHEQUE, 
+        TEXTURE_ID_WHITE_BUTTON_SPRITESHEET,
+        CHIP_BUTTON_X(0),
+        CHIP_BUTTON_Y(0)
+    };
+    hmput(cheque_data_map, CHEQUE_VALUE_ONE, cdata);
+    return cheque_data_map;
+}
+
+void cheque_data_map_destroy(cheque_data_hash *cheque_data_map){
+    hmfree(cheque_data_map);
+}
+
 GameContext* game_context_create(void){
     GameContext game_ctx = {
         GAME_STATE_NEW,
         _GAME_STATE_NONE,
         cheque_ring_buffer_create(MAXIMUM_ALIVE_CHEQUES),
+        cheque_data_map_create(),
         deck_create(),
         malloc(sizeof(int)),
         dealer_create(),
@@ -160,12 +179,15 @@ GameContext* game_context_create(void){
 }
 
 void game_context_destroy(GameContext *game_ctx){
-    deck_destroy(game_ctx->deck);
-    game_ctx->deck = NULL;
-    player_destroy(game_ctx->player);
-    game_ctx->player = NULL;
     dealer_destroy(game_ctx->dealer);
     game_ctx->dealer = NULL;
+    player_destroy(game_ctx->player);
+    game_ctx->player = NULL;
+    free(game_ctx->deck_top_index_ptr);
+    deck_destroy(game_ctx->deck);
+    game_ctx->deck = NULL;
+    cheque_data_map_destroy(game_ctx->cheque_data_map);
+    cheque_ring_buffer_destroy(game_ctx->cheque_ring_buffer);
     free(game_ctx);
 }
 
@@ -334,26 +356,17 @@ bool player_is_bet_history_empty(Player *player){
     return (player->bet_count == 0);
 }
 
-bool player_is_bet_history_full(Player *player){
-    return (player->bet_count == MAXIMUM_BETTED_CHIPS);
-}
-
-bool game_player_bet_push(Player *player, CHEQUE_VALUE val){
-    if (!player_is_bet_history_full(player)){
-        player->bet_stack[player->bet_count] = val;
-        player->bet += val;
-        player->bet_count++;
-        return true;
-    }
-    else{
-        return false;
-    }
+void player_bet_push(Player *player, CHEQUE_VALUE val){
+    player->bet += arrput(player->bet_stack, val);
+    player->bet_count++;
 }
 
 CHEQUE_VALUE player_bet_pop(Player *player){
     if (!player_is_bet_history_empty(player)){
-        player->bet -= player->bet_stack[--player->bet_count];
-        return player->bet_stack[player->bet_count];
+        CHEQUE_VALUE val = arrpop(player->bet_stack);
+        player->bet -= val;
+        player->bet_count--;
+        return val;
     }
     else {
         return _CHEQUE_VALUE_NONE;

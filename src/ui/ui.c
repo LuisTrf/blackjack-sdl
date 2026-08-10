@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 #include "../../include/stb_ds.h"
 #include "../../include/ui/widget.h"
 #include "../../include/ui/button.h"
@@ -7,10 +9,8 @@
 #include "../../include/ui/label.h"
 #include "../../include/ui/label_constants.h"
 #include "../../include/ui/spritebox.h"
+#include "../../include/game/game_constants.h"
 #include "../../include/input/input.h"
-
-#include <stdbool.h>
-#include <stdio.h>
 
 Button* widget_deal_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
     Button *deal_button = button_create(
@@ -161,7 +161,7 @@ Container* ui_chip_buttons_initialize(InputListener **input_listeners, EventList
     return chip_buttons;
 }
 
-Label* widget_player_money_label_initialize(font_hash* font_map){
+Label* widget_player_money_label_initialize(font_hash* font_map, EventListener **event_listeners){
     Label *player_money_label = label_create(
         font_map,
         0, 0,
@@ -169,7 +169,11 @@ Label* widget_player_money_label_initialize(font_hash* font_map){
         FONT_ID_OPENSANS_32PT,
         TEXTURE_ID_LABEL_PLAYER_MONEY
     );
-    label_write(player_money_label, font_map, "$%.2f", 10.00);
+    label_write(player_money_label, font_map, "$%.2f", PLAYER_BEGINNING_MONEY);
+    event_listener_register(
+        event_listeners, 
+        (EventListener){(void *)player_money_label, label_notify_player_money}
+    );
     return player_money_label;
 }
 
@@ -205,20 +209,37 @@ Label* widget_player_hand_label_initialize(font_hash* font_map, EventListener **
     return player_hand_label;
 }
 
+Label *widget_player_bet_label_initialize(font_hash* font_map, EventListener **event_listeners){
+    Label *player_bet_label = label_create(
+        font_map,
+        BET_LABEL_ORIGIN_X, BET_LABEL_ORIGIN_Y,
+        false,
+        FONT_ID_OPENSANS_32PT,
+        TEXTURE_ID_LABEL_PLAYER_BET
+    );
+    label_write(player_bet_label, font_map, "$0.00");
+    label_align_x(player_bet_label, player_bet_label->widget.rect.pos.x);
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)player_bet_label, label_notify_player_bet}
+    );
+    return player_bet_label;
+}
+
 Container* ui_labels_initialize(font_hash* font_map, EventListener **event_listeners){
     Container *labels = container_create(
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
         true
     );
 
-    Label *player_money_label = widget_player_money_label_initialize(font_map);
+    Label *player_money_label = widget_player_money_label_initialize(font_map, event_listeners);
     container_add_widget(labels, (Widget *)player_money_label);
-
     Label *dealer_hand_label = widget_dealer_hand_label_initialize(font_map, event_listeners);
     container_add_widget(labels, (Widget *)dealer_hand_label);
-
     Label *player_hand_label = widget_player_hand_label_initialize(font_map, event_listeners);
     container_add_widget(labels, (Widget *)player_hand_label);
+    Label *player_bet_label = widget_player_bet_label_initialize(font_map, event_listeners);
+    container_add_widget(labels, (Widget *)player_bet_label);
 
     return labels;
 }

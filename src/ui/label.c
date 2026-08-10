@@ -224,3 +224,44 @@ void label_notify_player_hand(void *self, Event event, void *dependencies){
             break;
     }
 }
+
+void label_notify_player_money(void *self, Event event, void *dependencies){
+    Label *label = (Label *)self;
+    switch (event.type){
+        case STATE_EVENT_CHEQUE_PUSH_SENT:
+        case STATE_EVENT_CHEQUE_POP_RECEIVED: {
+            label_notify_dependencies *label_dependencies = (label_notify_dependencies *)dependencies;
+            float money = event.state.data.cheque_push_sent.money;
+            label_write(label, label_dependencies->font_map, "$%.2f", money);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void label_notify_player_bet(void *self, Event event, void *dependencies){
+    Label *label = (Label *)self;
+    switch (event.type){
+        case STATE_EVENT_BET: {
+            label_notify_dependencies *label_dependencies = (label_notify_dependencies *)dependencies;
+            label_write(label, label_dependencies->font_map, "$0.00");
+            label_align_x(label, BET_LABEL_ORIGIN_X);
+            label->widget.rect.visible = true;
+            break;
+        }
+        case STATE_EVENT_DEAL:
+            label->widget.rect.visible = false;
+            break;
+        case STATE_EVENT_CHEQUE_PUSH_RECEIVED:
+        case STATE_EVENT_CHEQUE_POP_SENT: {
+            label_notify_dependencies *label_dependencies = (label_notify_dependencies *)dependencies;
+            float bet = event.state.data.cheque_push_received.bet;
+            label_write(label, label_dependencies->font_map, "$%.2f", bet);
+            label_align_x(label, BET_LABEL_ORIGIN_X);
+            break;
+        }
+        default:
+            break;
+    }
+}

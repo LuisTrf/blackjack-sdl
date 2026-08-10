@@ -26,5 +26,6 @@
     + (i % 5) * (CHIP_BUTTON_WIDTH + CHIP_BUTTON_SEPARATION_X)
 #define CHIP_BUTTON_Y(i) \
     CHIP_BUTTON_ORIGIN_Y \
-    + (i / 5) * (CHIP_BUTTON_HEIGHT+CHIP_BUTTON_SEPARATION_Y) \
-    - 30 * ABS(2 - (i % 5)) + 60
+    + (i / 5) * (CHIP_BUTTON_HEIGHT + CHIP_BUTTON_SEPARATION_Y) \
+    - 30 * ABS(2 - (i % 5)) \
+    + 60

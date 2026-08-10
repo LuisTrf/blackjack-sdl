@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../game/card_constants.h"
+#include "button_constants.h"
 
 #define STRING(s) #s
 #define XSTRING(s) STRING(s)
@@ -11,3 +12,5 @@
 #define HAND_LABEL_STEP_X (HAND_STEP_X)
 #define HAND_LABEL_ORIGIN_Y_DEALER (HAND_ORIGIN_Y_DEALER + CARD_HEIGHT/2.f)
 #define HAND_LABEL_ORIGIN_Y_PLAYER (HAND_ORIGIN_Y_PLAYER + CARD_HEIGHT/2.f)
+#define BET_LABEL_ORIGIN_X (STACK_BUTTON_ORIGIN_X + CHIP_BUTTON_WIDTH*0.5f)
+#define BET_LABEL_ORIGIN_Y (STACK_BUTTON_ORIGIN_Y - 50)
