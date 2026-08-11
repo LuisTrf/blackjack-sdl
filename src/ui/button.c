@@ -304,7 +304,7 @@ void button_notify_stack(void *self, Event event, void *dependencies){
     }
 }
 
-void button_notify_white(void *self, Event event, void *dependencies){
+void button_notify_cheque(void *self, Event event, void *dependencies, CHEQUE_VALUE val){
     Button *button = (Button *)self;
     switch (event.type){
         case STATE_EVENT_DEAL:
@@ -312,12 +312,18 @@ void button_notify_white(void *self, Event event, void *dependencies){
             button->widget.rect.visible = false;
             break;
         case STATE_EVENT_BET:
-            button_set_state(button, BUTTON_STATE_IDLE);
-            button->widget.rect.visible = true;
+            if (event.state.data.money.money < val){
+                button_set_state(button, BUTTON_STATE_DISABLED);
+                button->widget.rect.visible = false;
+            }
+            else {
+                button_set_state(button, BUTTON_STATE_IDLE);
+                button->widget.rect.visible = true;
+            }
             break;
         case STATE_EVENT_CHEQUE_PUSH_SENT:
         case STATE_EVENT_CHEQUE_POP_RECEIVED:
-            if (event.state.data.cheque_push_sent.money < CHEQUE_VALUE_ONE){
+            if (event.state.data.cheque_push_sent.money < val){
                 button_set_state(button, BUTTON_STATE_DISABLED);
                 button->widget.rect.visible = false;
             }
@@ -329,4 +335,44 @@ void button_notify_white(void *self, Event event, void *dependencies){
         default:
             break;
     }
+}
+
+void button_notify_white(void *self, Event event, void *dependencies){
+    button_notify_cheque(self, event, dependencies, CHEQUE_VALUE_ONE);
+}
+
+void button_notify_red(void *self, Event event, void *dependencies){
+    button_notify_cheque(self, event, dependencies, CHEQUE_VALUE_FIVE);
+}
+
+void button_notify_blue(void *self, Event event, void *dependencies){
+    button_notify_cheque(self, event, dependencies, CHEQUE_VALUE_TEN);
+}
+
+void button_notify_green(void *self, Event event, void *dependencies){
+    button_notify_cheque(self, event, dependencies, CHEQUE_VALUE_TWENTY_FIVE);
+}
+
+void button_notify_black(void *self, Event event, void *dependencies){
+    button_notify_cheque(self, event, dependencies, CHEQUE_VALUE_HUNDRED);
+}
+
+void button_notify_purple(void *self, Event event, void *dependencies){
+    button_notify_cheque(self, event, dependencies, CHEQUE_VALUE_FIVE_HUNDRED);
+}
+
+void button_notify_yellow(void *self, Event event, void *dependencies){
+    button_notify_cheque(self, event, dependencies, CHEQUE_VALUE_ONE_K);
+}
+
+void button_notify_orange(void *self, Event event, void *dependencies){
+    button_notify_cheque(self, event, dependencies, CHEQUE_VALUE_FIVE_K);
+}
+
+void button_notify_redblue(void *self, Event event, void *dependencies){
+    button_notify_cheque(self, event, dependencies, CHEQUE_VALUE_TWENTY_FIVE_K);
+}
+
+void button_notify_gold(void *self, Event event, void *dependencies){
+    button_notify_cheque(self, event, dependencies, CHEQUE_VALUE_HUNDRED_K);
 }

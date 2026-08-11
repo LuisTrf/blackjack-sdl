@@ -26,6 +26,16 @@ void handle_button_release_deal(GameContext *game_ctx, AnimationQueue *anim_queu
     }
     game_context_set_game_state(game_ctx, GAME_STATE_PLAYING);
 
+    event_enqueue(event_queue, (Event){.state={
+        .type=STATE_EVENT_GAME_STATE,
+        .data={
+            .game_state = {
+                game_context_get_game_state(game_ctx),
+                game_context_get_prev_game_state(game_ctx)
+            }
+        }
+    }});
+
     deck_shuffle(game_ctx->deck, game_ctx->deck_top_index_ptr);
 
     Card* dc1 = dealer_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->dealer);
@@ -53,6 +63,21 @@ void handle_button_release_deal(GameContext *game_ctx, AnimationQueue *anim_queu
         vec2_create((HAND_ORIGIN_X + HAND_STEP_X), HAND_ORIGIN_Y_PLAYER),
         animation_draw_card
     ));
+
+    if (
+        game_context_get_prev_game_state(game_ctx) == GAME_STATE_BETTING
+        && blackjack(game_ctx->player->cards_in_hand, game_ctx->player->hand_value)
+    ){
+        if (!blackjack(game_ctx->dealer->cards_in_hand, game_ctx->dealer->hand_value)){
+            game_ctx->player->money += game_ctx->player->bet * PLAYER_BLACKJACK_BET_PAYOUT;
+            event_enqueue(event_queue, (Event){.state={
+                .type=STATE_EVENT_BET_PAYOUT,
+                .data={
+                    .money = {game_ctx->player->money}
+                }
+            }});
+        }
+    }
 
     event_enqueue(event_queue, (Event){.state={
         .type=STATE_EVENT_DEAL,
@@ -97,6 +122,21 @@ void handle_button_release_stand(GameContext *game_ctx, AnimationQueue *anim_que
             animation_draw_card
         ));
     }
+
+    if (
+        game_context_get_prev_game_state(game_ctx) == GAME_STATE_BETTING
+        && !bust(game_ctx->player->hand_value)
+        && (game_ctx->player->hand_value > game_ctx->dealer->hand_value)
+    ){
+        game_ctx->player->money += game_ctx->player->bet * STANDARD_BET_PAYOUT;
+        event_enqueue(event_queue, (Event){.state={
+            .type=STATE_EVENT_BET_PAYOUT,
+            .data={
+                .money = {game_ctx->player->money}
+            }
+        }});
+    }
+
     event_enqueue(event_queue, (Event){.state={
         .type=STATE_EVENT_STAND,
         .data={
@@ -108,6 +148,21 @@ void handle_button_release_stand(GameContext *game_ctx, AnimationQueue *anim_que
             }
         }
     }});
+}
+
+void handle_button_release_bet(GameContext *game_ctx, EventQueue *event_queue){
+    game_reset(game_ctx);
+    game_context_set_game_state(game_ctx, GAME_STATE_BETTING);
+    event_enqueue(event_queue, (Event){
+        .state={
+            .type=STATE_EVENT_BET,
+            .data={
+                .money={
+                    .money = game_ctx->player->money
+                }
+            }
+        }
+    });
 }
 
 void handle_button_release_stack(GameContext *game_ctx, AnimationPool *anim_pool, EventQueue *event_queue){
@@ -214,9 +269,7 @@ void update(AppState *as){
                 event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_BET:
-                game_reset(as->game_ctx);
-                game_context_set_game_state(as->game_ctx, GAME_STATE_BETTING);
-                event_enqueue(as->event_queue, (Event){.state={.type=STATE_EVENT_BET}});
+                handle_button_release_bet(as->game_ctx, as->event_queue);
                 event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_STACK: {
@@ -229,12 +282,58 @@ void update(AppState *as){
                 event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             }
+            case INPUT_EVENT_BUTTON_RELEASE_RED: {
+                handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_FIVE);
+                event_listeners_notify_all(as->p_event_listeners, event, NULL);
+                break;
+            }
+            case INPUT_EVENT_BUTTON_RELEASE_BLUE: {
+                handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_TEN);
+                event_listeners_notify_all(as->p_event_listeners, event, NULL);
+                break;
+            }
+            case INPUT_EVENT_BUTTON_RELEASE_GREEN: {
+                handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_TWENTY_FIVE);
+                event_listeners_notify_all(as->p_event_listeners, event, NULL);
+                break;
+            }
+            case INPUT_EVENT_BUTTON_RELEASE_BLACK: {
+                handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_HUNDRED);
+                event_listeners_notify_all(as->p_event_listeners, event, NULL);
+                break;
+            }
+            case INPUT_EVENT_BUTTON_RELEASE_PURPLE: {
+                handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_FIVE_HUNDRED);
+                event_listeners_notify_all(as->p_event_listeners, event, NULL);
+                break;
+            }
+            case INPUT_EVENT_BUTTON_RELEASE_YELLOW: {
+                handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_ONE_K);
+                event_listeners_notify_all(as->p_event_listeners, event, NULL);
+                break;
+            }
+            case INPUT_EVENT_BUTTON_RELEASE_ORANGE: {
+                handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_FIVE_K);
+                event_listeners_notify_all(as->p_event_listeners, event, NULL);
+                break;
+            }
+            case INPUT_EVENT_BUTTON_RELEASE_REDBLUE: {
+                handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_TWENTY_FIVE_K);
+                event_listeners_notify_all(as->p_event_listeners, event, NULL);
+                break;
+            }
+            case INPUT_EVENT_BUTTON_RELEASE_GOLD: {
+                handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_HUNDRED_K);
+                event_listeners_notify_all(as->p_event_listeners, event, NULL);
+                break;
+            }
             case STATE_EVENT_DEAL: 
             case STATE_EVENT_HIT: 
             case STATE_EVENT_STAND:
             case STATE_EVENT_BET:
             case STATE_EVENT_CHEQUE_PUSH_SENT: 
-            case STATE_EVENT_CHEQUE_POP_SENT: {
+            case STATE_EVENT_CHEQUE_POP_SENT:
+            case STATE_EVENT_BET_PAYOUT: {
                 label_notify_dependencies label_dependencies = {as->font_map};
                 event_listeners_notify_all(as->p_event_listeners, event, (void *)&label_dependencies);
                 break;

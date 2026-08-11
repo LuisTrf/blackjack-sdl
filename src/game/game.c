@@ -148,6 +148,69 @@ cheque_data_hash* cheque_data_map_create(void){
         CHIP_BUTTON_Y(0)
     };
     hmput(cheque_data_map, CHEQUE_VALUE_ONE, cdata);
+    cdata = (cheque_data){
+        TEXTURE_ID_RED_CHEQUE, 
+        TEXTURE_ID_RED_BUTTON_SPRITESHEET,
+        CHIP_BUTTON_X(1),
+        CHIP_BUTTON_Y(1)
+    };
+    hmput(cheque_data_map, CHEQUE_VALUE_FIVE, cdata);
+    cdata = (cheque_data){
+        TEXTURE_ID_BLUE_CHEQUE, 
+        TEXTURE_ID_BLUE_BUTTON_SPRITESHEET,
+        CHIP_BUTTON_X(2),
+        CHIP_BUTTON_Y(2)
+    };
+    hmput(cheque_data_map, CHEQUE_VALUE_TEN, cdata);
+    cdata = (cheque_data){
+        TEXTURE_ID_GREEN_CHEQUE, 
+        TEXTURE_ID_GREEN_BUTTON_SPRITESHEET,
+        CHIP_BUTTON_X(3),
+        CHIP_BUTTON_Y(3)
+    };
+    hmput(cheque_data_map, CHEQUE_VALUE_TWENTY_FIVE, cdata);
+    cdata = (cheque_data){
+        TEXTURE_ID_BLACK_CHEQUE, 
+        TEXTURE_ID_BLACK_BUTTON_SPRITESHEET,
+        CHIP_BUTTON_X(4),
+        CHIP_BUTTON_Y(4)
+    };
+    hmput(cheque_data_map, CHEQUE_VALUE_HUNDRED, cdata);
+    cdata = (cheque_data){
+        TEXTURE_ID_PURPLE_CHEQUE, 
+        TEXTURE_ID_PURPLE_BUTTON_SPRITESHEET,
+        CHIP_BUTTON_X(5),
+        CHIP_BUTTON_Y(5)
+    };
+    hmput(cheque_data_map, CHEQUE_VALUE_FIVE_HUNDRED, cdata);
+    cdata = (cheque_data){
+        TEXTURE_ID_YELLOW_CHEQUE, 
+        TEXTURE_ID_YELLOW_BUTTON_SPRITESHEET,
+        CHIP_BUTTON_X(6),
+        CHIP_BUTTON_Y(6)
+    };
+    hmput(cheque_data_map, CHEQUE_VALUE_ONE_K, cdata);
+    cdata = (cheque_data){
+        TEXTURE_ID_ORANGE_CHEQUE, 
+        TEXTURE_ID_ORANGE_BUTTON_SPRITESHEET,
+        CHIP_BUTTON_X(7),
+        CHIP_BUTTON_Y(7)
+    };
+    hmput(cheque_data_map, CHEQUE_VALUE_FIVE_K, cdata);
+    cdata = (cheque_data){
+        TEXTURE_ID_REDBLUE_CHEQUE, 
+        TEXTURE_ID_REDBLUE_BUTTON_SPRITESHEET,
+        CHIP_BUTTON_X(8),
+        CHIP_BUTTON_Y(8)
+    };
+    hmput(cheque_data_map, CHEQUE_VALUE_TWENTY_FIVE_K, cdata);
+    cdata = (cheque_data){
+        TEXTURE_ID_GOLD_CHEQUE, 
+        TEXTURE_ID_GOLD_BUTTON_SPRITESHEET,
+        CHIP_BUTTON_X(9),
+        CHIP_BUTTON_Y(9)
+    };
+    hmput(cheque_data_map, CHEQUE_VALUE_HUNDRED_K, cdata);
     return cheque_data_map;
 }
 
@@ -244,27 +307,36 @@ Card* draw_random_card(Card *deck, int *deck_top_index){
 }
 
 void game_reset(GameContext *game_ctx){
-    for (;game_ctx->dealer->cards_in_hand > 0; game_ctx->dealer->cards_in_hand--){
-        game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]->location = CARD_LOCATION_DECK;
-        game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]->face_down = true;
-        game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]->rect.pos.x = DECK_ORIGIN_X - (51 - *game_ctx->deck_top_index_ptr);
-        game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1]->rect.pos.y = DECK_ORIGIN_Y + (51 - *game_ctx->deck_top_index_ptr);
-        game_ctx->dealer->hand[game_ctx->dealer->cards_in_hand-1] = NULL;
+    Dealer *dealer = game_ctx->dealer;
+    Player *player = game_ctx->player;
+    for (;dealer->cards_in_hand > 0; dealer->cards_in_hand--){
+        Card** dhand = dealer->hand;
+        int cindex = dealer->cards_in_hand - 1;
+        dhand[cindex]->location = CARD_LOCATION_DECK;
+        dhand[cindex]->face_down = true;
+        dhand[cindex]->rect.pos.x = DECK_ORIGIN_X - (51 - *game_ctx->deck_top_index_ptr);
+        dhand[cindex]->rect.pos.y = DECK_ORIGIN_Y + (51 - *game_ctx->deck_top_index_ptr);
+        dhand[cindex] = NULL;
     }
-    game_ctx->dealer->hand_value = 0;
-    game_ctx->dealer->aces_in_hand_worth_11 = 0;
+    dealer->hand_value = 0;
+    dealer->aces_in_hand_worth_11 = 0;
 
-    for (;game_ctx->player->cards_in_hand > 0; game_ctx->player->cards_in_hand--){
-        game_ctx->player->hand[game_ctx->player->cards_in_hand-1]->location = CARD_LOCATION_DECK;
-        game_ctx->player->hand[game_ctx->player->cards_in_hand-1]->face_down = true;
-        game_ctx->player->hand[game_ctx->player->cards_in_hand-1]->rect.pos.x = DECK_ORIGIN_X - (51 - *game_ctx->deck_top_index_ptr);
-        game_ctx->player->hand[game_ctx->player->cards_in_hand-1]->rect.pos.y = DECK_ORIGIN_Y + (51 - *game_ctx->deck_top_index_ptr);
-        game_ctx->player->hand[game_ctx->player->cards_in_hand-1] = NULL;
+    for (;player->cards_in_hand > 0; player->cards_in_hand--){
+        Card** phand = player->hand;
+        int cindex = player->cards_in_hand - 1;
+        phand[cindex]->location = CARD_LOCATION_DECK;
+        phand[cindex]->face_down = true;
+        phand[cindex]->rect.pos.x = DECK_ORIGIN_X - (51 - *game_ctx->deck_top_index_ptr);
+        phand[cindex]->rect.pos.y = DECK_ORIGIN_Y + (51 - *game_ctx->deck_top_index_ptr);
+        phand[cindex] = NULL;
     }
-    game_ctx->player->hand_value = 0;
-    game_ctx->player->aces_in_hand_worth_11 = 0;
-    game_ctx->player->bet = 0;
-    game_ctx->player->bet_count = 0;
+    player->hand_value = 0;
+    player->aces_in_hand_worth_11 = 0;
+    player->bet = 0;
+    if (player->bet_count > 0) {
+        arrdeln(player->bet_stack, 0, player->bet_count);
+    }
+    player->bet_count = 0;
 
     *game_ctx->deck_top_index_ptr = 51;
 }

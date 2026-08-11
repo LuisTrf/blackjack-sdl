@@ -2,6 +2,7 @@
 
 #include "../rect.h"
 #include "../render/render_types.h"
+#include "../game/game.h"
 
 typedef enum EventType {
     EVENT_NONE,
@@ -11,6 +12,15 @@ typedef enum EventType {
     INPUT_EVENT_BUTTON_RELEASE_BET,
     INPUT_EVENT_BUTTON_RELEASE_STACK,
     INPUT_EVENT_BUTTON_RELEASE_WHITE,
+    INPUT_EVENT_BUTTON_RELEASE_RED,
+    INPUT_EVENT_BUTTON_RELEASE_BLUE,
+    INPUT_EVENT_BUTTON_RELEASE_GREEN,
+    INPUT_EVENT_BUTTON_RELEASE_BLACK,
+    INPUT_EVENT_BUTTON_RELEASE_PURPLE,
+    INPUT_EVENT_BUTTON_RELEASE_YELLOW,
+    INPUT_EVENT_BUTTON_RELEASE_ORANGE,
+    INPUT_EVENT_BUTTON_RELEASE_REDBLUE,
+    INPUT_EVENT_BUTTON_RELEASE_GOLD,
     STATE_EVENT_DEAL,
     STATE_EVENT_HIT,
     STATE_EVENT_STAND,
@@ -19,6 +29,8 @@ typedef enum EventType {
     STATE_EVENT_CHEQUE_PUSH_RECEIVED,
     STATE_EVENT_CHEQUE_POP_SENT,
     STATE_EVENT_CHEQUE_POP_RECEIVED,
+    STATE_EVENT_BET_PAYOUT,
+    STATE_EVENT_GAME_STATE,
     ANIMATION_EVENT_ANIMATION_CARD_DRAW_COMPLETED,
     ANIMATION_EVENT_ANIMATION_CHEQUE_COMPLETED,
     ANIMATION_EVENT_QUEUE_BLOCKING,
@@ -34,11 +46,10 @@ typedef struct InputEvent {
 typedef struct StateEvent {
     EventType type;
     union {
+        struct {GAME_STATE game_state, prev_game_state;} game_state; 
         struct {int dealer_cards_in_hand, dealer_hand_value, player_cards_in_hand, player_hand_value;} hand;
-        struct {float money;} cheque_push_sent;
-        struct {float bet; TEXTURE_ID tid;} cheque_push_received;
-        struct {float money;} cheque_pop_received;
-        struct {float bet; TEXTURE_ID tid;} cheque_pop_sent;
+        struct {float money;} cheque_push_sent, cheque_pop_received, money;
+        struct {float bet; TEXTURE_ID tid;} cheque_push_received, cheque_pop_sent;
     } data;
 } StateEvent;
 

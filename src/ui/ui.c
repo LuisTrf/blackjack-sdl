@@ -149,16 +149,214 @@ Button* widget_white_button_initialize(InputListener **input_listeners, EventLis
     return white_button;
 }
 
-Container* ui_chip_buttons_initialize(InputListener **input_listeners, EventListener **event_listeners){
-    Container *chip_buttons = container_create(
+Button* widget_red_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *red_button = button_create(
+        CHIP_BUTTON_X(1), CHIP_BUTTON_Y(1),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
+        false,
+        INPUT_EVENT_BUTTON_RELEASE_RED,
+        BUTTON_STATE_DISABLED,
+        TEXTURE_ID_RED_BUTTON_SPRITESHEET
+    );
+    input_listener_register(
+        input_listeners,
+        (InputListener){(void *)red_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)red_button, button_notify_red}
+    );
+    return red_button;
+}
+
+Button* widget_blue_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *blue_button = button_create(
+        CHIP_BUTTON_X(2), CHIP_BUTTON_Y(2),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
+        false,
+        INPUT_EVENT_BUTTON_RELEASE_BLUE,
+        BUTTON_STATE_DISABLED,
+        TEXTURE_ID_BLUE_BUTTON_SPRITESHEET
+    );
+    input_listener_register(
+        input_listeners,
+        (InputListener){(void *)blue_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)blue_button, button_notify_blue}
+    );
+    return blue_button;
+}
+
+Button* widget_green_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *green_button = button_create(
+        CHIP_BUTTON_X(3), CHIP_BUTTON_Y(3),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
+        false,
+        INPUT_EVENT_BUTTON_RELEASE_GREEN,
+        BUTTON_STATE_DISABLED,
+        TEXTURE_ID_GREEN_BUTTON_SPRITESHEET
+    );
+    input_listener_register(
+        input_listeners,
+        (InputListener){(void *)green_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)green_button, button_notify_green}
+    );
+    return green_button;
+}
+
+Button* widget_black_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *black_button = button_create(
+        CHIP_BUTTON_X(4), CHIP_BUTTON_Y(4),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
+        false,
+        INPUT_EVENT_BUTTON_RELEASE_BLACK,
+        BUTTON_STATE_DISABLED,
+        TEXTURE_ID_BLACK_BUTTON_SPRITESHEET
+    );
+    input_listener_register(
+        input_listeners,
+        (InputListener){(void *)black_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)black_button, button_notify_black}
+    );
+    return black_button;
+}
+
+Button* widget_purple_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *purple_button = button_create(
+        CHIP_BUTTON_X(5), CHIP_BUTTON_Y(5),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
+        false,
+        INPUT_EVENT_BUTTON_RELEASE_PURPLE,
+        BUTTON_STATE_DISABLED,
+        TEXTURE_ID_PURPLE_BUTTON_SPRITESHEET
+    );
+    input_listener_register(
+        input_listeners,
+        (InputListener){(void *)purple_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)purple_button, button_notify_purple}
+    );
+    return purple_button;
+}
+
+Button* widget_yellow_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *yellow_button = button_create(
+        CHIP_BUTTON_X(6), CHIP_BUTTON_Y(6),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
+        false,
+        INPUT_EVENT_BUTTON_RELEASE_YELLOW,
+        BUTTON_STATE_DISABLED,
+        TEXTURE_ID_YELLOW_BUTTON_SPRITESHEET
+    );
+    input_listener_register(
+        input_listeners,
+        (InputListener){(void *)yellow_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)yellow_button, button_notify_yellow}
+    );
+    return yellow_button;
+}
+
+Button* widget_orange_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *orange_button = button_create(
+        CHIP_BUTTON_X(7), CHIP_BUTTON_Y(7),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
+        false,
+        INPUT_EVENT_BUTTON_RELEASE_ORANGE,
+        BUTTON_STATE_DISABLED,
+        TEXTURE_ID_ORANGE_BUTTON_SPRITESHEET
+    );
+    input_listener_register(
+        input_listeners,
+        (InputListener){(void *)orange_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)orange_button, button_notify_orange}
+    );
+    return orange_button;
+}
+
+Button* widget_redblue_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *redblue_button = button_create(
+        CHIP_BUTTON_X(8), CHIP_BUTTON_Y(8),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
+        false,
+        INPUT_EVENT_BUTTON_RELEASE_REDBLUE,
+        BUTTON_STATE_DISABLED,
+        TEXTURE_ID_REDBLUE_BUTTON_SPRITESHEET
+    );
+    input_listener_register(
+        input_listeners,
+        (InputListener){(void *)redblue_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)redblue_button, button_notify_redblue}
+    );
+    return redblue_button;
+}
+
+Button* widget_gold_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *gold_button = button_create(
+        CHIP_BUTTON_X(9), CHIP_BUTTON_Y(9),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
+        false,
+        INPUT_EVENT_BUTTON_RELEASE_GOLD,
+        BUTTON_STATE_DISABLED,
+        TEXTURE_ID_GOLD_BUTTON_SPRITESHEET
+    );
+    input_listener_register(
+        input_listeners,
+        (InputListener){(void *)gold_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)gold_button, button_notify_gold}
+    );
+    return gold_button;
+}
+
+Container* ui_cheque_buttons_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Container *cheque_buttons = container_create(
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
         true
     );
     Button *stack_button = widget_stack_button_initialize(input_listeners, event_listeners);
-    container_add_widget(chip_buttons, (Widget *)stack_button);
+    container_add_widget(cheque_buttons, (Widget *)stack_button);
     Button *white_button = widget_white_button_initialize(input_listeners, event_listeners);
-    container_add_widget(chip_buttons, (Widget *)white_button);
-    return chip_buttons;
+    container_add_widget(cheque_buttons, (Widget *)white_button);
+    Button *red_button = widget_red_button_initialize(input_listeners, event_listeners);
+    container_add_widget(cheque_buttons, (Widget *)red_button);
+    Button *blue_button = widget_blue_button_initialize(input_listeners, event_listeners);
+    container_add_widget(cheque_buttons, (Widget *)blue_button);
+    Button *green_button = widget_green_button_initialize(input_listeners, event_listeners);
+    container_add_widget(cheque_buttons, (Widget *)green_button);
+    Button *black_button = widget_black_button_initialize(input_listeners, event_listeners);
+    container_add_widget(cheque_buttons, (Widget *)black_button);
+    Button *purple_button = widget_purple_button_initialize(input_listeners, event_listeners);
+    container_add_widget(cheque_buttons, (Widget *)purple_button);
+    Button *yellow_button = widget_yellow_button_initialize(input_listeners, event_listeners);
+    container_add_widget(cheque_buttons, (Widget *)yellow_button);
+    Button *orange_button = widget_orange_button_initialize(input_listeners, event_listeners);
+    container_add_widget(cheque_buttons, (Widget *)orange_button);
+    Button *redblue_button = widget_redblue_button_initialize(input_listeners, event_listeners);
+    container_add_widget(cheque_buttons, (Widget *)redblue_button);
+    Button *gold_button = widget_gold_button_initialize(input_listeners, event_listeners);
+    container_add_widget(cheque_buttons, (Widget *)gold_button);
+    return cheque_buttons;
 }
 
 Label* widget_player_money_label_initialize(font_hash* font_map, EventListener **event_listeners){
@@ -250,8 +448,8 @@ Container* ui_root_initialize(InputListener **input_listeners, EventListener **e
     Container *move_buttons = ui_move_buttons_initialize(input_listeners, event_listeners);
     container_add_widget(root, (Widget *)move_buttons);
 
-    Container *chip_buttons = ui_chip_buttons_initialize(input_listeners, event_listeners);
-    container_add_widget(root, (Widget *)chip_buttons);
+    Container *cheque_buttons = ui_cheque_buttons_initialize(input_listeners, event_listeners);
+    container_add_widget(root, (Widget *)cheque_buttons);
 
     Container *labels = ui_labels_initialize(font_map, event_listeners);
     container_add_widget(root, (Widget *)labels);
