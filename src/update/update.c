@@ -124,9 +124,12 @@ void handle_button_release_stand(GameContext *game_ctx, AnimationQueue *anim_que
     }
 
     if (
-        game_context_get_prev_game_state(game_ctx) == GAME_STATE_BETTING
-        && !bust(game_ctx->player->hand_value)
-        && (game_ctx->player->hand_value > game_ctx->dealer->hand_value)
+        (
+            game_context_get_prev_game_state(game_ctx) == GAME_STATE_BETTING
+            && !bust(game_ctx->player->hand_value)
+            && (game_ctx->player->hand_value > game_ctx->dealer->hand_value)
+        )
+        || bust(game_ctx->dealer->hand_value)
     ){
         game_ctx->player->money += game_ctx->player->bet * STANDARD_BET_PAYOUT;
         event_enqueue(event_queue, (Event){.state={
