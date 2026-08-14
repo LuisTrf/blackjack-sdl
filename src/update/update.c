@@ -39,30 +39,50 @@ void handle_button_release_deal(GameContext *game_ctx, AnimationQueue *anim_queu
     deck_shuffle(game_ctx->deck, game_ctx->deck_top_index_ptr);
 
     Card* dc1 = dealer_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->dealer);
-    anim_enqueue(anim_queue, animation_create(
-        &(dc1->rect), 
-        vec2_create(HAND_ORIGIN_X, HAND_ORIGIN_Y_DEALER),
-        animation_draw_card
-    ));
+    anim_enqueue(anim_queue, (Animation){
+        &(dc1->rect),
+        ANIMATION_TYPE_VEC2,
+        ANIMATION_STATE_WAITING,
+        animation_draw_card,
+        {.vec2_anim={
+            (vec2){dc1->rect.pos.x, dc1->rect.pos.y},
+            (vec2){HAND_ORIGIN_X, HAND_ORIGIN_Y_DEALER}
+        }}
+    });
     Card* dc2 = dealer_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->dealer);
-    anim_enqueue(anim_queue, animation_create(
-        &(dc2->rect), 
-        vec2_create((HAND_ORIGIN_X + HAND_STEP_X), HAND_ORIGIN_Y_DEALER),
-        animation_draw_card
-    ));
+    anim_enqueue(anim_queue, (Animation){
+        &(dc2->rect),
+        ANIMATION_TYPE_VEC2,
+        ANIMATION_STATE_WAITING,
+        animation_draw_card,
+        {.vec2_anim={
+            (vec2){dc2->rect.pos.x, dc2->rect.pos.y},
+            (vec2){(HAND_ORIGIN_X+HAND_STEP_X), HAND_ORIGIN_Y_DEALER}
+        }}
+    });
 
     Card *pc1 = player_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->player);
-    anim_enqueue(anim_queue, animation_create(
-        &(pc1->rect), 
-        vec2_create(HAND_ORIGIN_X, HAND_ORIGIN_Y_PLAYER),
-        animation_draw_card
-    ));
+    anim_enqueue(anim_queue, (Animation){
+        &(pc1->rect),
+        ANIMATION_TYPE_VEC2,
+        ANIMATION_STATE_WAITING,
+        animation_draw_card,
+        {.vec2_anim={
+            (vec2){pc1->rect.pos.x, pc1->rect.pos.y},
+            (vec2){HAND_ORIGIN_X, HAND_ORIGIN_Y_PLAYER}
+        }}
+    });
     Card *pc2 = player_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->player);
-    anim_enqueue(anim_queue, animation_create(
-        &(pc2->rect), 
-        vec2_create((HAND_ORIGIN_X + HAND_STEP_X), HAND_ORIGIN_Y_PLAYER),
-        animation_draw_card
-    ));
+    anim_enqueue(anim_queue, (Animation){
+        &(pc2->rect),
+        ANIMATION_TYPE_VEC2,
+        ANIMATION_STATE_WAITING,
+        animation_draw_card,
+        {.vec2_anim={
+            (vec2){pc2->rect.pos.x, pc2->rect.pos.y},
+            (vec2){(HAND_ORIGIN_X+HAND_STEP_X), HAND_ORIGIN_Y_PLAYER}
+        }}
+    });
 
     if (
         game_context_get_prev_game_state(game_ctx) == GAME_STATE_BETTING
@@ -94,11 +114,16 @@ void handle_button_release_deal(GameContext *game_ctx, AnimationQueue *anim_queu
 
 void handle_button_release_hit(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
     Card *pc = player_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->player);
-    anim_enqueue(anim_queue, animation_create(
-        &(pc->rect), 
-        vec2_create((HAND_ORIGIN_X + HAND_STEP_X*(game_ctx->player->cards_in_hand-1)), HAND_ORIGIN_Y_PLAYER),
-        animation_draw_card
-    ));
+    anim_enqueue(anim_queue, (Animation){
+        &(pc->rect),
+        ANIMATION_TYPE_VEC2,
+        ANIMATION_STATE_WAITING,
+        animation_draw_card,
+        {.vec2_anim={
+            (vec2){pc->rect.pos.x, pc->rect.pos.y},
+            (vec2){(HAND_ORIGIN_X + HAND_STEP_X*(game_ctx->player->cards_in_hand-1)), HAND_ORIGIN_Y_PLAYER}
+        }}
+    });
     event_enqueue(event_queue, (Event){.state={
         .type=STATE_EVENT_HIT,
         .data={
@@ -116,18 +141,23 @@ void handle_button_release_stand(GameContext *game_ctx, AnimationQueue *anim_que
     dealer_reveal_second_card(game_ctx->dealer);
     while (game_ctx->dealer->hand_value < 17){
         Card *dc = dealer_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->dealer);
-        anim_enqueue(anim_queue, animation_create(
-            &(dc->rect), 
-            vec2_create((HAND_ORIGIN_X + HAND_STEP_X*(game_ctx->dealer->cards_in_hand-1)), HAND_ORIGIN_Y_DEALER),
-            animation_draw_card
-        ));
+        anim_enqueue(anim_queue, (Animation){
+            &(dc->rect),
+            ANIMATION_TYPE_VEC2,
+            ANIMATION_STATE_WAITING,
+            animation_draw_card,
+            {.vec2_anim={
+                (vec2){dc->rect.pos.x, dc->rect.pos.y},
+                (vec2){(HAND_ORIGIN_X + HAND_STEP_X*(game_ctx->dealer->cards_in_hand-1)), HAND_ORIGIN_Y_DEALER}
+            }}
+        });
     }
 
     if (
         (
-            game_context_get_prev_game_state(game_ctx) == GAME_STATE_BETTING
-            && !bust(game_ctx->player->hand_value)
-            && (game_ctx->player->hand_value > game_ctx->dealer->hand_value)
+        game_context_get_prev_game_state(game_ctx) == GAME_STATE_BETTING
+        && !bust(game_ctx->player->hand_value)
+        && (game_ctx->player->hand_value > game_ctx->dealer->hand_value)
         )
         || bust(game_ctx->dealer->hand_value)
     ){
@@ -190,14 +220,16 @@ void handle_button_release_stack(GameContext *game_ctx, AnimationPool *anim_pool
             true
         }
     );
-    anim_add(anim_pool, animation_create(
-        &(game_ctx->cheque_ring_buffer->arr[cheque_idx].rect), 
-        (vec2){
-            .x = hmget(game_ctx->cheque_data_map, val).cheque_button_x, 
-            .y = hmget(game_ctx->cheque_data_map, val).cheque_button_y
-        },
-        animation_cheque_move
-    ));
+    anim_add(anim_pool, (Animation){
+        &(game_ctx->cheque_ring_buffer->arr[cheque_idx].rect),
+        ANIMATION_TYPE_VEC2,
+        ANIMATION_STATE_WAITING,
+        animation_cheque_move,
+        {.vec2_anim={
+            (vec2){game_ctx->cheque_ring_buffer->arr[cheque_idx].rect.pos.x, game_ctx->cheque_ring_buffer->arr[cheque_idx].rect.pos.y},
+            (vec2){hmget(game_ctx->cheque_data_map, val).cheque_button_x, hmget(game_ctx->cheque_data_map, val).cheque_button_y}
+        }}
+    });
     event_enqueue(
         event_queue, 
         (Event){
@@ -234,11 +266,16 @@ void handle_button_release_cheque(GameContext *game_ctx, AnimationPool *anim_poo
             false
         }
     );
-    anim_add(anim_pool, animation_create(
-        &(game_ctx->cheque_ring_buffer->arr[cheque_idx].rect), 
-        (vec2){.x=STACK_BUTTON_ORIGIN_X, .y=STACK_BUTTON_ORIGIN_Y},
-        animation_cheque_move
-    ));
+        anim_add(anim_pool, (Animation){
+        &(game_ctx->cheque_ring_buffer->arr[cheque_idx].rect),
+        ANIMATION_TYPE_VEC2,
+        ANIMATION_STATE_WAITING,
+        animation_cheque_move,
+        {.vec2_anim={
+            (vec2){game_ctx->cheque_ring_buffer->arr[cheque_idx].rect.pos.x, game_ctx->cheque_ring_buffer->arr[cheque_idx].rect.pos.y},
+            (vec2){STACK_BUTTON_ORIGIN_X, STACK_BUTTON_ORIGIN_Y}
+        }}
+    });
     event_enqueue(
         event_queue, 
         (Event){

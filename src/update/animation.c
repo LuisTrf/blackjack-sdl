@@ -1,17 +1,6 @@
 #include <stdlib.h>
 #include "../../include/update/animation.h"
 
-Animation animation_create(Rect *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time)){
-    Animation anim = {
-        .target = target,
-        .src = target->pos,
-        .dst = dst,
-        .state = ANIMATION_STATE_WAITING,
-        .anim_func = anim_func,
-    };
-    return anim;
-}
-
 AnimationQueue* anim_queue_create(int size){
     Animation* arr = calloc(size, sizeof(Animation));
     if (arr == NULL){
@@ -107,15 +96,7 @@ Animation anim_remove(AnimationPool *anim_pool, int index){
 }
 
 bool anim_is_null(Animation anim){
-    return (
-        anim.target == NULL_ANIMATION.target
-        && anim.dst.x == NULL_ANIMATION.dst.x
-        && anim.dst.y == NULL_ANIMATION.dst.y
-        && anim.src.x == NULL_ANIMATION.src.x
-        && anim.src.y == NULL_ANIMATION.src.y
-        && anim.state == NULL_ANIMATION.state
-        && anim.anim_func == NULL_ANIMATION.anim_func
-    );
+    return (anim.type == _ANIMATION_TYPE_NONE);
 }
 
 void vec2_translate_in_fixed_time(float delta_time, vec2 *target, vec2 src, vec2 dst, float time){
@@ -158,11 +139,11 @@ Event animation_draw_card(Animation *self, float delta_time){
     vec2_translate_in_fixed_time(
         delta_time,
         &(self->target->pos),
-        self->src,
-        self->dst,
+        self->vec2_anim.src,
+        self->vec2_anim.dst,
         0.3f
     );
-    if (self->state == ANIMATION_STATE_PLAYING && self->target->pos.x == self->dst.x && self->target->pos.y == self->dst.y){
+    if (self->state == ANIMATION_STATE_PLAYING && self->target->pos.x == self->vec2_anim.dst.x && self->target->pos.y == self->vec2_anim.dst.y){
         self->state = ANIMATION_STATE_COMPLETED;
         return (Event){.anim={.type=ANIMATION_EVENT_ANIMATION_CARD_DRAW_COMPLETED, .target=self->target}};
     }
@@ -173,11 +154,11 @@ Event animation_cheque_move(Animation *self, float delta_time){
     vec2_translate_in_fixed_time(
         delta_time,
         &(self->target->pos),
-        self->src,
-        self->dst,
+        self->vec2_anim.src,
+        self->vec2_anim.dst,
         0.15f
     );
-    if (self->state == ANIMATION_STATE_PLAYING && self->target->pos.x == self->dst.x && self->target->pos.y == self->dst.y){
+    if (self->state == ANIMATION_STATE_PLAYING && self->target->pos.x == self->vec2_anim.dst.x && self->target->pos.y == self->vec2_anim.dst.y){
         self->state = ANIMATION_STATE_COMPLETED;
         return (Event){.anim={.type=ANIMATION_EVENT_ANIMATION_CHEQUE_COMPLETED, .target=self->target}};
     }

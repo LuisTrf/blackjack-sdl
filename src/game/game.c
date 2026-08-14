@@ -11,7 +11,6 @@
 /*
 RULES
 Hits maximum 12 times AAAA22223333, 22 which is bust.
-Player hits maximum 5 times because 5-card charlie rule.
 */
 
 const char SUITS[4] = {'C', 'D', 'H', 'S'};

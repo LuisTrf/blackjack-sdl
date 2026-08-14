@@ -5,6 +5,12 @@
 
 #define ANIMATION_POOL_MAXIMUM_ANIMATIONS 16
 
+typedef enum ANIMATION_TYPE {
+    _ANIMATION_TYPE_NONE,
+    ANIMATION_TYPE_VEC2,
+    ANIMATION_TYPE_SPRITESHEET
+} ANIMATION_TYPE;
+
 typedef enum ANIMATION_STATE {
     _ANIMATION_STATE_NONE,
     ANIMATION_STATE_WAITING,
@@ -12,20 +18,33 @@ typedef enum ANIMATION_STATE {
     ANIMATION_STATE_COMPLETED
 } ANIMATION_STATE;
 
-typedef struct Animation {
-    Rect *target;
+typedef struct Vec2Animation {
     vec2 src;
     vec2 dst;
+} Vec2Animation;
+
+typedef struct SpriteAnimation {
+    int frame_count;
+    int fps;
+    int sheet_step_x;
+} SpriteAnimation;
+
+typedef struct Animation {
+    Rect *target;
+    ANIMATION_TYPE type;
     ANIMATION_STATE state;
     Event (*anim_func)(struct Animation *self, float delta_time);
+    union {
+        Vec2Animation vec2_anim;
+        SpriteAnimation sprite_anim;
+    };
 } Animation;
 
 static const Animation NULL_ANIMATION = {
     NULL,
-    {0, 0},
-    {0, 0},
+    _ANIMATION_TYPE_NONE,
     _ANIMATION_STATE_NONE,
-    NULL
+    NULL,
 };
 
 typedef struct AnimationQueue {
@@ -45,7 +64,6 @@ typedef struct AnimationPool {
     int free_count;
 } AnimationPool;
 
-Animation animation_create(Rect *target, vec2 dst, Event (*anim_func)(Animation *self, float delta_time));
 AnimationQueue* anim_queue_create(int size);
 void anim_queue_destroy(AnimationQueue *p_queue);
 bool anim_queue_full(AnimationQueue *queue);

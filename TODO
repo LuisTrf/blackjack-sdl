@@ -18,3 +18,9 @@ bet button not visible/idle on player blackjack
 cache game_ctx-> vars
 
 reduce code duplication
+
+decompose header files
+
+proper money formatting 100,000
+
+update to use 1280x960 4:3 resolution

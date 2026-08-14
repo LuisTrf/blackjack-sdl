@@ -8,43 +8,6 @@
 #include "../../include/stb_ds.h"
 #include "../../include/game/game.h"
 
-/*
-Button deal_button = {{BUTTON_X_ORIGIN, BUTTON_Y_ORIGIN, BUTTON_WIDTH, BUTTON_HEIGHT, true},
-    IDLE, _NONE_BUTTON_STATE, NULL, on_deal_released};
-Button bet_button = {{BUTTON_X_ORIGIN, BUTTON_Y_ORIGIN, BUTTON_WIDTH, BUTTON_HEIGHT, true},
-    IDLE, _NONE_BUTTON_STATE, NULL, on_bet_released};
-Button hit_button = {{BUTTON_X_ORIGIN, BUTTON_Y_ORIGIN, BUTTON_WIDTH, BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_hit_released};
-Button stand_button = {{BUTTON_X_ORIGIN, BUTTON_Y_ORIGIN, BUTTON_WIDTH, BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_stand_released};
-Button insurance_button = {{BUTTON_X_ORIGIN, BUTTON_Y_ORIGIN, BUTTON_WIDTH, BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_insurance_released};
-Button double_down_button = {{BUTTON_X_ORIGIN, BUTTON_Y_ORIGIN, BUTTON_WIDTH, BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_double_down_released};
-Button stack_button = {{STACK_BUTTON_X_ORIGIN, STACK_BUTTON_Y_ORIGIN, CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_stack_released};
-Button white1_button = {{CHIP_BUTTON_X(0), CHIP_BUTTON_Y(0), CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_valued_released};
-Button red5_button = {{CHIP_BUTTON_X(1), CHIP_BUTTON_Y(1), CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_valued_released};
-Button blue10_button = {{{CHIP_BUTTON_X(2), CHIP_BUTTON_Y(2), CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_valued_released}, TEN};
-ValuedButton green25_button = {{{CHIP_BUTTON_X(3), CHIP_BUTTON_Y(3), CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_valued_released}, TWENTY_FIVE};
-ValuedButton black100_button = {{{CHIP_BUTTON_X(4), CHIP_BUTTON_Y(4), CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_valued_released}, HUNDRED};
-ValuedButton purple500_button = {{{CHIP_BUTTON_X(5), CHIP_BUTTON_Y(5), CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_valued_released}, FIVE_HUNDRED};
-ValuedButton yellow1k_button = {{{CHIP_BUTTON_X(6), CHIP_BUTTON_Y(6), CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_valued_released}, ONE_K};
-ValuedButton orange5k_button = {{{CHIP_BUTTON_X(7), CHIP_BUTTON_Y(7), CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_valued_released}, FIVE_K};
-Button redblue25k_button = {{{CHIP_BUTTON_X(8), CHIP_BUTTON_Y(8), CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_valued_released}, TWENTY_FIVE_K};
-Button gold100k_button = {{{CHIP_BUTTON_X(9), CHIP_BUTTON_Y(9), CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT, false},
-    DISABLED, _NONE_BUTTON_STATE, NULL, on_valued_released}, HUNDRED_K};
-*/
-
 Button* button_create(
     float x, float y, 
     int width, int height, 
