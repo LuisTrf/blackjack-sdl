@@ -237,6 +237,30 @@ void button_notify_bet(void *self, Event event, void *dependencies){
     }
 }
 
+void button_notify_split(void *self, Event event, void *dependencies){
+    Button *button = (Button *)self;
+    switch (event.type){
+        case STATE_EVENT_SPLIT_POSSIBLE: 
+            button_set_state(button, BUTTON_STATE_IDLE);
+            button->widget.rect.visible = true;
+            break;
+        case STATE_EVENT_HIT:
+        case STATE_EVENT_STAND:
+        case STATE_EVENT_SPLIT:
+            button_set_state(button, BUTTON_STATE_DISABLED);
+            button->widget.rect.visible = false;
+            break;
+        case ANIMATION_EVENT_QUEUE_BLOCKING:
+            button_set_state(button, BUTTON_STATE_DISABLED);
+            break;
+        case ANIMATION_EVENT_QUEUE_NONBLOCKING:
+            button_restore_prev_state(button);
+            break;
+        default:
+            break;
+    }
+}
+
 void button_notify_stack(void *self, Event event, void *dependencies){
     Button *button = (Button *)self;
     switch (event.type){

@@ -57,7 +57,7 @@ SDL_Texture* render_create_empty_font_texture(SDL_Renderer *renderer, font_hash*
 }
 
 void rerender_font_texture(SDL_Renderer *renderer, texture_hash* texture_map, font_hash* font_map, TEXTURE_ID tid, FONT_ID fid, const char* txt){
-    SDL_Surface* surface = TTF_RenderText_Blended(hmget(font_map, fid), txt, 0, FONT_COLOR);
+    SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(hmget(font_map, fid), txt, 0, FONT_COLOR, 0);
     SDL_DestroyTexture(hmget(texture_map, tid));
     hmput(texture_map, tid, NULL);
     hmput(texture_map, tid, SDL_CreateTextureFromSurface(renderer, surface));
@@ -96,6 +96,9 @@ texture_hash* texture_map_create(SDL_Renderer *renderer, font_hash* font_map){
     hmput(texture_map, TEXTURE_ID_ORANGE_CHEQUE, render_load_texture_from_png(renderer, "resources/cheque/orange5k.png"));
     hmput(texture_map, TEXTURE_ID_REDBLUE_CHEQUE, render_load_texture_from_png(renderer, "resources/cheque/redblue25k.png"));
     hmput(texture_map, TEXTURE_ID_GOLD_CHEQUE, render_load_texture_from_png(renderer, "resources/cheque/gold100k.png"));
+    hmput(texture_map, TEXTURE_ID_ARROW_SPRITESHEET, render_load_texture_from_png(renderer, "resources/arrow_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_SPLIT_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/split_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_LABEL_SPLIT_PLAYER_HAND, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
     return texture_map;
 }
 
@@ -123,8 +126,8 @@ void render_spritebox(SDL_Renderer *renderer, texture_hash *texture_map, SpriteB
     SDL_FRect src_rect = {
         spritebox->spritesheet_x,
         spritebox->spritesheet_y,
-        spritebox->widget.rect.width,
-        spritebox->widget.rect.height
+        32,
+        32,
     };
     SDL_FRect dst_rect = {
         spritebox->widget.rect.pos.x,
@@ -306,159 +309,3 @@ void render(AppState *as){
     render_cheques(as->renderer, as->texture_map, as->game_ctx);
     SDL_RenderPresent(as->renderer);
 }
-
-/*
-
-void load_font(void){
-    font = TTF_OpenFont("../resources/OpenSans-VariableFont_wdth,wght.ttf", 32.0f);
-    if (font==NULL){
-        fprintf(stderr, "Failed to load font: %s", SDL_GetError());
-    }
-}
-
-void create_font_texture(TTF_Font* font, const char* str, SDL_Texture** target_texture){
-    SDL_Surface* font_surface = TTF_RenderText_Blended(font, str, 0, FONT_COLOR);
-    SDL_DestroyTexture(*target_texture);
-    *target_texture = SDL_CreateTextureFromSurface(renderer, font_surface);
-    SDL_DestroySurface(font_surface);
-}
-
-void load_label_textures(void){
-    for (int i=0; i<NUMBER_OF_LABELS; i++){
-        labels[i]->font=font;
-        create_font_texture(
-            labels[i]->font,
-            labels[i]->txt,
-            &(labels[i]->texture)
-        );
-    }
-}
-
-void render_deck(){
-    SDL_FRect src_rect = {
-        0,
-        4*(CARD_HEIGHT+SPRITESHEET_SEP),
-        CARD_WIDTH,
-        CARD_HEIGHT
-    };
-    unsigned char visible_cards = 0;
-    for (int i=(get_player_cards_in_hand()-1); i>=0; i--){
-        if (get_player_hand()[i]->obj.visible) {visible_cards++;}
-    }
-    for (int i=(get_dealer_cards_in_hand()-1); i>=0; i--){
-        if (get_dealer_hand()[i]->obj.visible) {visible_cards++;}
-    }
-    for (int i=52; i>visible_cards; i--){
-        SDL_FRect deck_rect = {
-            DECK_X_ORIGIN-i,
-            DECK_Y_ORIGIN+i,
-            CARD_WIDTH,
-            CARD_HEIGHT
-        };
-        SDL_RenderTexture(renderer, card_spritesheet, &src_rect, &deck_rect);
-    };
-}
-
-void render_player_hand(void){
-    Card** player_hand = get_player_hand();
-    for (int i=0; i<get_player_cards_in_hand(); i++){
-        render_card(player_hand[i]);
-    }
-}
-
-void render_dealer_hand(void){
-    Card** dealer_hand = get_dealer_hand();
-    for (int i=0; i<get_dealer_cards_in_hand(); i++){
-        render_card(dealer_hand[i]);
-    }
-}
-
-void render_label(Label *label){
-    if (!label->obj.visible) {return;}
-    create_font_texture(
-        label->font,
-        label->txt,
-        &(label->texture)
-    );
-    SDL_FRect label_rect = {
-        label->obj.x,
-        label->obj.y,
-        label->obj.width,
-        label->obj.height
-    };
-    SDL_RenderTexture(renderer, label->texture, NULL, &label_rect);
-}
-
-void render_textured_game_object(TexturedGameObject *textured_game_object){
-    if (!textured_game_object->obj.visible) {return;}
-    Using src_rect to not render spritesheet is a hacky solution think of something better.
-    SDL_FRect src_rect = {
-        0.f,
-        0.f,
-        textured_game_object->obj.width,
-        textured_game_object->obj.height
-    };
-    SDL_FRect textured_game_object_rect = {
-        textured_game_object->obj.x,
-        textured_game_object->obj.y,
-        textured_game_object->obj.width,
-        textured_game_object->obj.height
-    };
-    SDL_RenderTexture(renderer, textured_game_object->texture, &src_rect, &textured_game_object_rect);
-}
-
-void render(void){
-    SDL_RenderClear(renderer);
-    render_background();
-    render_buttons();
-    render_deck();
-    render_player_hand();
-    render_dealer_hand();
-    render_labels();
-    render_textured_game_objects();
-    SDL_RenderPresent(renderer);
-}
-
-void background_texture_teardown(void){
-    SDL_DestroyTexture(background);
-    background=NULL;
-}
-
-void button_texture_teardown(void){
-    for (int i=0; i<NUMBER_OF_ACTION_BUTTONS; i++){
-        SDL_DestroyTexture(action_buttons[i]->spritesheet);
-        action_buttons[i]->spritesheet=NULL;
-    }
-    for (int i=0; i<NUMBER_OF_VALUED_BUTTONS; i++){
-        SDL_DestroyTexture(valued_buttons[i]->button.spritesheet);
-        valued_buttons[i]->button.spritesheet=NULL;
-    }
-}
-
-void cards_texture_teardown(void){
-    SDL_DestroyTexture(card_spritesheet);
-    card_spritesheet=NULL;
-}
-
-void font_teardown(void){
-    TTF_CloseFont(font);
-    font=NULL;
-}
-
-void label_texture_teardown(void){
-    SDL_DestroyTexture(player_money_label.texture);
-    SDL_DestroyTexture(dealer_hand_label.texture);
-    SDL_DestroyTexture(player_hand_label.texture);
-    player_money_label.texture=NULL;
-    dealer_hand_label.texture=NULL;
-    player_hand_label.texture=NULL;
-}
-
-void resource_teardown(void){
-    label_texture_teardown();
-    font_teardown();
-    button_texture_teardown();
-    cards_texture_teardown();
-    background_texture_teardown();
-}
-*/

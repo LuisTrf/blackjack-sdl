@@ -63,6 +63,7 @@ void moveb_container_notify(void *self, Event event, void* dependencies){
         case STATE_EVENT_HIT:
         case STATE_EVENT_STAND:
         case STATE_EVENT_BET:
+        case STATE_EVENT_SPLIT:
             reposition_visible_move_buttons(container->children);
             break;
         default:

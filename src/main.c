@@ -72,7 +72,7 @@ AppState* app_state_create(void){
     as.game_ctx = game_context_create();
     as.anim_queue = anim_queue_create(16);
     as.anim_pool = anim_pool_create(ANIMATION_POOL_MAXIMUM_ANIMATIONS);
-    as.ui_root = ui_root_initialize(as.p_input_listeners, as.p_event_listeners, as.font_map);
+    as.ui_root = ui_root_initialize(as.p_input_listeners, as.p_event_listeners, as.font_map, as.anim_pool);
     as.should_quit = false;
     AppState *p_as = malloc(sizeof(AppState));
     if (p_as == NULL){

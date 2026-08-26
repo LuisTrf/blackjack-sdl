@@ -10,6 +10,7 @@
 #include "../../include/ui/label_constants.h"
 #include "../../include/ui/spritebox.h"
 #include "../../include/game/game_constants.h"
+#include "../../include/update/animation.h"
 #include "../../include/input/input.h"
 
 Button* widget_deal_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
@@ -89,6 +90,26 @@ Button *widget_bet_button_initialize(InputListener **input_listeners, EventListe
     return bet_button;
 }
 
+Button *widget_split_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *split_button = button_create(
+        0.f, MOVE_BUTTON_ORIGIN_Y,
+        MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        false,
+        INPUT_EVENT_BUTTON_RELEASE_SPLIT,
+        BUTTON_STATE_DISABLED,
+        TEXTURE_ID_SPLIT_BUTTON_SPRITESHEET
+    );
+    input_listener_register(
+        input_listeners, 
+        (InputListener){(void *)split_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)split_button, button_notify_split}
+    );
+    return split_button;
+}
+
 Container* ui_move_buttons_initialize(InputListener **input_listeners, EventListener **event_listeners){
     Container *move_buttons = container_create(
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
@@ -102,6 +123,8 @@ Container* ui_move_buttons_initialize(InputListener **input_listeners, EventList
     container_add_widget(move_buttons, (Widget *)stand_button);
     Button *bet_button = widget_bet_button_initialize(input_listeners, event_listeners);
     container_add_widget(move_buttons, (Widget *)bet_button);
+    Button *split_button = widget_split_button_initialize(input_listeners, event_listeners);
+    container_add_widget(move_buttons, (Widget *)split_button);
     event_listener_register(
         event_listeners, 
         (EventListener){.self=(void*)move_buttons, moveb_container_notify}
@@ -367,7 +390,7 @@ Label* widget_player_money_label_initialize(font_hash* font_map, EventListener *
         FONT_ID_OPENSANS_32PT,
         TEXTURE_ID_LABEL_PLAYER_MONEY
     );
-    label_write(player_money_label, font_map, "$%.2f", PLAYER_BEGINNING_MONEY);
+    label_write(player_money_label, font_map, "MONEY: $%.2f", PLAYER_BEGINNING_MONEY);
     event_listener_register(
         event_listeners, 
         (EventListener){(void *)player_money_label, label_notify_player_money}
@@ -383,7 +406,7 @@ Label* widget_dealer_hand_label_initialize(font_hash* font_map, EventListener **
         FONT_ID_OPENSANS_32PT,
         TEXTURE_ID_LABEL_DEALER_HAND
     );
-    label_align_y(dealer_hand_label, dealer_hand_label->widget.rect.pos.y);
+    rect_align_y((Rect *)dealer_hand_label, dealer_hand_label->widget.rect.pos.y);
     event_listener_register(
         event_listeners,
         (EventListener){(void *)dealer_hand_label, label_notify_dealer_hand}
@@ -399,7 +422,7 @@ Label* widget_player_hand_label_initialize(font_hash* font_map, EventListener **
         FONT_ID_OPENSANS_32PT,
         TEXTURE_ID_LABEL_PLAYER_HAND
     );
-    label_align_y(player_hand_label, player_hand_label->widget.rect.pos.y);
+    rect_align_y((Rect *)player_hand_label, player_hand_label->widget.rect.pos.y);
     event_listener_register(
         event_listeners,
         (EventListener){(void *)player_hand_label, label_notify_player_hand}
@@ -415,13 +438,28 @@ Label *widget_player_bet_label_initialize(font_hash* font_map, EventListener **e
         FONT_ID_OPENSANS_32PT,
         TEXTURE_ID_LABEL_PLAYER_BET
     );
-    label_write(player_bet_label, font_map, "$0.00");
-    label_align_x(player_bet_label, player_bet_label->widget.rect.pos.x);
+    label_write(player_bet_label, font_map, "BET: $0.00");
+    rect_align_x((Rect *)player_bet_label, player_bet_label->widget.rect.pos.x);
     event_listener_register(
         event_listeners,
         (EventListener){(void *)player_bet_label, label_notify_player_bet}
     );
     return player_bet_label;
+}
+
+Label *widget_player_split_hand_label_initialize(font_hash* font_map, EventListener **event_listeners){
+    Label *player_split_hand_label = label_create(
+        font_map,
+        HAND_LABEL_ORIGIN_X, SPLIT_HAND_LABEL_SPLITTING_Y_PLAYER,
+        false,
+        FONT_ID_OPENSANS_32PT,
+        TEXTURE_ID_LABEL_SPLIT_PLAYER_HAND
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)player_split_hand_label, label_notify_player_split_hand}
+    );
+    return player_split_hand_label;
 }
 
 Container* ui_labels_initialize(font_hash* font_map, EventListener **event_listeners){
@@ -438,11 +476,37 @@ Container* ui_labels_initialize(font_hash* font_map, EventListener **event_liste
     container_add_widget(labels, (Widget *)player_hand_label);
     Label *player_bet_label = widget_player_bet_label_initialize(font_map, event_listeners);
     container_add_widget(labels, (Widget *)player_bet_label);
+    Label *player_split_hand_label = widget_player_split_hand_label_initialize(font_map, event_listeners);
+    container_add_widget(labels, (Widget *)player_split_hand_label);
 
     return labels;
 }
 
-Container* ui_root_initialize(InputListener **input_listeners, EventListener **event_listeners, font_hash* font_map){
+SpriteBox* widget_arrow_initialize(AnimationPool *anim_pool, EventListener **event_listeners){
+    SpriteBox *arrow = spritebox_create(
+        0, 0, 
+        64, 64,
+        false,
+        TEXTURE_ID_ARROW_SPRITESHEET,
+        0, 0
+    );
+    anim_add(anim_pool, (Animation){
+        (Rect *)arrow,
+        ANIMATION_TYPE_SPRITESHEET,
+        ANIMATION_STATE_WAITING,
+        animation_arrow,
+        {.sprite_anim={
+            0, (1.f/12), 12, 32
+        }}
+    });
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)arrow, spritebox_notify_arrow}
+    );
+    return arrow;
+}
+
+Container* ui_root_initialize(InputListener **input_listeners, EventListener **event_listeners, font_hash* font_map, AnimationPool *anim_pool){
     Container *root = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true);
     
     Container *move_buttons = ui_move_buttons_initialize(input_listeners, event_listeners);
@@ -453,6 +517,9 @@ Container* ui_root_initialize(InputListener **input_listeners, EventListener **e
 
     Container *labels = ui_labels_initialize(font_map, event_listeners);
     container_add_widget(root, (Widget *)labels);
+
+    SpriteBox *arrow = widget_arrow_initialize(anim_pool, event_listeners);
+    container_add_widget(root, (Widget *)arrow);
 
     return root;
 }

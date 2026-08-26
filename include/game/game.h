@@ -8,15 +8,18 @@
 
 typedef enum CARD_LOCATION {
     CARD_LOCATION_DECK,
+    CARD_LOCATION_DEALER_HAND,
     CARD_LOCATION_PLAYER_HAND,
-    CARD_LOCATION_DEALER_HAND
+    CARD_LOCATION_PLAYER_SPLIT_HAND
 } CARD_LOCATION;
 
 typedef enum GAME_STATE {
     _GAME_STATE_NONE,
-    GAME_STATE_NEW,
     GAME_STATE_BETTING,
-    GAME_STATE_PLAYING
+    GAME_STATE_PLAYING,
+    GAME_STATE_BETTING_PLAYING,
+    GAME_STATE_PLAYING_SPLIT,
+    GAME_STATE_FIN,
 } GAME_STATE;
 
 typedef enum CHEQUE_VALUE {
@@ -74,8 +77,13 @@ typedef struct Player {
     int hand_value;
     int cards_in_hand;
     int aces_in_hand_worth_11;
+    Card* split_hand[MAXIMUM_HAND_SIZE];
+    int split_hand_value;
+    int cards_in_split_hand;
+    int aces_in_split_hand_worth_11;
     float money;
     float bet;
+    float split_bet;
     int bet_count;
     CHEQUE_VALUE *bet_stack;
 } Player;
@@ -123,6 +131,7 @@ Card** dealer_get_hand(Dealer *dealer);
 bool can_insure(Dealer *dealer);
 
 Card* player_hit(Card *deck, int *deck_top_index_ptr, Player *player);
+Card* player_hit_split(Card *deck, int *deck_top_index_ptr, Player *player);
 void player_bet_push(Player *player, CHEQUE_VALUE val);
 CHEQUE_VALUE player_bet_pop(Player *player);
 CHEQUE_VALUE player_bet_peek(Player *player);

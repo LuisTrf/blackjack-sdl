@@ -6,6 +6,7 @@
 #include "../../include/game/card_constants.h"
 #include "../../include/game/game_constants.h"
 #include "../../include/ui/button_constants.h"
+#include "../../include/event/event.h"
 #include "../../include/game/game.h"
 
 /*
@@ -23,7 +24,12 @@ Player* player_create(void){
         0, 
         0, 
         0, 
+        {NULL},
+        0,
+        0,
+        0,
         PLAYER_BEGINNING_MONEY,
+        0.f,
         0.f,
         0,
         NULL
@@ -219,7 +225,7 @@ void cheque_data_map_destroy(cheque_data_hash *cheque_data_map){
 
 GameContext* game_context_create(void){
     GameContext game_ctx = {
-        GAME_STATE_NEW,
+        _GAME_STATE_NONE,
         _GAME_STATE_NONE,
         cheque_ring_buffer_create(MAXIMUM_ALIVE_CHEQUES),
         cheque_data_map_create(),
@@ -305,9 +311,8 @@ Card* draw_random_card(Card *deck, int *deck_top_index){
     return c;
 }
 
-void game_reset(GameContext *game_ctx){
+void game_reset_dealer(GameContext *game_ctx){
     Dealer *dealer = game_ctx->dealer;
-    Player *player = game_ctx->player;
     for (;dealer->cards_in_hand > 0; dealer->cards_in_hand--){
         Card** dhand = dealer->hand;
         int cindex = dealer->cards_in_hand - 1;
@@ -319,7 +324,10 @@ void game_reset(GameContext *game_ctx){
     }
     dealer->hand_value = 0;
     dealer->aces_in_hand_worth_11 = 0;
+}
 
+void game_reset_player(GameContext *game_ctx){
+    Player *player = game_ctx->player;
     for (;player->cards_in_hand > 0; player->cards_in_hand--){
         Card** phand = player->hand;
         int cindex = player->cards_in_hand - 1;
@@ -331,12 +339,28 @@ void game_reset(GameContext *game_ctx){
     }
     player->hand_value = 0;
     player->aces_in_hand_worth_11 = 0;
+    for (;player->cards_in_split_hand > 0; player->cards_in_split_hand--){
+        Card** split_phand = player->split_hand;
+        int cindex = player->cards_in_split_hand - 1;
+        split_phand[cindex]->location = CARD_LOCATION_DECK;
+        split_phand[cindex]->face_down = true;
+        split_phand[cindex]->rect.pos.x = DECK_ORIGIN_X - (51 - *game_ctx->deck_top_index_ptr);
+        split_phand[cindex]->rect.pos.y = DECK_ORIGIN_Y + (51 - *game_ctx->deck_top_index_ptr);
+        split_phand[cindex] = NULL;
+    }
+    player->split_hand_value = 0;
+    player->aces_in_split_hand_worth_11 = 0;
     player->bet = 0;
+    player->split_bet = 0;
     if (player->bet_count > 0) {
         arrdeln(player->bet_stack, 0, player->bet_count);
     }
     player->bet_count = 0;
+}
 
+void game_reset(GameContext *game_ctx){
+    game_reset_dealer(game_ctx);
+    game_reset_player(game_ctx);
     *game_ctx->deck_top_index_ptr = 51;
 }
 
@@ -414,6 +438,30 @@ Card* player_hit(Card *deck, int *deck_top_index_ptr, Player *player){
         if (player->hand_value > 21 && player->aces_in_hand_worth_11 > 0){
             player->hand_value -= 10;
             player->aces_in_hand_worth_11--;
+        }
+
+        return c;
+    }
+    else {
+        return NULL;
+    }
+}
+
+Card* player_hit_split(Card *deck, int *deck_top_index_ptr, Player *player){
+    if (can_hit(player->cards_in_split_hand, player->split_hand_value)){
+        Card *c = draw(deck, deck_top_index_ptr);
+        c->location = CARD_LOCATION_PLAYER_SPLIT_HAND;
+        
+        player->split_hand[player->cards_in_split_hand] = c;
+        player->cards_in_split_hand++;
+        player->split_hand_value += c->rank_value;
+        
+        if (c->rank=='A'){
+            player->aces_in_split_hand_worth_11++;
+        }
+        if (player->split_hand_value > 21 && player->aces_in_split_hand_worth_11 > 0){
+            player->split_hand_value -= 10;
+            player->aces_in_split_hand_worth_11--;
         }
 
         return c;

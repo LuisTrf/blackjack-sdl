@@ -21,3 +21,5 @@ SpriteBox* spritebox_create(
     int spritesheet_x, int spritesheet_y
 );
 void spritebox_destroy(SpriteBox *spritebox);
+
+void spritebox_notify_arrow(void *self, Event event, void *dependencies);

@@ -9,10 +9,11 @@
 #include "../../include/game/game.h"
 
 void label_update_dimensions(Label *label, font_hash* font_map){
-    TTF_GetStringSize(
+    TTF_GetStringSizeWrapped(
         hmget(font_map, label->fid), 
         label->txt, 
-        0, 
+        0,
+        0,
         &(label->widget.rect.width), 
         &(label->widget.rect.height)
     );
@@ -62,20 +63,11 @@ void label_write(Label *label, font_hash* font_map, const char *fmt, ...){
     label->_retex = true;
 }
 
-void label_align_x(Label *label, float target_x){
-    label->widget.rect.pos.x = target_x - (label->widget.rect.width)/2.f;
-}
-
-void label_align_y(Label *label, float target_y){
-    label->widget.rect.pos.y = target_y - (label->widget.rect.height)/2.f;
-}
-
 void label_notify_dealer_hand(void *self, Event event, void *dependencies){
     Label *label = (Label *)self;
     switch (event.type){
         case STATE_EVENT_DEAL: {
-            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
-            font_hash* font_map = label_dependencies->font_map;
+            font_hash* font_map = (font_hash *)dependencies;
             int dealer_cards_in_hand = event.state.data.hand.dealer_cards_in_hand;
             int dealer_hand_value = event.state.data.hand.dealer_hand_value;
             int player_cards_in_hand = event.state.data.hand.player_cards_in_hand;
@@ -88,11 +80,11 @@ void label_notify_dealer_hand(void *self, Event event, void *dependencies){
             else {
                 label_write(label, font_map, "?");
             }
+            rect_align_y((Rect *)label, HAND_LABEL_ORIGIN_Y_DEALER);
             break;
         }
         case STATE_EVENT_HIT: {
-            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
-            font_hash* font_map = label_dependencies->font_map;
+            font_hash* font_map = (font_hash *)dependencies;
             int dealer_hand_value = event.state.data.hand.dealer_hand_value;
             int player_hand_value = event.state.data.hand.player_hand_value;
             if (bust(player_hand_value)){
@@ -101,8 +93,7 @@ void label_notify_dealer_hand(void *self, Event event, void *dependencies){
             break;
         }
         case STATE_EVENT_STAND: {
-            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
-            font_hash* font_map = label_dependencies->font_map;
+            font_hash* font_map = (font_hash *)dependencies;
             int dealer_cards_in_hand = event.state.data.hand.dealer_cards_in_hand;
             int dealer_hand_value = event.state.data.hand.dealer_hand_value;
             int player_hand_value = event.state.data.hand.player_hand_value;
@@ -130,11 +121,14 @@ void label_notify_dealer_hand(void *self, Event event, void *dependencies){
             break;
         }
         case STATE_EVENT_BET: {
-            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
-            font_hash* font_map = label_dependencies->font_map;
+            font_hash* font_map = (font_hash *)dependencies;
             label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X;
             label_write(label, font_map, "");
             label->widget.rect.visible = false;
+            break;
+        }
+        case STATE_EVENT_SPLIT: {
+            rect_align_y((Rect *)label, HAND_LABEL_SPLITTING_Y_DEALER);
             break;
         }
         case ANIMATION_EVENT_QUEUE_BLOCKING:
@@ -152,8 +146,7 @@ void label_notify_player_hand(void *self, Event event, void *dependencies){
     Label *label = (Label *)self;
     switch(event.type){
         case STATE_EVENT_DEAL: {
-            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
-            font_hash* font_map = label_dependencies->font_map;
+            font_hash* font_map = (font_hash *)dependencies;
             int player_cards_in_hand = event.state.data.hand.player_cards_in_hand;
             int player_hand_value = event.state.data.hand.player_hand_value;
             label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X + player_cards_in_hand*HAND_LABEL_STEP_X;
@@ -163,11 +156,11 @@ void label_notify_player_hand(void *self, Event event, void *dependencies){
             else {
                 label_write(label, font_map, "%d", player_hand_value);
             }
+            rect_align_y((Rect *)label, HAND_LABEL_ORIGIN_Y_PLAYER);
             break;
         }
         case STATE_EVENT_HIT: {
-            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
-            font_hash* font_map = label_dependencies->font_map;
+            font_hash* font_map = (font_hash *)dependencies;
             int player_cards_in_hand = event.state.data.hand.player_cards_in_hand;
             int player_hand_value = event.state.data.hand.player_hand_value;
             label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X + player_cards_in_hand*HAND_LABEL_STEP_X;
@@ -180,8 +173,7 @@ void label_notify_player_hand(void *self, Event event, void *dependencies){
             break;
         }
         case STATE_EVENT_STAND: {
-            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
-            font_hash* font_map = label_dependencies->font_map;
+            font_hash* font_map = (font_hash *)dependencies;
             int dealer_cards_in_hand = event.state.data.hand.dealer_cards_in_hand;
             int dealer_hand_value = event.state.data.hand.dealer_hand_value;
             int player_cards_in_hand = event.state.data.hand.player_cards_in_hand;
@@ -207,11 +199,18 @@ void label_notify_player_hand(void *self, Event event, void *dependencies){
             break;
         }
         case STATE_EVENT_BET: {
-            label_notify_dependencies* label_dependencies = (label_notify_dependencies*)dependencies;
-            font_hash* font_map = label_dependencies->font_map;
+            font_hash* font_map = (font_hash *)dependencies;
             label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X;
             label_write(label, font_map, "");
             label->widget.rect.visible = false;
+            break;
+        }
+        case STATE_EVENT_SPLIT: {
+            font_hash* font_map = (font_hash *)dependencies;
+            int player_hand_value = event.state.data.split.player_hand_value;
+            label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X;
+            label_write(label, font_map, "%d", player_hand_value);
+            rect_align_y((Rect *)label, HAND_LABEL_SPLITTING_Y_PLAYER);
             break;
         }
         case ANIMATION_EVENT_QUEUE_BLOCKING:
@@ -229,21 +228,27 @@ void label_notify_player_money(void *self, Event event, void *dependencies){
     Label *label = (Label *)self;
     switch (event.type){
         case STATE_EVENT_BET_PAYOUT: {
-            label_notify_dependencies *label_dependencies = (label_notify_dependencies *)dependencies;
+            font_hash* font_map = (font_hash *)dependencies;
             float money = event.state.data.money.money;
-            label_write(label, label_dependencies->font_map, "$%.2f", money);
+            label_write(label, font_map, "MONEY: $%.2f", money);
             break;
         }
         case STATE_EVENT_CHEQUE_PUSH_SENT: {
-            label_notify_dependencies *label_dependencies = (label_notify_dependencies *)dependencies;
+            font_hash* font_map = (font_hash *)dependencies;
             float money = event.state.data.cheque_push_sent.money;
-            label_write(label, label_dependencies->font_map, "$%.2f", money);
+            label_write(label, font_map, "MONEY: $%.2f", money);
             break;
         }
         case STATE_EVENT_CHEQUE_POP_RECEIVED: {
-            label_notify_dependencies *label_dependencies = (label_notify_dependencies *)dependencies;
+            font_hash* font_map = (font_hash *)dependencies;
             float money = event.state.data.cheque_pop_received.money;
-            label_write(label, label_dependencies->font_map, "$%.2f", money);
+            label_write(label, font_map, "MONEY: $%.2f", money);
+            break;
+        }
+        case STATE_EVENT_SPLIT: {
+            font_hash* font_map = (font_hash *)dependencies;
+            float money = event.state.data.split.money;
+            label_write(label, font_map, "MONEY: $%.2f", money);
             break;
         }
         default:
@@ -255,18 +260,16 @@ void label_notify_player_bet(void *self, Event event, void *dependencies){
     Label *label = (Label *)self;
     switch (event.type){
         case STATE_EVENT_BET: {
-            label_notify_dependencies *label_dependencies = (label_notify_dependencies *)dependencies;
-            label_write(label, label_dependencies->font_map, "$0.00");
-            label_align_x(label, BET_LABEL_ORIGIN_X);
+            font_hash* font_map = (font_hash *)dependencies;
+            label_write(label, font_map, "BET: $0.00");
+            rect_align_x((Rect *)label, BET_LABEL_ORIGIN_X);
+            label->widget.rect.pos.y = BET_LABEL_ORIGIN_Y;
             label->widget.rect.visible = true;
             break;
         }
-        case STATE_EVENT_GAME_STATE: 
-            if (event.state.data.game_state.prev_game_state == GAME_STATE_BETTING) {
-                label->widget.rect.visible = true;
-            }
-            else {
-                label->widget.rect.visible = false;
+        case STATE_EVENT_GAME_STATE:
+            if (event.state.data.game_state.game_state != GAME_STATE_BETTING){
+                label->widget.rect.pos = (vec2){0,50};
             }
             break;
         case STATE_EVENT_STAND: 
@@ -274,20 +277,87 @@ void label_notify_player_bet(void *self, Event event, void *dependencies){
                 label->widget.rect.visible = false;
             }
             break;
+        case STATE_EVENT_HIT: {
+            int player_hand_value = event.state.data.hand.player_hand_value;
+            if (label->widget.rect.visible && bust(player_hand_value)) {
+                label->widget.rect.visible = false;
+            }
+            break;
+        }
+        case STATE_EVENT_SPLIT_HIT: {
+            font_hash* font_map = (font_hash *)dependencies;
+            int player_cards_in_split_hand = event.state.data.split_hit.player_cards_in_split_hand;
+            int player_split_hand_value = event.state.data.split_hit.player_split_hand_value;
+            float bet = event.state.data.split_hit.bet;
+            if (bust(player_split_hand_value)){
+                label_write(label, font_map, "BET: $%.2f", bet);
+            }
+            break;
+        }
         case STATE_EVENT_CHEQUE_PUSH_RECEIVED: {
-            label_notify_dependencies *label_dependencies = (label_notify_dependencies *)dependencies;
+            font_hash* font_map = (font_hash *)dependencies;
             float bet = event.state.data.cheque_push_received.bet;
-            label_write(label, label_dependencies->font_map, "$%.2f", bet);
-            label_align_x(label, BET_LABEL_ORIGIN_X);
+            label_write(label, font_map, "BET: $%.2f", bet);
+            rect_align_x((Rect *)label, BET_LABEL_ORIGIN_X);
             break;
         }
         case STATE_EVENT_CHEQUE_POP_SENT: {
-            label_notify_dependencies *label_dependencies = (label_notify_dependencies *)dependencies;
+            font_hash* font_map = (font_hash *)dependencies;
             float bet = event.state.data.cheque_pop_sent.bet;
-            label_write(label, label_dependencies->font_map, "$%.2f", bet);
-            label_align_x(label, BET_LABEL_ORIGIN_X);
+            label_write(label, font_map, "BET: $%.2f", bet);
+            rect_align_x((Rect *)label, BET_LABEL_ORIGIN_X);
             break;
         }
+        case STATE_EVENT_SPLIT: {
+            font_hash* font_map = (font_hash *)dependencies;
+            float bet = event.state.data.split.bet;
+            float split_bet = event.state.data.split.split_bet;
+            label_write(label, font_map, "BET: $%.2f\nSPLIT BET: $%.2f", bet, split_bet);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void label_notify_player_split_hand(void *self, Event event, void *dependencies){
+    Label *label = (Label *)self;
+    switch (event.type){
+        case STATE_EVENT_SPLIT: {
+            font_hash* font_map = (font_hash *)dependencies;
+            int player_split_hand_value = event.state.data.split.player_split_hand_value;
+            label_write(label, font_map, "%d", player_split_hand_value);
+            rect_align_y((Rect *)label, SPLIT_HAND_LABEL_SPLITTING_Y_PLAYER);
+            label->widget.rect.visible = true;
+            break;
+        }
+        case STATE_EVENT_SPLIT_HIT: {
+            font_hash* font_map = (font_hash *)dependencies;
+            int player_cards_in_split_hand = event.state.data.split_hit.player_cards_in_split_hand;
+            int player_split_hand_value = event.state.data.split_hit.player_split_hand_value;
+            label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X + (player_cards_in_split_hand-1)*HAND_LABEL_STEP_X;
+            if (bust(player_split_hand_value)) {
+                label_write(label, font_map, "%d, BUST!", player_split_hand_value);
+            }
+            else {
+                label_write(label, font_map, "%d", player_split_hand_value);
+            }
+            break;
+        }
+        case STATE_EVENT_DEAL:
+        case STATE_EVENT_BET: {
+            font_hash* font_map = (font_hash *)dependencies;
+            label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X;
+            label_write(label, font_map, "");
+            label->widget.rect.visible = false;
+            break;
+        }
+        case ANIMATION_EVENT_QUEUE_BLOCKING:
+            label->widget.rect.visible = false;
+            break;
+        case ANIMATION_EVENT_QUEUE_NONBLOCKING:
+            label->widget.rect.visible = true;
+            break;
         default:
             break;
     }

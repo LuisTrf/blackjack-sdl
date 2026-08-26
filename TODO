@@ -23,4 +23,13 @@ decompose header files
 
 proper money formatting 100,000
 
-update to use 1280x960 4:3 resolution
+decouple widget dimensions from spritesheet dimensions
+event .data variables should be the name of the event to which the data belongs
+
+re-implement 5-card charlie
+put newlines in text to cause wrapping when doing splitting
+make event prefabs in header files
+
+game_state_playing_split put cards into split hand. start by putting game_state to game_state_playing_split, when
+bust or stand put into game_state_playing and continue as normal.
+>1 game state where it is different when betting

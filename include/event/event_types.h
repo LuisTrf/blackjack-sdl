@@ -10,6 +10,7 @@ typedef enum EventType {
     INPUT_EVENT_BUTTON_RELEASE_HIT,
     INPUT_EVENT_BUTTON_RELEASE_STAND,
     INPUT_EVENT_BUTTON_RELEASE_BET,
+    INPUT_EVENT_BUTTON_RELEASE_SPLIT,
     INPUT_EVENT_BUTTON_RELEASE_STACK,
     INPUT_EVENT_BUTTON_RELEASE_WHITE,
     INPUT_EVENT_BUTTON_RELEASE_RED,
@@ -25,6 +26,9 @@ typedef enum EventType {
     STATE_EVENT_HIT,
     STATE_EVENT_STAND,
     STATE_EVENT_BET,
+    STATE_EVENT_SPLIT,
+    STATE_EVENT_SPLIT_POSSIBLE,
+    STATE_EVENT_SPLIT_HIT,
     STATE_EVENT_CHEQUE_PUSH_SENT,
     STATE_EVENT_CHEQUE_PUSH_RECEIVED,
     STATE_EVENT_CHEQUE_POP_SENT,
@@ -46,7 +50,9 @@ typedef struct InputEvent {
 typedef struct StateEvent {
     EventType type;
     union {
-        struct {GAME_STATE game_state, prev_game_state;} game_state; 
+        struct {GAME_STATE game_state, prev_game_state;} game_state;
+        struct {int player_cards_in_split_hand, player_split_hand_value; float bet;} split_hit;
+        struct {int player_cards_in_hand, player_hand_value, player_cards_in_split_hand, player_split_hand_value; float money, bet, split_bet;} split;
         struct {int dealer_cards_in_hand, dealer_hand_value, player_cards_in_hand, player_hand_value;} hand;
         struct {float money;} cheque_push_sent, cheque_pop_received, money;
         struct {float bet; TEXTURE_ID tid;} cheque_push_received, cheque_pop_sent;

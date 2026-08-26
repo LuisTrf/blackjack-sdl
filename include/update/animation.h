@@ -2,6 +2,7 @@
 
 #include "../event/event.h"
 #include "../vec2.h"
+#include <SDL3/SDL_stdinc.h>
 
 #define ANIMATION_POOL_MAXIMUM_ANIMATIONS 16
 
@@ -24,7 +25,8 @@ typedef struct Vec2Animation {
 } Vec2Animation;
 
 typedef struct SpriteAnimation {
-    int frame_count;
+    int frame_idx;
+    float ttnf;
     int fps;
     int sheet_step_x;
 } SpriteAnimation;
@@ -78,5 +80,7 @@ bool anim_is_null(Animation anim);
 
 Event animation_draw_card(Animation *self, float delta_time);
 Event animation_cheque_move(Animation *self, float delta_time);
+Event animation_betting_elements_move(Animation *self, float delta_time);
+Event animation_arrow(Animation *self, float delta_time);
 
 void animate(AnimationQueue *anim_queue, AnimationPool *anim_pool, EventQueue *event_queue, float delta_time);

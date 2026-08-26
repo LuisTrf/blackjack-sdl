@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "../../include/update/animation.h"
+#include "../../include/ui/spritebox.h"
 
 AnimationQueue* anim_queue_create(int size){
     Animation* arr = calloc(size, sizeof(Animation));
@@ -161,6 +162,39 @@ Event animation_cheque_move(Animation *self, float delta_time){
     if (self->state == ANIMATION_STATE_PLAYING && self->target->pos.x == self->vec2_anim.dst.x && self->target->pos.y == self->vec2_anim.dst.y){
         self->state = ANIMATION_STATE_COMPLETED;
         return (Event){.anim={.type=ANIMATION_EVENT_ANIMATION_CHEQUE_COMPLETED, .target=self->target}};
+    }
+    return NULL_EVENT;
+}
+
+Event animation_betting_elements_move(Animation *self, float delta_time){
+    vec2_translate_in_fixed_time(
+        delta_time,
+        &(self->target->pos),
+        self->vec2_anim.src,
+        self->vec2_anim.dst,
+        0.23f
+    );
+    if (self->state == ANIMATION_STATE_PLAYING && self->target->pos.x == self->vec2_anim.dst.x && self->target->pos.y == self->vec2_anim.dst.y){
+        self->state = ANIMATION_STATE_COMPLETED;
+    }
+    return NULL_EVENT;
+}
+
+#include <stdio.h>
+
+Event animation_arrow(Animation *self, float delta_time){
+    SpriteBox *arrow = (SpriteBox *)self->target;
+    self->sprite_anim.ttnf -= delta_time;
+    if (self->sprite_anim.ttnf < 0){
+        if (self->sprite_anim.frame_idx == 6){
+            self->sprite_anim.frame_idx = 0;
+            arrow->spritesheet_x = 0;
+        }
+        else {
+            self->sprite_anim.frame_idx++;
+            arrow->spritesheet_x += self->sprite_anim.sheet_step_x;
+        }
+        self->sprite_anim.ttnf = (1.f / self->sprite_anim.fps);
     }
     return NULL_EVENT;
 }

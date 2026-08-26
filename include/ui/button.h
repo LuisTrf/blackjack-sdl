@@ -43,6 +43,7 @@ void button_notify_deal(void *self, Event event, void *dependencies);
 void button_notify_hit(void *self, Event event, void *dependencies);
 void button_notify_stand(void *self, Event event, void *dependencies);
 void button_notify_bet(void *self, Event event, void *dependencies);
+void button_notify_split(void *self, Event event, void *dependencies);
 void button_notify_stack(void *self, Event event, void *dependencies);
 
 void button_notify_white(void *self, Event event, void *dependencies);

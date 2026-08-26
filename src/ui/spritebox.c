@@ -1,6 +1,7 @@
 #include <SDL3/SDL.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "../../include/ui/spritebox_constants.h"
 #include "../../include/ui/spritebox.h"
 
 SpriteBox* spritebox_create(
@@ -35,4 +36,34 @@ SpriteBox* spritebox_create(
 void spritebox_destroy(SpriteBox *p_spritebox){
     free(p_spritebox);
     p_spritebox=NULL;
+}
+
+void spritebox_notify_arrow(void *self, Event event, void *dependencies){
+    SpriteBox *spritebox = (SpriteBox *)self;
+    switch (event.type){
+        case STATE_EVENT_DEAL:
+            spritebox->widget.rect.visible = false;
+            break;
+        case STATE_EVENT_SPLIT:
+            spritebox->widget.rect.visible = true;
+            break;
+        case STATE_EVENT_GAME_STATE: {
+            GAME_STATE game_state = event.state.data.game_state.game_state;
+            switch (game_state) {
+                case GAME_STATE_BETTING_PLAYING:
+                    spritebox->widget.rect.pos = (vec2){ARROW_HAND_X, ARROW_HAND_Y};
+                    break;
+                case GAME_STATE_PLAYING_SPLIT:
+                    spritebox->widget.rect.pos = (vec2){ARROW_HAND_X, ARROW_SPLIT_HAND_Y};
+                    break;
+                case GAME_STATE_FIN:
+                    spritebox->widget.rect.visible = false;
+                    break;
+                default:    
+                    break;
+            }
+        }
+        default:
+            break;
+    }
 }

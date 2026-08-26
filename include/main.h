@@ -13,12 +13,12 @@
 typedef struct AppState {
     SDL_Window *window;
     bool should_quit;
+    float delta_time;
+    Uint64 prev_frametime;
     SDL_Renderer *renderer;
     font_hash* font_map;
     texture_hash* texture_map;
     InputListener **p_input_listeners;
-    Uint64 prev_frametime;
-    float delta_time;
     EventQueue *event_queue;
     EventListener **p_event_listeners;
     GameContext *game_ctx;
