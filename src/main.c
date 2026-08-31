@@ -54,25 +54,15 @@ AppState* app_state_create(void){
     }
     as.font_map = font_map_create();
     as.texture_map = texture_map_create(as.renderer, as.font_map);
-    as.p_input_listeners = malloc(sizeof(InputListener*));
-    if (as.p_input_listeners == NULL){
-        abort();
-    }
-    *as.p_input_listeners = NULL;
-    arrsetlen(*as.p_input_listeners, 0);
+    as.input_listeners = NULL;
     as.prev_frametime = SDL_GetTicks();
     as.delta_time = 0.f;
     as.event_queue = event_queue_create(32);
-    as.p_event_listeners = malloc(sizeof(EventListener*));
-    if (as.p_event_listeners == NULL){
-        abort();
-    }
-    *as.p_event_listeners = NULL;
-    arrsetlen(*as.p_input_listeners, 0);
+    as.event_listeners = NULL;
     as.game_ctx = game_context_create();
     as.anim_queue = anim_queue_create(16);
     as.anim_pool = anim_pool_create(ANIMATION_POOL_MAXIMUM_ANIMATIONS);
-    as.ui_root = ui_root_initialize(as.p_input_listeners, as.p_event_listeners, as.font_map, as.anim_pool);
+    as.ui_root = ui_root_initialize(&as.input_listeners, &as.event_listeners, as.font_map, as.anim_pool);
     as.should_quit = false;
     AppState *p_as = malloc(sizeof(AppState));
     if (p_as == NULL){
@@ -87,11 +77,9 @@ void app_state_destroy(AppState *as){
     anim_pool_destroy(as->anim_pool);
     anim_queue_destroy(as->anim_queue);
     game_context_destroy(as->game_ctx);
-    arrfree(*as->p_event_listeners);
-    free(as->p_event_listeners);
+    arrfree(as->event_listeners);
     event_queue_destroy(as->event_queue);
-    arrfree(*as->p_input_listeners);
-    free(as->p_input_listeners);
+    arrfree(as->input_listeners);
     texture_map_destroy(as->texture_map);
     font_map_destroy(as->font_map);
     SDL_DestroyRenderer(as->renderer);

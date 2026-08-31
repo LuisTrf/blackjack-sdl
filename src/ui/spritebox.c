@@ -4,6 +4,8 @@
 #include "../../include/ui/spritebox_constants.h"
 #include "../../include/ui/spritebox.h"
 
+#include <stdio.h>
+
 SpriteBox* spritebox_create(
     float x, float y, 
     int width, int height, 
@@ -42,10 +44,10 @@ void spritebox_notify_arrow(void *self, Event event, void *dependencies){
     SpriteBox *spritebox = (SpriteBox *)self;
     switch (event.type){
         case STATE_EVENT_DEAL:
-            spritebox->widget.rect.visible = false;
+            rect_vis_set((Rect *)spritebox, false);
             break;
         case STATE_EVENT_SPLIT:
-            spritebox->widget.rect.visible = true;
+            rect_vis_set((Rect *)spritebox, true);
             break;
         case STATE_EVENT_GAME_STATE: {
             GAME_STATE game_state = event.state.data.game_state.game_state;
@@ -57,12 +59,19 @@ void spritebox_notify_arrow(void *self, Event event, void *dependencies){
                     spritebox->widget.rect.pos = (vec2){ARROW_HAND_X, ARROW_SPLIT_HAND_Y};
                     break;
                 case GAME_STATE_FIN:
-                    spritebox->widget.rect.visible = false;
+                    rect_vis_set((Rect *)spritebox, false);
                     break;
                 default:    
                     break;
             }
+            break;
         }
+        case ANIMATION_EVENT_QUEUE_BLOCKING: 
+            rect_hide((Rect *)spritebox);
+            break;
+        case ANIMATION_EVENT_QUEUE_NONBLOCKING:
+            rect_unhide((Rect *)spritebox);
+            break;
         default:
             break;
     }

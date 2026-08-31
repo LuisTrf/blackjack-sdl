@@ -112,6 +112,7 @@ GAME_STATE game_context_get_game_state(GameContext *game_ctx);
 GAME_STATE game_context_get_prev_game_state(GameContext *game_ctx);
 void game_context_set_game_state(GameContext *game_ctx, GAME_STATE state);
 void game_reset(GameContext *game_ctx);
+void game_split(GameContext *game_ctx);
 
 void cheque_ring_buffer_enqueue(ChequeRingBuffer *cheque_ring_buffer, Cheque cheque);
 Cheque cheque_ring_buffer_dequeue(ChequeRingBuffer *cheque_ring_buffer);

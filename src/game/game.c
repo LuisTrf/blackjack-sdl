@@ -6,7 +6,6 @@
 #include "../../include/game/card_constants.h"
 #include "../../include/game/game_constants.h"
 #include "../../include/ui/button_constants.h"
-#include "../../include/event/event.h"
 #include "../../include/game/game.h"
 
 /*
@@ -516,4 +515,22 @@ bool can_insure(Dealer *dealer){
     else{
         return false;
     }
+}
+
+void game_split(GameContext *game_ctx){
+    game_ctx->player->split_hand[0] = game_ctx->player->hand[1];
+    game_ctx->player->hand[1] = NULL;
+    game_ctx->player->cards_in_hand--;
+    game_ctx->player->hand_value -= game_ctx->player->split_hand[0]->rank_value;
+    game_ctx->player->cards_in_split_hand++;
+    game_ctx->player->split_hand_value += game_ctx->player->split_hand[0]->rank_value;
+    if (game_ctx->player->split_hand[0]->rank == 'A'){
+        game_ctx->player->aces_in_split_hand_worth_11++;
+    }
+    game_ctx->dealer->hand[0]->rect.pos.y = HAND_SPLITTING_Y_DEALER;
+    game_ctx->dealer->hand[1]->rect.pos.y = HAND_SPLITTING_Y_DEALER;
+    game_ctx->player->hand[0]->rect.pos = (vec2){HAND_ORIGIN_X, HAND_SPLITTING_Y_PLAYER};
+    game_ctx->player->split_hand[0]->rect.pos = (vec2){HAND_ORIGIN_X, SPLIT_HAND_SPLITTING_Y_PLAYER};
+    game_ctx->player->split_bet = game_ctx->player->bet;
+    game_ctx->player->money -= game_ctx->player->split_bet;
 }

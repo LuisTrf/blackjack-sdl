@@ -33,3 +33,7 @@ make event prefabs in header files
 game_state_playing_split put cards into split hand. start by putting game_state to game_state_playing_split, when
 bust or stand put into game_state_playing and continue as normal.
 >1 game state where it is different when betting
+
+replace cheque button spritesheets with one spritesheet which is just empty + an outline.
+render widgets over all game objects
+bet not visible when getting a blackjack

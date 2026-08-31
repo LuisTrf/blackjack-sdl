@@ -53,8 +53,8 @@ typedef struct StateEvent {
         struct {GAME_STATE game_state, prev_game_state;} game_state;
         struct {int player_cards_in_split_hand, player_split_hand_value; float bet;} split_hit;
         struct {int player_cards_in_hand, player_hand_value, player_cards_in_split_hand, player_split_hand_value; float money, bet, split_bet;} split;
-        struct {int dealer_cards_in_hand, dealer_hand_value, player_cards_in_hand, player_hand_value;} hand;
-        struct {float money;} cheque_push_sent, cheque_pop_received, money;
+        struct {int dealer_cards_in_hand, dealer_hand_value, player_cards_in_hand, player_hand_value, player_cards_in_split_hand, player_split_hand_value;} deal, hit, stand;
+        struct {float money;} cheque_push_sent, cheque_pop_received, bet, bet_payout;
         struct {float bet; TEXTURE_ID tid;} cheque_push_received, cheque_pop_sent;
     } data;
 } StateEvent;

@@ -101,7 +101,7 @@ bool input_handle(AppState *as){
         should_quit = handle_quit(sdl_event);
         input_listeners_notify_all(
             as->event_queue, 
-            as->p_input_listeners,
+            &as->input_listeners,
             sdl_event
         );
     }

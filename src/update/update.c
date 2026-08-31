@@ -10,6 +10,8 @@
 #include "../../include/ui/button_constants.h"
 #include "../../include/main.h"
 
+#include <stdio.h>
+
 void update_delta_time(Uint64 *previous_frametime, float *delta_time){
     float time_to_wait = TARGET_FRAME_TIME - (SDL_GetTicks() - *previous_frametime);
     if (time_to_wait > 0 && time_to_wait < TARGET_FRAME_TIME){
@@ -28,6 +30,17 @@ void queue_game_state_event(GameContext *game_ctx, EventQueue *event_queue){
                     .game_state=game_context_get_game_state(game_ctx),
                     .prev_game_state=game_context_get_prev_game_state(game_ctx)
                 }
+            }
+        }
+    });
+}
+
+void queue_bet_payout_event(EventQueue *event_queue, float money){
+    event_enqueue(event_queue, (Event){
+        .state={
+            .type=STATE_EVENT_BET_PAYOUT,
+            .data={
+                .bet_payout = {money}
             }
         }
     });
@@ -56,7 +69,7 @@ void handle_button_release_deal(GameContext *game_ctx, AnimationQueue *anim_queu
     }
     queue_game_state_event(game_ctx, event_queue);
 
-    //deck_shuffle(game_ctx->deck, game_ctx->deck_top_index_ptr);
+    deck_shuffle(game_ctx->deck, game_ctx->deck_top_index_ptr);
 
     Card* dc1 = dealer_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->dealer);
     queue_card_animation(anim_queue, dc1, (vec2){HAND_ORIGIN_X, HAND_ORIGIN_Y_DEALER});
@@ -74,14 +87,11 @@ void handle_button_release_deal(GameContext *game_ctx, AnimationQueue *anim_queu
     ){
         if (!blackjack(game_ctx->dealer->cards_in_hand, game_ctx->dealer->hand_value)){
             game_ctx->player->money += game_ctx->player->bet * PLAYER_BLACKJACK_BET_PAYOUT;
-            event_enqueue(event_queue, (Event){
-                .state={
-                    .type=STATE_EVENT_BET_PAYOUT,
-                    .data={
-                        .money = {game_ctx->player->money}
-                    }
-                }
-            });
+            queue_bet_payout_event(event_queue, game_ctx->player->money);
+        }
+        else {
+            game_ctx->player->money += game_ctx->player->bet;
+            queue_bet_payout_event(event_queue, game_ctx->player->money);
         }
     }
 
@@ -96,7 +106,7 @@ void handle_button_release_deal(GameContext *game_ctx, AnimationQueue *anim_queu
     event_enqueue(event_queue, (Event){.state={
         .type=STATE_EVENT_DEAL,
         .data={
-            .hand={
+            .deal={
                 .dealer_cards_in_hand=game_ctx->dealer->cards_in_hand,
                 .dealer_hand_value=game_ctx->dealer->hand_value,
                 .player_cards_in_hand=game_ctx->player->cards_in_hand,
@@ -125,25 +135,19 @@ void handle_button_release_hit(GameContext *game_ctx, AnimationQueue *anim_queue
     Card *pc = (game_state == GAME_STATE_PLAYING_SPLIT) ? 
         player_hit_split(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->player) :
         player_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->player);
-    float card_x;
+    float card_x = 0;
     switch (game_state){
         case GAME_STATE_PLAYING_SPLIT: 
             card_x = HAND_ORIGIN_X + HAND_STEP_X*(game_ctx->player->cards_in_split_hand - 1);
             break;
-        default:
+        case GAME_STATE_BETTING_PLAYING:
+        case GAME_STATE_PLAYING:
             card_x = HAND_ORIGIN_X + HAND_STEP_X*(game_ctx->player->cards_in_hand - 1);
             break;
+        default:
+            break;
     }
-    anim_enqueue(anim_queue, (Animation){
-        &(pc->rect),
-        ANIMATION_TYPE_VEC2,
-        ANIMATION_STATE_WAITING,
-        animation_draw_card,
-        {.vec2_anim={
-            (vec2){pc->rect.pos.x, pc->rect.pos.y},
-            (vec2){card_x, card_y}
-        }}
-    });
+    queue_card_animation(anim_queue, pc, (vec2){card_x, card_y});
     if (game_state == GAME_STATE_PLAYING_SPLIT){
         event_enqueue(event_queue, (Event){.state={
             .type=STATE_EVENT_SPLIT_HIT,
@@ -156,7 +160,6 @@ void handle_button_release_hit(GameContext *game_ctx, AnimationQueue *anim_queue
             }
         }});
         if (bust(game_ctx->player->split_hand_value)){
-            game_ctx->player->split_bet = 0;
             game_context_set_game_state(game_ctx, GAME_STATE_BETTING_PLAYING);
             queue_game_state_event(game_ctx, event_queue);
         }
@@ -165,15 +168,39 @@ void handle_button_release_hit(GameContext *game_ctx, AnimationQueue *anim_queue
         event_enqueue(event_queue, (Event){.state={
             .type=STATE_EVENT_HIT,
             .data={
-                .hand={
+                .hit={
                     .dealer_cards_in_hand=game_ctx->dealer->cards_in_hand,
                     .dealer_hand_value=game_ctx->dealer->hand_value,
                     .player_cards_in_hand=game_ctx->player->cards_in_hand,
-                    .player_hand_value=game_ctx->player->hand_value
+                    .player_hand_value=game_ctx->player->hand_value,
+                    .player_cards_in_split_hand=game_ctx->player->cards_in_split_hand,
+                    .player_split_hand_value=game_ctx->player->split_hand_value
                 }
             }
         }});
         if (bust(game_ctx->player->hand_value)){
+            dealer_reveal_second_card(game_ctx->dealer);
+            if (game_context_get_prev_game_state(game_ctx) == GAME_STATE_PLAYING_SPLIT){
+                if (
+                    !bust(game_ctx->player->split_hand_value)
+                    && !blackjack(game_ctx->dealer->cards_in_hand, game_ctx->dealer->hand_value)
+                ){
+                    if (
+                        game_ctx->player->split_hand_value > game_ctx->dealer->hand_value
+                        || bust(game_ctx->dealer->hand_value)
+                    ){
+                        game_ctx->player->money += game_ctx->player->split_bet * STANDARD_BET_PAYOUT;
+                        queue_bet_payout_event(event_queue, game_ctx->player->money);
+                    }
+                    else if (
+                        game_ctx->player->hand_value == game_ctx->dealer->hand_value
+                        && !blackjack(game_ctx->dealer->cards_in_hand, game_ctx->dealer->hand_value)
+                    ){
+                        game_ctx->player->money += game_ctx->player->split_bet;
+                        queue_bet_payout_event(event_queue, game_ctx->player->money);
+                    }
+                }
+            }
             game_context_set_game_state(game_ctx, GAME_STATE_FIN);
             queue_game_state_event(game_ctx, event_queue);
         }
@@ -192,43 +219,62 @@ void handle_button_release_stand(GameContext *game_ctx, AnimationQueue *anim_que
         HAND_ORIGIN_Y_DEALER;
     while (game_ctx->dealer->hand_value < 17){
         Card *dc = dealer_hit(game_ctx->deck, game_ctx->deck_top_index_ptr, game_ctx->dealer);
-        anim_enqueue(anim_queue, (Animation){
-            &(dc->rect),
-            ANIMATION_TYPE_VEC2,
-            ANIMATION_STATE_WAITING,
-            animation_draw_card,
-            {.vec2_anim={
-                (vec2){dc->rect.pos.x, dc->rect.pos.y},
-                (vec2){(HAND_ORIGIN_X + HAND_STEP_X*(game_ctx->dealer->cards_in_hand-1)), dealer_hand_y}
-            }}
-        });
+        queue_card_animation(anim_queue, dc, (vec2){(HAND_ORIGIN_X + HAND_STEP_X*(game_ctx->dealer->cards_in_hand-1)), dealer_hand_y});
     }
 
-    if (
-        (
-            game_context_get_game_state(game_ctx) == GAME_STATE_BETTING_PLAYING
-            && !bust(game_ctx->player->hand_value)
-            && (game_ctx->player->hand_value > game_ctx->dealer->hand_value)
-        )
-        || bust(game_ctx->dealer->hand_value)
-    ){
-        game_ctx->player->money += game_ctx->player->bet * STANDARD_BET_PAYOUT;
-        event_enqueue(event_queue, (Event){.state={
-            .type=STATE_EVENT_BET_PAYOUT,
-            .data={
-                .money = {game_ctx->player->money}
+    if (game_context_get_game_state(game_ctx) == GAME_STATE_BETTING_PLAYING){
+        if (
+            !bust(game_ctx->player->hand_value)
+            && !blackjack(game_ctx->dealer->cards_in_hand, game_ctx->dealer->hand_value)
+        ){
+            if (
+                game_ctx->player->hand_value > game_ctx->dealer->hand_value 
+                || bust(game_ctx->dealer->hand_value)
+            ){
+                game_ctx->player->money += game_ctx->player->bet * STANDARD_BET_PAYOUT;
+                queue_bet_payout_event(event_queue, game_ctx->player->money);
             }
-        }});
+            else if (
+                game_ctx->player->hand_value == game_ctx->dealer->hand_value 
+                && !blackjack(game_ctx->dealer->cards_in_hand, game_ctx->dealer->hand_value)
+            ){
+                game_ctx->player->money += game_ctx->player->bet;
+                queue_bet_payout_event(event_queue, game_ctx->player->money);
+            }
+        }
+    }
+    if (game_context_get_prev_game_state(game_ctx) == GAME_STATE_PLAYING_SPLIT){
+        if (
+            !bust(game_ctx->player->split_hand_value)
+            && !blackjack(game_ctx->dealer->cards_in_hand, game_ctx->dealer->hand_value)
+        ){
+            if (
+                game_ctx->player->split_hand_value > game_ctx->dealer->hand_value
+                || bust(game_ctx->dealer->hand_value)
+            ){
+                game_ctx->player->money += game_ctx->player->split_bet * STANDARD_BET_PAYOUT;
+                queue_bet_payout_event(event_queue, game_ctx->player->money);
+            }
+            else if (
+                game_ctx->player->hand_value == game_ctx->dealer->hand_value
+                && !blackjack(game_ctx->dealer->cards_in_hand, game_ctx->dealer->hand_value)
+            ){
+                game_ctx->player->money += game_ctx->player->split_bet;
+                queue_bet_payout_event(event_queue, game_ctx->player->money);
+            }
+        }
     }
     event_enqueue(event_queue, (Event){
         .state={
             .type=STATE_EVENT_STAND,
             .data={
-                .hand={
+                .stand={
                     .dealer_cards_in_hand=game_ctx->dealer->cards_in_hand,
                     .dealer_hand_value=game_ctx->dealer->hand_value,
                     .player_cards_in_hand=game_ctx->player->cards_in_hand,
-                    .player_hand_value=game_ctx->player->hand_value
+                    .player_hand_value=game_ctx->player->hand_value,
+                    .player_cards_in_split_hand=game_ctx->player->cards_in_split_hand,
+                    .player_split_hand_value=game_ctx->player->split_hand_value
                 }
             }
         }
@@ -244,7 +290,7 @@ void handle_button_release_bet(GameContext *game_ctx, EventQueue *event_queue){
         .state={
             .type=STATE_EVENT_BET,
             .data={
-                .money={
+                .bet={
                     .money = game_ctx->player->money
                 }
             }
@@ -253,33 +299,9 @@ void handle_button_release_bet(GameContext *game_ctx, EventQueue *event_queue){
 }
 
 void handle_button_release_split(GameContext *game_ctx, EventQueue *event_queue){
-    game_ctx->player->split_hand[0] = game_ctx->player->hand[1];
-    game_ctx->player->hand[1] = NULL;
-    game_ctx->player->cards_in_hand--;
-    game_ctx->player->hand_value -= game_ctx->player->split_hand[0]->rank_value;
-    game_ctx->player->cards_in_split_hand++;
-    game_ctx->player->split_hand_value += game_ctx->player->split_hand[0]->rank_value;
-    if (game_ctx->player->split_hand[0]->rank == 'A'){
-        game_ctx->player->aces_in_split_hand_worth_11++;
-    }
-    game_ctx->dealer->hand[0]->rect.pos.y = HAND_SPLITTING_Y_DEALER;
-    game_ctx->dealer->hand[1]->rect.pos.y = HAND_SPLITTING_Y_DEALER;
-    game_ctx->player->hand[0]->rect.pos = (vec2){HAND_ORIGIN_X, HAND_SPLITTING_Y_PLAYER};
-    game_ctx->player->split_hand[0]->rect.pos = (vec2){HAND_ORIGIN_X, SPLIT_HAND_SPLITTING_Y_PLAYER};
-    game_ctx->player->split_bet = game_ctx->player->bet;
-    game_ctx->player->money -= game_ctx->player->split_bet;
+    game_split(game_ctx);
     game_context_set_game_state(game_ctx, GAME_STATE_PLAYING_SPLIT);
-    event_enqueue(event_queue, (Event){
-        .state={
-            .type=STATE_EVENT_GAME_STATE,
-            .data={
-                .game_state={
-                    .game_state=game_context_get_game_state(game_ctx),
-                    .prev_game_state=game_context_get_prev_game_state(game_ctx)
-                }
-            }
-        }
-    });
+    queue_game_state_event(game_ctx, event_queue);
     event_enqueue(event_queue, (Event){.state={
         .type=STATE_EVENT_SPLIT,
         .data={
@@ -389,84 +411,115 @@ void handle_button_release_cheque(GameContext *game_ctx, AnimationPool *anim_poo
     );
 }
 
+void handle_animation_card_draw_completed(GameContext *game_ctx, Rect *target){
+    if (
+        bust(game_ctx->player->hand_value) 
+        || blackjack(game_ctx->player->cards_in_hand, game_ctx->player->hand_value)
+    ) {
+        dealer_reveal_second_card(game_ctx->dealer);
+    }
+    flip_card(
+        (Card *)target, 
+        is_second_dealer_card(game_ctx->dealer, (Card *)target),
+        dealer_is_hiding_second_card(game_ctx->dealer)
+    );
+}
+
+void handle_animation_cheque_completed(GameContext *game_ctx, EventQueue *event_queue){
+    Cheque cheque = cheque_ring_buffer_dequeue(game_ctx->cheque_ring_buffer);
+    if (!cheque.popped){
+        player_bet_push(game_ctx->player, cheque.val);
+        event_enqueue(event_queue, (Event){
+            .state={
+                .type=STATE_EVENT_CHEQUE_PUSH_RECEIVED, 
+                .data={
+                    .cheque_push_received={
+                        game_ctx->player->bet,
+                        hmget(game_ctx->cheque_data_map, cheque.val).cheque_button_tid
+                    }
+                }
+            }
+        });
+    }
+    else{
+        game_ctx->player->money += cheque.val;
+        event_enqueue(event_queue, (Event){
+            .state={
+                .type=STATE_EVENT_CHEQUE_POP_RECEIVED, 
+                .data={
+                    .cheque_pop_received=
+                    {
+                        game_ctx->player->money
+                    }
+                }
+            }
+        });
+    }
+}
+
 void update(AppState *as){
     update_delta_time(&(as->prev_frametime), &(as->delta_time));
     while (!event_queue_empty(as->event_queue)){
         Event event = event_dequeue(as->event_queue);
+        void *dependencies = NULL;
         switch (event.type){
             case INPUT_EVENT_BUTTON_RELEASE_DEAL:
                 handle_button_release_deal(as->game_ctx, as->anim_queue, as->event_queue);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_HIT:
                 handle_button_release_hit(as->game_ctx, as->anim_queue, as->event_queue);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_STAND:
                 handle_button_release_stand(as->game_ctx, as->anim_queue, as->event_queue);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_BET:
                 handle_button_release_bet(as->game_ctx, as->event_queue);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_SPLIT:
                 handle_button_release_split(as->game_ctx, as->event_queue);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_STACK: {
                 handle_button_release_stack(as->game_ctx, as->anim_pool, as->event_queue);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             }
             case INPUT_EVENT_BUTTON_RELEASE_WHITE: {
                 handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_ONE);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             }
             case INPUT_EVENT_BUTTON_RELEASE_RED: {
                 handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_FIVE);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             }
             case INPUT_EVENT_BUTTON_RELEASE_BLUE: {
                 handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_TEN);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             }
             case INPUT_EVENT_BUTTON_RELEASE_GREEN: {
                 handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_TWENTY_FIVE);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             }
             case INPUT_EVENT_BUTTON_RELEASE_BLACK: {
                 handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_HUNDRED);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             }
             case INPUT_EVENT_BUTTON_RELEASE_PURPLE: {
                 handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_FIVE_HUNDRED);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             }
             case INPUT_EVENT_BUTTON_RELEASE_YELLOW: {
                 handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_ONE_K);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             }
             case INPUT_EVENT_BUTTON_RELEASE_ORANGE: {
                 handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_FIVE_K);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             }
             case INPUT_EVENT_BUTTON_RELEASE_REDBLUE: {
                 handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_TWENTY_FIVE_K);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             }
             case INPUT_EVENT_BUTTON_RELEASE_GOLD: {
                 handle_button_release_cheque(as->game_ctx, as->anim_pool, as->event_queue, CHEQUE_VALUE_HUNDRED_K);
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             }
             case STATE_EVENT_DEAL: 
@@ -478,73 +531,36 @@ void update(AppState *as){
             case STATE_EVENT_CHEQUE_POP_SENT:
             case STATE_EVENT_BET_PAYOUT:
             case STATE_EVENT_SPLIT_HIT: {
-                event_listeners_notify_all(as->p_event_listeners, event, (void *)as->font_map);
+                dependencies = (void *)as->font_map;
                 break;
             }
             default: {
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             }
         }
+        event_listeners_notify_all(&as->event_listeners, event, dependencies);
     }
     animate(as->anim_queue, as->anim_pool, as->event_queue, as->delta_time);
     while (!event_queue_empty(as->event_queue)){
         Event event = event_dequeue(as->event_queue);
+        void *dependencies = NULL;
         switch(event.type){
             case ANIMATION_EVENT_ANIMATION_CARD_DRAW_COMPLETED:
-                if (
-                    bust(as->game_ctx->player->hand_value) 
-                    || blackjack(as->game_ctx->player->cards_in_hand, as->game_ctx->player->hand_value)
-                ) {
-                    dealer_reveal_second_card(as->game_ctx->dealer);
-                }
-                flip_card(
-                    (Card *)event.anim.target, 
-                    is_second_dealer_card(as->game_ctx->dealer, (Card *)event.anim.target),
-                    dealer_is_hiding_second_card(as->game_ctx->dealer)
-                );
+                handle_animation_card_draw_completed(as->game_ctx, event.anim.target);
                 break;
             case ANIMATION_EVENT_ANIMATION_CHEQUE_COMPLETED: {
-                Cheque cheque = cheque_ring_buffer_dequeue(as->game_ctx->cheque_ring_buffer);
-                if (!cheque.popped){
-                    player_bet_push(as->game_ctx->player, cheque.val);
-                    event_enqueue(as->event_queue, (Event){
-                        .state={
-                            .type=STATE_EVENT_CHEQUE_PUSH_RECEIVED, 
-                            .data={
-                                .cheque_push_received={
-                                    as->game_ctx->player->bet,
-                                    hmget(as->game_ctx->cheque_data_map, cheque.val).cheque_button_tid
-                                }
-                            }
-                        }
-                    });
-                }
-                else{
-                    as->game_ctx->player->money += cheque.val;
-                    event_enqueue(as->event_queue, (Event){
-                        .state={
-                            .type=STATE_EVENT_CHEQUE_POP_RECEIVED, 
-                            .data={
-                                .cheque_pop_received=
-                                {
-                                    as->game_ctx->player->money
-                                }
-                            }
-                        }
-                    });
-                }
+                handle_animation_cheque_completed(as->game_ctx, as->event_queue);
                 break;
             }
             case STATE_EVENT_CHEQUE_PUSH_RECEIVED:
             case STATE_EVENT_CHEQUE_POP_RECEIVED: {
-                event_listeners_notify_all(as->p_event_listeners, event, (void *)as->font_map);
+                dependencies = (void *)as->font_map;
                 break;
             }
             default: {
-                event_listeners_notify_all(as->p_event_listeners, event, NULL);
                 break;
             }
         }
+        event_listeners_notify_all(&as->event_listeners, event, dependencies);
     }
 }

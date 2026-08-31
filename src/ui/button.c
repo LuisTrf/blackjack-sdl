@@ -94,8 +94,8 @@ void button_notify_deal(void *self, Event event, void *dependencies){
     Button *button = (Button *)self;
     switch(event.type){
         case STATE_EVENT_DEAL: {
-            int player_cards_in_hand = event.state.data.hand.player_cards_in_hand;
-            int player_hand_value = event.state.data.hand.player_hand_value;
+            int player_cards_in_hand = event.state.data.deal.player_cards_in_hand;
+            int player_hand_value = event.state.data.deal.player_hand_value;
             if (!blackjack(player_cards_in_hand, player_hand_value)){
                 button_set_state(button, BUTTON_STATE_DISABLED);
                 button->widget.rect.visible = false;
@@ -103,7 +103,7 @@ void button_notify_deal(void *self, Event event, void *dependencies){
             break;
         }
         case STATE_EVENT_HIT: {
-            int player_hand_value = event.state.data.hand.player_hand_value;
+            int player_hand_value = event.state.data.hit.player_hand_value;
             if (bust(player_hand_value)){
                 button_set_state(button, BUTTON_STATE_IDLE);
                 button->widget.rect.visible = true;
@@ -129,8 +129,8 @@ void button_notify_hit(void *self, Event event, void *dependencies){
     Button *button = (Button *)self;
     switch(event.type){
         case STATE_EVENT_DEAL: {
-            int player_cards_in_hand = event.state.data.hand.player_cards_in_hand;
-            int player_hand_value = event.state.data.hand.player_hand_value;
+            int player_cards_in_hand = event.state.data.deal.player_cards_in_hand;
+            int player_hand_value = event.state.data.deal.player_hand_value;
             if (!blackjack(player_cards_in_hand, player_hand_value)){
                 button_set_state(button, BUTTON_STATE_IDLE);
                 button->widget.rect.visible = true;
@@ -138,8 +138,8 @@ void button_notify_hit(void *self, Event event, void *dependencies){
             break;
         }
         case STATE_EVENT_HIT: {
-            int player_cards_in_hand = event.state.data.hand.player_cards_in_hand;
-            int player_hand_value = event.state.data.hand.player_hand_value;
+            int player_cards_in_hand = event.state.data.hit.player_cards_in_hand;
+            int player_hand_value = event.state.data.hit.player_hand_value;
             if (!can_hit(player_cards_in_hand, player_hand_value)){
                 button_set_state(button, BUTTON_STATE_DISABLED);
                 if (bust(player_hand_value)){
@@ -148,9 +148,28 @@ void button_notify_hit(void *self, Event event, void *dependencies){
             }
             break;
         }
+        case STATE_EVENT_SPLIT_HIT: {
+            int player_cards_in_split_hand = event.state.data.split_hit.player_cards_in_split_hand;
+            int player_split_hand_value = event.state.data.split_hit.player_split_hand_value;
+            if (!can_hit(player_cards_in_split_hand, player_split_hand_value)){
+                button_set_state(button, BUTTON_STATE_DISABLED);
+                if (bust(player_split_hand_value)){
+                    button->widget.rect.visible = false;
+                }
+            }
+            break;
+        }
         case STATE_EVENT_STAND:
-            button_set_state(button, BUTTON_STATE_DISABLED);
-            button->widget.rect.visible = false;
+            if (button_get_state(button) == BUTTON_STATE_DISABLED){
+                /*
+                Pulling 21 on a split hand causes hit to get disabled; reenable for normal hand.
+                */
+                button_set_state(button, BUTTON_STATE_IDLE);
+            }
+            else {
+                button_set_state(button, BUTTON_STATE_DISABLED);
+                button->widget.rect.visible = false;
+            }
             break;
         case ANIMATION_EVENT_QUEUE_BLOCKING:
             button_set_state(button, BUTTON_STATE_DISABLED);
@@ -167,8 +186,8 @@ void button_notify_stand(void *self, Event event, void *dependencies){
     Button *button = (Button *)self;
     switch(event.type){
         case STATE_EVENT_DEAL: {
-            int player_cards_in_hand = event.state.data.hand.player_cards_in_hand;
-            int player_hand_value = event.state.data.hand.player_hand_value;
+            int player_cards_in_hand = event.state.data.deal.player_cards_in_hand;
+            int player_hand_value = event.state.data.deal.player_hand_value;
             if (!blackjack(player_cards_in_hand, player_hand_value)){
                 button_set_state(button, BUTTON_STATE_IDLE);
                 button->widget.rect.visible = true;
@@ -176,7 +195,7 @@ void button_notify_stand(void *self, Event event, void *dependencies){
             break;
         }
         case STATE_EVENT_HIT: {
-            int player_hand_value = event.state.data.hand.player_hand_value;
+            int player_hand_value = event.state.data.hit.player_hand_value;
             if (bust(player_hand_value)){
                 button_set_state(button, BUTTON_STATE_DISABLED);
                 button->widget.rect.visible = false;
@@ -202,16 +221,20 @@ void button_notify_bet(void *self, Event event, void *dependencies){
     Button *button = (Button *)self;
     switch (event.type){
         case STATE_EVENT_DEAL: {
-            int player_cards_in_hand = event.state.data.hand.player_cards_in_hand;
-            int player_hand_value = event.state.data.hand.player_hand_value;
+            int player_cards_in_hand = event.state.data.deal.player_cards_in_hand;
+            int player_hand_value = event.state.data.deal.player_hand_value;
             if (!blackjack(player_cards_in_hand, player_hand_value)){
                 button_set_state(button, BUTTON_STATE_DISABLED);
                 button->widget.rect.visible = false;
             }
+            else {
+                button_set_state(button, BUTTON_STATE_IDLE);
+                button->widget.rect.visible = true;
+            }
             break;
         } 
         case STATE_EVENT_HIT: {
-            int player_hand_value = event.state.data.hand.player_hand_value;
+            int player_hand_value = event.state.data.hit.player_hand_value;
             if (bust(player_hand_value)){
                 button_set_state(button, BUTTON_STATE_IDLE);
                 button->widget.rect.visible = true;
@@ -299,7 +322,7 @@ void button_notify_cheque(void *self, Event event, void *dependencies, CHEQUE_VA
             button->widget.rect.visible = false;
             break;
         case STATE_EVENT_BET:
-            if (event.state.data.money.money < val){
+            if (event.state.data.bet.money < val){
                 button_set_state(button, BUTTON_STATE_DISABLED);
                 button->widget.rect.visible = false;
             }
