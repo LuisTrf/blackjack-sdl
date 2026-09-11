@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#include "../../include/external/stb_ds.h"
+#include "../../vendored/stb/stb_ds.h"
 #include "../../include/ui/widget.h"
 #include "../../include/ui/button.h"
 #include "../../include/ui/button_constants.h"

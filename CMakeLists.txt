@@ -6,9 +6,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 
 set(SDLTTF_VENDORED ON)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/include/external/vendored/SDL EXCLUDE_FROM_ALL)
+add_subdirectory(${PROJECT_SOURCE_DIR}/vendored/SDL EXCLUDE_FROM_ALL)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/include/external/vendored/SDL_ttf EXCLUDE_FROM_ALL)
+add_subdirectory(${PROJECT_SOURCE_DIR}/vendored/SDL_ttf EXCLUDE_FROM_ALL)
 
 
 #[[ Source - https://stackoverflow.com/a/52887900
@@ -33,6 +33,8 @@ include_directories(
 )
 
 file(GLOB SOURCES
+    "${PROJECT_SOURCE_DIR}/vendored/*.h"
+    "${PROJECT_SOURCE_DIR}/vendored/stb/*.h"
     "${PROJECT_SOURCE_DIR}/include/*.h"
     "${PROJECT_SOURCE_DIR}/include/event/*.h"
     "${PROJECT_SOURCE_DIR}/include/game/*.h"

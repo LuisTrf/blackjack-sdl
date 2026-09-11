@@ -6,7 +6,7 @@
 #include <SDL3/SDL_surface.h>
 #include <stdio.h>
 
-#include "../../include/external/stb_ds.h"
+#include "../../vendored/stb/stb_ds.h"
 #include "../../include/ui/widget.h"
 #include "../../include/ui/container.h"
 #include "../../include/ui/picbox.h"

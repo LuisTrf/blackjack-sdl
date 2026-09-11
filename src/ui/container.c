@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "../../include/ui/container.h"
 #include "../../include/ui/button.h"
-#include "../../include/external/stb_ds.h"
+#include "../../vendored/stb/stb_ds.h"
 
 #include <stdio.h>
 

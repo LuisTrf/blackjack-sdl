@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#include "../../include/external/stb_ds.h"
+#include "../../vendored/stb/stb_ds.h"
 #include "../../include/ui/label.h"
 #include "../../include/ui/label_constants.h"
 #include "../../include/game/game.h"

@@ -1,7 +1,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_stdinc.h>
 
-#include "../../include/external/stb_ds.h"
+#include "../../vendored/stb/stb_ds.h"
 #include "../../include/vec2.h"
 #include "../../include/constants.h"
 #include "../../include/game/card_constants.h"
