@@ -257,6 +257,12 @@ void label_notify_player_money(void *self, Event event, void *dependencies){
             label_write(label, font_map, "MONEY: $%.2f", money);
             break;
         }
+        case STATE_EVENT_INSURANCE: {
+            font_hash* font_map = (font_hash *)dependencies;
+            float money = event.state.data.insurance.money;
+            label_write(label, font_map, "MONEY: $%.2f", money);
+            break;
+        }
         default:
             break;
     }
@@ -345,6 +351,11 @@ void label_notify_player_bet(void *self, Event event, void *dependencies){
             }
             break;
         }
+        case STATE_EVENT_INSURANCE: 
+            if (label->widget.rect.visible) {
+                    label->widget.rect.visible = false;
+                }
+            break;
         default:
             break;
     }

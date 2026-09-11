@@ -90,8 +90,10 @@ void deal(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_q
             queue_bet_payout_event(event_queue, game_ctx->player->money);
         }
         else {
-            game_ctx->player->money += game_ctx->player->bet;
-            queue_bet_payout_event(event_queue, game_ctx->player->money);
+            if (game_ctx->dealer->hand[0]->rank != 'A'){
+                game_ctx->player->money += game_ctx->player->bet;
+                queue_bet_payout_event(event_queue, game_ctx->player->money);
+            }
         }
     }
 
@@ -111,14 +113,24 @@ void deal(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_q
         event_enqueue(event_queue, (Event){.state={.type=STATE_EVENT_DOUBLE_DOWN_POSSIBLE}});
     }
 
+    if (
+        game_context_get_game_state(game_ctx) == GAME_STATE_BETTING_PLAYING
+        && game_ctx->dealer->hand[0]->rank == 'A'
+        && game_ctx->player->money >= game_ctx->player->bet/2.f
+    ){
+        event_enqueue(event_queue, (Event){.state={.type=STATE_EVENT_INSURANCE_POSSIBLE}});
+    }
+
     event_enqueue(event_queue, (Event){.state={
         .type=STATE_EVENT_DEAL,
         .data={
             .deal={
+                .game_state = game_context_get_game_state(game_ctx),
                 .dealer_cards_in_hand=game_ctx->dealer->cards_in_hand,
                 .dealer_hand_value=game_ctx->dealer->hand_value,
                 .player_cards_in_hand=game_ctx->player->cards_in_hand,
-                .player_hand_value=game_ctx->player->hand_value
+                .player_hand_value=game_ctx->player->hand_value,
+                .dealer_first_card_rank=game_ctx->dealer->hand[0]->rank
             }
         }
     }});
@@ -360,8 +372,28 @@ void double_down(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *
     }});
 }
 
-void insure(GameContext *game_ctx, EventQueue *event_queue){
-    //hi
+void insure(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
+    float side_bet = game_ctx->player->bet/2.f;
+    game_ctx->player->money -= side_bet;
+    if (blackjack(game_ctx->dealer->cards_in_hand, game_ctx->dealer->hand_value)){
+        game_ctx->player->money += side_bet * INSURANCE_BET_PAYOUT;
+    }
+    stand(game_ctx, anim_queue, event_queue);
+    event_enqueue(event_queue, (Event){.state={
+        .type=STATE_EVENT_INSURANCE,
+        .data={
+            .insurance={
+                .dealer_cards_in_hand = game_ctx->dealer->cards_in_hand,
+                .dealer_hand_value = game_ctx->dealer->hand_value,
+                .player_cards_in_hand = game_ctx->player->cards_in_hand,
+                .player_hand_value = game_ctx->player->hand_value,
+                .money = game_ctx->player->money,
+                .bet = game_ctx->player->bet,
+            }
+        }
+    }});
+    game_context_set_game_state(game_ctx, GAME_STATE_FIN);
+    queue_game_state_event(game_ctx, event_queue);
 }
 
 void handle_button_release_stack(GameContext *game_ctx, AnimationPool *anim_pool, EventQueue *event_queue){
@@ -403,8 +435,8 @@ void handle_button_release_stack(GameContext *game_ctx, AnimationPool *anim_pool
                 .type=STATE_EVENT_CHEQUE_POP_SENT, 
                 .data={
                     .cheque_pop_sent={
+                        stack_tid,
                         game_ctx->player->bet, 
-                        stack_tid
                     }
                 }
             }
@@ -527,6 +559,9 @@ void update(AppState *as){
             case INPUT_EVENT_BUTTON_RELEASE_DOUBLE_DOWN:
                 double_down(as->game_ctx, as->anim_queue, as->event_queue);
                 break;
+            case INPUT_EVENT_BUTTON_RELEASE_INSURANCE: 
+                insure(as->game_ctx, as->anim_queue, as->event_queue);
+                break;
             case INPUT_EVENT_BUTTON_RELEASE_STACK: {
                 handle_button_release_stack(as->game_ctx, as->anim_pool, as->event_queue);
                 break;
@@ -577,6 +612,7 @@ void update(AppState *as){
             case STATE_EVENT_BET:
             case STATE_EVENT_SPLIT:
             case STATE_EVENT_DOUBLE_DOWN: 
+            case STATE_EVENT_INSURANCE:
             case STATE_EVENT_CHEQUE_PUSH_SENT: 
             case STATE_EVENT_CHEQUE_POP_SENT:
             case STATE_EVENT_BET_PAYOUT:

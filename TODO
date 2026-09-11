@@ -45,3 +45,6 @@ rename move to action buttons
 rename update methods to handle hit, etc.
 
 splitting aces normal player hand is 1
+
+consistent method naming conventions
+remove .popped from cheque
