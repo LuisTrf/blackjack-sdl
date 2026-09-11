@@ -149,18 +149,18 @@ void button_notify_hit(void *self, Event event, void *dependencies){
             break;
         }
         case STATE_EVENT_SPLIT_HIT: {
-            int player_cards_in_split_hand = event.state.data.split_hit.player_cards_in_split_hand;
             int player_split_hand_value = event.state.data.split_hit.player_split_hand_value;
-            if (!can_hit(player_cards_in_split_hand, player_split_hand_value)){
+            if (player_split_hand_value == 21){
                 button_set_state(button, BUTTON_STATE_DISABLED);
-                if (bust(player_split_hand_value)){
-                    button->widget.rect.visible = false;
-                }
             }
             break;
         }
         case STATE_EVENT_STAND:
-            if (button_get_state(button) == BUTTON_STATE_DISABLED){
+            button_set_state(button, BUTTON_STATE_DISABLED);
+            button->widget.rect.visible = false;
+            break;
+        case STATE_EVENT_SPLIT_STAND:
+            if (button_get_state(button) == BUTTON_STATE_DISABLED && button->widget.rect.visible){
                 /*
                 Pulling 21 on a split hand causes hit to get disabled; reenable for normal hand.
                 */
@@ -170,6 +170,9 @@ void button_notify_hit(void *self, Event event, void *dependencies){
                 button_set_state(button, BUTTON_STATE_DISABLED);
                 button->widget.rect.visible = false;
             }
+            break;
+        case STATE_EVENT_DOUBLE_DOWN: 
+            button_set_state(button, BUTTON_STATE_DISABLED);
             break;
         case ANIMATION_EVENT_QUEUE_BLOCKING:
             button_set_state(button, BUTTON_STATE_DISABLED);
@@ -273,6 +276,58 @@ void button_notify_split(void *self, Event event, void *dependencies){
             button_set_state(button, BUTTON_STATE_DISABLED);
             button->widget.rect.visible = false;
             break;
+        case ANIMATION_EVENT_QUEUE_BLOCKING:
+            button_set_state(button, BUTTON_STATE_DISABLED);
+            break;
+        case ANIMATION_EVENT_QUEUE_NONBLOCKING:
+            button_restore_prev_state(button);
+            break;
+        default:
+            break;
+    }
+}
+
+void button_notify_double_down(void *self, Event event, void *dependencies){
+    Button *button = (Button *)self;
+    switch (event.type){
+        case STATE_EVENT_DOUBLE_DOWN_POSSIBLE:
+            button_set_state(button, BUTTON_STATE_IDLE);
+            button->widget.rect.visible = true;
+            break;
+        case STATE_EVENT_SPLIT: {
+            float money = event.state.data.split.money;
+            float bet = event.state.data.split.bet;
+            /*
+            bet placed on hand 1 and hand 2 are identical;
+            can dd on hand 1 -> can dd on hand 2
+            */
+            if (bet > money){
+                button_set_state(button, BUTTON_STATE_DISABLED);
+                button->widget.rect.visible = false;
+            }
+            break;
+        }
+        case STATE_EVENT_HIT:
+        case STATE_EVENT_SPLIT_HIT:
+        case STATE_EVENT_STAND:
+        case STATE_EVENT_SPLIT_STAND:
+            button_set_state(button, BUTTON_STATE_DISABLED);
+            button->widget.rect.visible = false;
+            break;
+        case ANIMATION_EVENT_QUEUE_BLOCKING:
+            button_set_state(button, BUTTON_STATE_DISABLED);
+            break;
+        case ANIMATION_EVENT_QUEUE_NONBLOCKING:
+            button_restore_prev_state(button);
+            break;
+        default:
+            break;
+    }
+}
+
+void button_notify_insurance(void *self, Event event, void *dependencies){
+    Button *button = (Button *)self;
+    switch (event.type){
         case ANIMATION_EVENT_QUEUE_BLOCKING:
             button_set_state(button, BUTTON_STATE_DISABLED);
             break;

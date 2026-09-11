@@ -251,6 +251,12 @@ void label_notify_player_money(void *self, Event event, void *dependencies){
             label_write(label, font_map, "MONEY: $%.2f", money);
             break;
         }
+        case STATE_EVENT_DOUBLE_DOWN: {
+            font_hash* font_map = (font_hash *)dependencies;
+            float money = event.state.data.double_down.money;
+            label_write(label, font_map, "MONEY: $%.2f", money);
+            break;
+        }
         default:
             break;
     }
@@ -318,6 +324,25 @@ void label_notify_player_bet(void *self, Event event, void *dependencies){
         case STATE_EVENT_BET_PAYOUT: {
             font_hash* font_map = (font_hash *)dependencies;
             label_write(label, font_map, "");
+            break;
+        }
+        case STATE_EVENT_DOUBLE_DOWN: {
+            font_hash* font_map = (font_hash *)dependencies;
+            GAME_STATE game_state = event.state.data.double_down.game_state;
+            GAME_STATE prev_game_state = event.state.data.double_down.prev_game_state;
+            float bet = event.state.data.double_down.bet;
+            float split_bet = event.state.data.double_down.split_bet;
+            if (game_state == GAME_STATE_BETTING_PLAYING){
+                if (prev_game_state == GAME_STATE_PLAYING_SPLIT){
+                    label_write(label, font_map, "BET: 2x$%.2f\nSPLIT BET: 2x$%.2f", bet/2.f, split_bet/2.f);
+                }
+                else {
+                    label_write(label, font_map, "BET: 2x$%.2f", bet/2.f);
+                }
+            }
+            else if (game_state == GAME_STATE_PLAYING_SPLIT){
+                label_write(label, font_map, "BET: $%.2f\nSPLIT BET: 2x$%.2f", bet, split_bet/2.f);
+            }
             break;
         }
         default:

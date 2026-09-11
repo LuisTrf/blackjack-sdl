@@ -37,3 +37,11 @@ bust or stand put into game_state_playing and continue as normal.
 replace cheque button spritesheets with one spritesheet which is just empty + an outline.
 render widgets over all game objects
 bet not visible when getting a blackjack
+
+chequevalue associated to float position ptr
+create render_card_range method to render cards in deck with bool param for reverse order
+
+rename move to action buttons
+rename update methods to handle hit, etc.
+
+splitting aces normal player hand is 1

@@ -59,7 +59,7 @@ void queue_card_animation(AnimationQueue *anim_queue, Card *tgt_card, vec2 dst){
     });
 }
 
-void handle_button_release_deal(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
+void deal(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
     if (game_context_get_game_state(game_ctx) == GAME_STATE_BETTING) {
         game_context_set_game_state(game_ctx, GAME_STATE_BETTING_PLAYING);
     }
@@ -103,6 +103,14 @@ void handle_button_release_deal(GameContext *game_ctx, AnimationQueue *anim_queu
         event_enqueue(event_queue, (Event){.state={.type=STATE_EVENT_SPLIT_POSSIBLE}});
     }
 
+    if (
+        game_context_get_game_state(game_ctx) == GAME_STATE_BETTING_PLAYING
+        && game_ctx->player->money >= game_ctx->player->bet
+    )
+    {
+        event_enqueue(event_queue, (Event){.state={.type=STATE_EVENT_DOUBLE_DOWN_POSSIBLE}});
+    }
+
     event_enqueue(event_queue, (Event){.state={
         .type=STATE_EVENT_DEAL,
         .data={
@@ -116,7 +124,7 @@ void handle_button_release_deal(GameContext *game_ctx, AnimationQueue *anim_queu
     }});
 }
 
-void handle_button_release_hit(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
+void hit(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
     GAME_STATE game_state = game_context_get_game_state(game_ctx);
     float card_y = 0;
     switch (game_state){
@@ -207,10 +215,18 @@ void handle_button_release_hit(GameContext *game_ctx, AnimationQueue *anim_queue
     }
 }
 
-void handle_button_release_stand(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
+void stand(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
     if (game_context_get_game_state(game_ctx) == GAME_STATE_PLAYING_SPLIT){
+        
         game_context_set_game_state(game_ctx, GAME_STATE_BETTING_PLAYING);
         queue_game_state_event(game_ctx, event_queue);
+        
+        if (game_ctx->player->money >= game_ctx->player->bet){
+            event_enqueue(event_queue, (Event){.state={.type=STATE_EVENT_DOUBLE_DOWN_POSSIBLE}});
+        }
+
+        event_enqueue(event_queue, (Event){.state={.type=STATE_EVENT_SPLIT_STAND}});
+
         return;
     }
     dealer_reveal_second_card(game_ctx->dealer);
@@ -283,7 +299,7 @@ void handle_button_release_stand(GameContext *game_ctx, AnimationQueue *anim_que
     queue_game_state_event(game_ctx, event_queue);
 }
 
-void handle_button_release_bet(GameContext *game_ctx, EventQueue *event_queue){
+void bet(GameContext *game_ctx, EventQueue *event_queue){
     game_reset(game_ctx);
     game_context_set_game_state(game_ctx, GAME_STATE_BETTING);
     event_enqueue(event_queue, (Event){
@@ -298,7 +314,7 @@ void handle_button_release_bet(GameContext *game_ctx, EventQueue *event_queue){
     });
 }
 
-void handle_button_release_split(GameContext *game_ctx, EventQueue *event_queue){
+void split(GameContext *game_ctx, EventQueue *event_queue){
     game_split(game_ctx);
     game_context_set_game_state(game_ctx, GAME_STATE_PLAYING_SPLIT);
     queue_game_state_event(game_ctx, event_queue);
@@ -316,6 +332,36 @@ void handle_button_release_split(GameContext *game_ctx, EventQueue *event_queue)
             }
         }
     }});
+}
+
+void double_down(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
+    GAME_STATE game_state = game_context_get_game_state(game_ctx);
+    GAME_STATE prev_game_state = game_context_get_prev_game_state(game_ctx);
+    if (game_state == GAME_STATE_BETTING_PLAYING){
+        game_ctx->player->money -= game_ctx->player->bet;
+        game_ctx->player->bet *= 2;
+    }
+    else if (game_state == GAME_STATE_PLAYING_SPLIT){
+        game_ctx->player->money -= game_ctx->player->split_bet;
+        game_ctx->player->split_bet *= 2;
+    }
+    hit(game_ctx, anim_queue, event_queue);
+    event_enqueue(event_queue, (Event){.state={
+        .type=STATE_EVENT_DOUBLE_DOWN,
+        .data={
+            .double_down={
+                .game_state = game_state,
+                .prev_game_state = prev_game_state,
+                .money = game_ctx->player->money,
+                .bet = game_ctx->player->bet,
+                .split_bet = game_ctx->player->split_bet
+            }
+        }
+    }});
+}
+
+void insure(GameContext *game_ctx, EventQueue *event_queue){
+    //hi
 }
 
 void handle_button_release_stack(GameContext *game_ctx, AnimationPool *anim_pool, EventQueue *event_queue){
@@ -386,7 +432,7 @@ void handle_button_release_cheque(GameContext *game_ctx, AnimationPool *anim_poo
             false
         }
     );
-        anim_add(anim_pool, (Animation){
+    anim_add(anim_pool, (Animation){
         &(game_ctx->cheque_ring_buffer->arr[cheque_idx].rect),
         ANIMATION_TYPE_VEC2,
         ANIMATION_STATE_WAITING,
@@ -434,8 +480,8 @@ void handle_animation_cheque_completed(GameContext *game_ctx, EventQueue *event_
                 .type=STATE_EVENT_CHEQUE_PUSH_RECEIVED, 
                 .data={
                     .cheque_push_received={
+                        hmget(game_ctx->cheque_data_map, cheque.val).cheque_button_tid,
                         game_ctx->player->bet,
-                        hmget(game_ctx->cheque_data_map, cheque.val).cheque_button_tid
                     }
                 }
             }
@@ -464,19 +510,22 @@ void update(AppState *as){
         void *dependencies = NULL;
         switch (event.type){
             case INPUT_EVENT_BUTTON_RELEASE_DEAL:
-                handle_button_release_deal(as->game_ctx, as->anim_queue, as->event_queue);
+                deal(as->game_ctx, as->anim_queue, as->event_queue);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_HIT:
-                handle_button_release_hit(as->game_ctx, as->anim_queue, as->event_queue);
+                hit(as->game_ctx, as->anim_queue, as->event_queue);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_STAND:
-                handle_button_release_stand(as->game_ctx, as->anim_queue, as->event_queue);
+                stand(as->game_ctx, as->anim_queue, as->event_queue);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_BET:
-                handle_button_release_bet(as->game_ctx, as->event_queue);
+                bet(as->game_ctx, as->event_queue);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_SPLIT:
-                handle_button_release_split(as->game_ctx, as->event_queue);
+                split(as->game_ctx, as->event_queue);
+                break;
+            case INPUT_EVENT_BUTTON_RELEASE_DOUBLE_DOWN:
+                double_down(as->game_ctx, as->anim_queue, as->event_queue);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_STACK: {
                 handle_button_release_stack(as->game_ctx, as->anim_pool, as->event_queue);
@@ -527,6 +576,7 @@ void update(AppState *as){
             case STATE_EVENT_STAND:
             case STATE_EVENT_BET:
             case STATE_EVENT_SPLIT:
+            case STATE_EVENT_DOUBLE_DOWN: 
             case STATE_EVENT_CHEQUE_PUSH_SENT: 
             case STATE_EVENT_CHEQUE_POP_SENT:
             case STATE_EVENT_BET_PAYOUT:

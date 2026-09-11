@@ -110,6 +110,46 @@ Button *widget_split_button_initialize(InputListener **input_listeners, EventLis
     return split_button;
 }
 
+Button *widget_double_down_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *double_down_button = button_create(
+        0.f, MOVE_BUTTON_ORIGIN_Y,
+        MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        false,
+        INPUT_EVENT_BUTTON_RELEASE_DOUBLE_DOWN,
+        BUTTON_STATE_DISABLED,
+        TEXTURE_ID_DOUBLE_DOWN_BUTTON_SPRITESHEET
+    );
+    input_listener_register(
+        input_listeners, 
+        (InputListener){(void *)double_down_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)double_down_button, button_notify_double_down}
+    );
+    return double_down_button;
+}
+
+Button *widget_insurance_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+    Button *insurance_button = button_create(
+        0.f, MOVE_BUTTON_ORIGIN_Y,
+        MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        false, 
+        INPUT_EVENT_BUTTON_RELEASE_INSURANCE,
+        BUTTON_STATE_DISABLED,
+        TEXTURE_ID_INSURANCE_BUTTON_SPRITESHEET
+    );
+    input_listener_register(
+        input_listeners,
+        (InputListener){(void *)insurance_button, input_handle_button_mouse_events}
+    );
+    event_listener_register(
+        event_listeners,
+        (EventListener){(void *)insurance_button, button_notify_insurance}
+    );
+    return insurance_button;
+}
+
 Container* ui_move_buttons_initialize(InputListener **input_listeners, EventListener **event_listeners){
     Container *move_buttons = container_create(
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
@@ -125,6 +165,10 @@ Container* ui_move_buttons_initialize(InputListener **input_listeners, EventList
     container_add_widget(move_buttons, (Widget *)bet_button);
     Button *split_button = widget_split_button_initialize(input_listeners, event_listeners);
     container_add_widget(move_buttons, (Widget *)split_button);
+    Button *double_down_button = widget_double_down_button_initialize(input_listeners, event_listeners);
+    container_add_widget(move_buttons, (Widget *)double_down_button);
+    Button *insurance_button = widget_insurance_button_initialize(input_listeners, event_listeners);
+    container_add_widget(move_buttons, (Widget *)insurance_button);
     event_listener_register(
         event_listeners, 
         (EventListener){.self=(void*)move_buttons, moveb_container_notify}

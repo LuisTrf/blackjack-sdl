@@ -59,9 +59,12 @@ Widget* container_remove_widget(Container *p_container, Widget *p_widget){
 void moveb_container_notify(void *self, Event event, void* dependencies){
     Container *container = (Container*)self;
     switch(event.type){
+        case STATE_EVENT_GAME_STATE:
         case STATE_EVENT_DEAL:
         case STATE_EVENT_HIT:
+        case STATE_EVENT_SPLIT_HIT:
         case STATE_EVENT_STAND:
+        case STATE_EVENT_SPLIT_STAND:
         case STATE_EVENT_BET:
         case STATE_EVENT_SPLIT:
             reposition_visible_move_buttons(container->children);

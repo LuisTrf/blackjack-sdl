@@ -99,6 +99,8 @@ texture_hash* texture_map_create(SDL_Renderer *renderer, font_hash* font_map){
     hmput(texture_map, TEXTURE_ID_ARROW_SPRITESHEET, render_load_texture_from_png(renderer, "resources/arrow_spritesheet.png"));
     hmput(texture_map, TEXTURE_ID_SPLIT_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/split_spritesheet.png"));
     hmput(texture_map, TEXTURE_ID_LABEL_SPLIT_PLAYER_HAND, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
+    hmput(texture_map, TEXTURE_ID_INSURANCE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/insurance_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_DOUBLE_DOWN_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/doubledown_spritesheet.png"));
     return texture_map;
 }
 
