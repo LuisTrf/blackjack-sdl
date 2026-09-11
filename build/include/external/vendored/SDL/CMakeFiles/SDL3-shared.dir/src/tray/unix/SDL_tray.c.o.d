@@ -1,0 +1,30 @@
+include/external/vendored/SDL/CMakeFiles/SDL3-shared.dir/src/tray/unix/SDL_tray.c.o: \
+ /home/luis/Documents/_PROJECTS/blackjack-sdl/include/external/vendored/SDL/src/tray/unix/SDL_tray.c \
+ /usr/include/stdc-predef.h \
+ /home/luis/Documents/_PROJECTS/blackjack-sdl/include/external/vendored/SDL/src/SDL_internal.h \
+ /home/luis/Documents/_PROJECTS/blackjack-sdl/include/external/vendored/SDL/src/tray/unix/../SDL_tray_utils.h \
+ /home/luis/Documents/_PROJECTS/blackjack-sdl/include/external/vendored/SDL/src/tray/unix/SDL_unixtray.h \
+ /home/luis/Documents/_PROJECTS/blackjack-sdl/include/external/vendored/SDL/src/tray/unix/../../core/linux/SDL_dbus.h \
+ /usr/include/dbus-1.0/dbus/dbus.h \
+ /usr/lib/x86_64-linux-gnu/dbus-1.0/include/dbus/dbus-arch-deps.h \
+ /usr/include/dbus-1.0/dbus/dbus-macros.h \
+ /usr/include/dbus-1.0/dbus/dbus-address.h \
+ /usr/include/dbus-1.0/dbus/dbus-types.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h \
+ /usr/include/dbus-1.0/dbus/dbus-errors.h \
+ /usr/include/dbus-1.0/dbus/dbus-protocol.h \
+ /usr/include/dbus-1.0/dbus/dbus-bus.h \
+ /usr/include/dbus-1.0/dbus/dbus-connection.h \
+ /usr/include/dbus-1.0/dbus/dbus-memory.h \
+ /usr/include/dbus-1.0/dbus/dbus-message.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
+ /usr/include/dbus-1.0/dbus/dbus-shared.h \
+ /usr/include/dbus-1.0/dbus/dbus-misc.h \
+ /usr/include/dbus-1.0/dbus/dbus-pending-call.h \
+ /usr/include/dbus-1.0/dbus/dbus-server.h \
+ /usr/include/dbus-1.0/dbus/dbus-signature.h \
+ /usr/include/dbus-1.0/dbus/dbus-syntax.h \
+ /usr/include/dbus-1.0/dbus/dbus-threads.h \
+ /home/luis/Documents/_PROJECTS/blackjack-sdl/include/external/vendored/SDL/src/tray/unix/../../core/linux/../../SDL_list.h \
+ /home/luis/Documents/_PROJECTS/blackjack-sdl/include/external/vendored/SDL/src/tray/unix/../../core/linux/../../SDL_menu.h \
+ /home/luis/Documents/_PROJECTS/blackjack-sdl/include/external/vendored/SDL/src/tray/unix/../../core/linux/../.././SDL_list.h
