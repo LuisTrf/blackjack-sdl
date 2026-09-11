@@ -1,8 +1,15 @@
 cmake_minimum_required(VERSION 3.28)
 project(BLACKJACK)
 
-find_package(SDL3 REQUIRED)
-find_package(SDL3_ttf REQUIRED)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+
+set(SDLTTF_VENDORED ON)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/include/external/vendored/SDL EXCLUDE_FROM_ALL)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/include/external/vendored/SDL_ttf EXCLUDE_FROM_ALL)
+
 
 #[[ Source - https://stackoverflow.com/a/52887900
 Posted by J Agustin Barrachina, modified by community. See post 'Timeline' for change history

@@ -5,7 +5,7 @@
 #include "../../include/ui/button_constants.h"
 #include "../../include/event/event_types.h"
 #include "../../include/ui/button.h"
-#include "../../include/stb_ds.h"
+#include "../../include/external/stb_ds.h"
 #include "../../include/game/game.h"
 
 Button* button_create(

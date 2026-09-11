@@ -1,6 +1,6 @@
 #include <SDL3/SDL.h>
 #include <stdlib.h>
-#include "../../include/stb_ds.h"
+#include "../../include/external/stb_ds.h"
 #include "../../include/event/event.h"
 
 EventQueue* event_queue_create(int size){

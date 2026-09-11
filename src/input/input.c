@@ -2,7 +2,7 @@
 #include <SDL3/SDL_events.h>
 #include <stdbool.h>
 
-#include "../../include/stb_ds.h"
+#include "../../include/external/stb_ds.h"
 #include "../../include/event/event.h"
 #include "../../include/ui/button.h"
 #include "../../include/input/input.h"

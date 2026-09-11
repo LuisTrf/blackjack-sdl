@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 #define STB_DS_IMPLEMENTATION
-#include "../include/stb_ds.h"
+#include "../include/external/stb_ds.h"
 
 #include "../include/constants.h"
 #include "../include/input/input.h"

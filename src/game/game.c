@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "../../include/stb_ds.h"
+#include "../../include/external/stb_ds.h"
 #include "../../include/game/card_constants.h"
 #include "../../include/game/game_constants.h"
 #include "../../include/ui/button_constants.h"
