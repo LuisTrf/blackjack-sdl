@@ -137,6 +137,10 @@ void vec2_translate_in_fixed_time(float delta_time, vec2 *target, vec2 src, vec2
 }
 
 Event animation_draw_card(Animation *self, float delta_time){
+    Event event = NULL_EVENT;
+    if (self->target->pos.x == self->vec2_anim.src.x && self->target->pos.y == self->vec2_anim.src.y){
+        event = (Event){.anim={.type=ANIMATION_EVENT_ANIMATION_CARD_DRAW_BEGINNING, .target=self->target}};
+    }
     vec2_translate_in_fixed_time(
         delta_time,
         &(self->target->pos),
@@ -146,12 +150,16 @@ Event animation_draw_card(Animation *self, float delta_time){
     );
     if (self->state == ANIMATION_STATE_PLAYING && self->target->pos.x == self->vec2_anim.dst.x && self->target->pos.y == self->vec2_anim.dst.y){
         self->state = ANIMATION_STATE_COMPLETED;
-        return (Event){.anim={.type=ANIMATION_EVENT_ANIMATION_CARD_DRAW_COMPLETED, .target=self->target}};
+        event = (Event){.anim={.type=ANIMATION_EVENT_ANIMATION_CARD_DRAW_COMPLETED, .target=self->target}};
     }
-    return NULL_EVENT;
+    return event;
 }
 
 Event animation_cheque_move(Animation *self, float delta_time){
+    Event event = NULL_EVENT;
+    if (self->target->pos.x == self->vec2_anim.src.x && self->target->pos.y == self->vec2_anim.src.y){
+        event = (Event){.anim={.type=ANIMATION_EVENT_ANIMATION_CHEQUE_BEGINNING, .target=self->target}};
+    }
     vec2_translate_in_fixed_time(
         delta_time,
         &(self->target->pos),
@@ -161,26 +169,10 @@ Event animation_cheque_move(Animation *self, float delta_time){
     );
     if (self->state == ANIMATION_STATE_PLAYING && self->target->pos.x == self->vec2_anim.dst.x && self->target->pos.y == self->vec2_anim.dst.y){
         self->state = ANIMATION_STATE_COMPLETED;
-        return (Event){.anim={.type=ANIMATION_EVENT_ANIMATION_CHEQUE_COMPLETED, .target=self->target}};
+        event = (Event){.anim={.type=ANIMATION_EVENT_ANIMATION_CHEQUE_COMPLETED, .target=self->target}};
     }
-    return NULL_EVENT;
+    return event;
 }
-
-Event animation_betting_elements_move(Animation *self, float delta_time){
-    vec2_translate_in_fixed_time(
-        delta_time,
-        &(self->target->pos),
-        self->vec2_anim.src,
-        self->vec2_anim.dst,
-        0.23f
-    );
-    if (self->state == ANIMATION_STATE_PLAYING && self->target->pos.x == self->vec2_anim.dst.x && self->target->pos.y == self->vec2_anim.dst.y){
-        self->state = ANIMATION_STATE_COMPLETED;
-    }
-    return NULL_EVENT;
-}
-
-#include <stdio.h>
 
 Event animation_arrow(Animation *self, float delta_time){
     SpriteBox *arrow = (SpriteBox *)self->target;

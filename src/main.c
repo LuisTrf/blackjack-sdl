@@ -1,5 +1,8 @@
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_audio.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include "../vendored/SDL_mixer/include/SDL3_mixer/SDL_mixer.h"
+
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_video.h>
 
@@ -12,6 +15,7 @@
 #include "../include/constants.h"
 #include "../include/input/input.h"
 #include "../include/render/render.h"
+#include "../include/audio.h"
 #include "../include/update/update.h"
 #include "../include/main.h"
 
@@ -52,8 +56,19 @@ AppState* app_state_create(void){
         SDL_Log("Error initializing SDL_ttf: %s\n", SDL_GetError());
         exit(1);
     }
+    if (!MIX_Init()){
+        SDL_Log("Error initializing SDL_mixer: %s\n", SDL_GetError());
+        exit(1);
+    }
+    as.mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+    if (!as.mixer){
+        SDL_Log("Error instantiating mixer: %s\n", SDL_GetError());
+        exit(1);
+    }
     as.font_map = font_map_create();
     as.texture_map = texture_map_create(as.renderer, as.font_map);
+    as.audio_map = audio_map_create(as.mixer);
+    as.track_map = audio_track_map_create(as.mixer, as.audio_map);
     as.input_listeners = NULL;
     as.prev_frametime = SDL_GetTicks();
     as.delta_time = 0.f;
@@ -80,6 +95,8 @@ void app_state_destroy(AppState *as){
     arrfree(as->event_listeners);
     event_queue_destroy(as->event_queue);
     arrfree(as->input_listeners);
+    audio_track_map_destroy(as->track_map);
+    audio_map_destroy(as->audio_map);
     texture_map_destroy(as->texture_map);
     font_map_destroy(as->font_map);
     SDL_DestroyRenderer(as->renderer);

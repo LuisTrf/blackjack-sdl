@@ -6,11 +6,10 @@
 #include "../../include/constants.h"
 #include "../../include/game/card_constants.h"
 #include "../../include/game/game.h"
+#include "../../include/audio_types.h"
 #include "../../include/event/event.h"
 #include "../../include/ui/button_constants.h"
 #include "../../include/main.h"
-
-#include <stdio.h>
 
 void update_delta_time(Uint64 *previous_frametime, float *delta_time){
     float time_to_wait = TARGET_FRAME_TIME - (SDL_GetTicks() - *previous_frametime);
@@ -59,7 +58,7 @@ void queue_card_animation(AnimationQueue *anim_queue, Card *tgt_card, vec2 dst){
     });
 }
 
-void deal(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
+void deal(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue, track_hash* track_map){
     if (game_context_get_game_state(game_ctx) == GAME_STATE_BETTING) {
         game_context_set_game_state(game_ctx, GAME_STATE_BETTING_PLAYING);
     }
@@ -136,7 +135,7 @@ void deal(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_q
     }});
 }
 
-void hit(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
+void hit(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue, track_hash *track_map){
     GAME_STATE game_state = game_context_get_game_state(game_ctx);
     float card_y = 0;
     switch (game_state){
@@ -194,12 +193,12 @@ void hit(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_qu
                     .player_cards_in_hand=game_ctx->player->cards_in_hand,
                     .player_hand_value=game_ctx->player->hand_value,
                     .player_cards_in_split_hand=game_ctx->player->cards_in_split_hand,
-                    .player_split_hand_value=game_ctx->player->split_hand_value
+                    .player_split_hand_value=game_ctx->player->split_hand_value,
+                    .money=game_ctx->player->money
                 }
             }
         }});
         if (bust(game_ctx->player->hand_value)){
-            dealer_reveal_second_card(game_ctx->dealer);
             if (game_context_get_prev_game_state(game_ctx) == GAME_STATE_PLAYING_SPLIT){
                 if (
                     !bust(game_ctx->player->split_hand_value)
@@ -227,7 +226,7 @@ void hit(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_qu
     }
 }
 
-void stand(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
+void stand(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue, track_hash* track_map){
     if (game_context_get_game_state(game_ctx) == GAME_STATE_PLAYING_SPLIT){
         
         game_context_set_game_state(game_ctx, GAME_STATE_BETTING_PLAYING);
@@ -242,6 +241,9 @@ void stand(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_
         return;
     }
     dealer_reveal_second_card(game_ctx->dealer);
+    if (game_ctx->dealer->hand_value > 16){
+        MIX_PlayTrack(hmget(track_map, TRACK_ID_CARD_FLIP), 0);
+    }
     float dealer_hand_y = (game_context_get_prev_game_state(game_ctx) == GAME_STATE_PLAYING_SPLIT) ? 
         HAND_SPLITTING_Y_DEALER :
         HAND_ORIGIN_Y_DEALER;
@@ -292,6 +294,9 @@ void stand(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_
             }
         }
     }
+    if (blackjack(game_ctx->dealer->cards_in_hand, game_ctx->dealer->hand_value)){
+        MIX_PlayTrack(hmget(track_map, TRACK_ID_BLACKJACK_LOSS), 0);
+    }
     event_enqueue(event_queue, (Event){
         .state={
             .type=STATE_EVENT_STAND,
@@ -302,7 +307,8 @@ void stand(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_
                     .player_cards_in_hand=game_ctx->player->cards_in_hand,
                     .player_hand_value=game_ctx->player->hand_value,
                     .player_cards_in_split_hand=game_ctx->player->cards_in_split_hand,
-                    .player_split_hand_value=game_ctx->player->split_hand_value
+                    .player_split_hand_value=game_ctx->player->split_hand_value,
+                    .money=game_ctx->player->money
                 }
             }
         }
@@ -346,7 +352,7 @@ void split(GameContext *game_ctx, EventQueue *event_queue){
     }});
 }
 
-void double_down(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
+void double_down(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue, track_hash* track_map){
     GAME_STATE game_state = game_context_get_game_state(game_ctx);
     GAME_STATE prev_game_state = game_context_get_prev_game_state(game_ctx);
     if (game_state == GAME_STATE_BETTING_PLAYING){
@@ -357,7 +363,7 @@ void double_down(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *
         game_ctx->player->money -= game_ctx->player->split_bet;
         game_ctx->player->split_bet *= 2;
     }
-    hit(game_ctx, anim_queue, event_queue);
+    hit(game_ctx, anim_queue, event_queue, track_map);
     event_enqueue(event_queue, (Event){.state={
         .type=STATE_EVENT_DOUBLE_DOWN,
         .data={
@@ -372,13 +378,13 @@ void double_down(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *
     }});
 }
 
-void insure(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue){
+void insure(GameContext *game_ctx, AnimationQueue *anim_queue, EventQueue *event_queue, track_hash* track_map){
     float side_bet = game_ctx->player->bet/2.f;
     game_ctx->player->money -= side_bet;
     if (blackjack(game_ctx->dealer->cards_in_hand, game_ctx->dealer->hand_value)){
         game_ctx->player->money += side_bet * INSURANCE_BET_PAYOUT;
     }
-    stand(game_ctx, anim_queue, event_queue);
+    stand(game_ctx, anim_queue, event_queue, track_map);
     event_enqueue(event_queue, (Event){.state={
         .type=STATE_EVENT_INSURANCE,
         .data={
@@ -489,12 +495,19 @@ void handle_button_release_cheque(GameContext *game_ctx, AnimationPool *anim_poo
     );
 }
 
-void handle_animation_card_draw_completed(GameContext *game_ctx, Rect *target){
+void handle_animation_card_draw_completed(GameContext *game_ctx, track_hash* track_map, Rect *target, AnimationQueue *anim_queue){
     if (
         bust(game_ctx->player->hand_value) 
         || blackjack(game_ctx->player->cards_in_hand, game_ctx->player->hand_value)
     ) {
         dealer_reveal_second_card(game_ctx->dealer);
+        MIX_PlayTrack(hmget(track_map, TRACK_ID_CARD_FLIP), 0);
+    }
+    if (
+        blackjack(game_ctx->player->cards_in_hand, game_ctx->player->hand_value)
+        && anim_queue_empty(anim_queue)
+    ){
+        MIX_PlayTrack(hmget(track_map, TRACK_ID_BLACKJACK_WIN), 0);
     }
     flip_card(
         (Card *)target, 
@@ -542,13 +555,13 @@ void update(AppState *as){
         void *dependencies = NULL;
         switch (event.type){
             case INPUT_EVENT_BUTTON_RELEASE_DEAL:
-                deal(as->game_ctx, as->anim_queue, as->event_queue);
+                deal(as->game_ctx, as->anim_queue, as->event_queue, as->track_map);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_HIT:
-                hit(as->game_ctx, as->anim_queue, as->event_queue);
+                hit(as->game_ctx, as->anim_queue, as->event_queue, as->track_map);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_STAND:
-                stand(as->game_ctx, as->anim_queue, as->event_queue);
+                stand(as->game_ctx, as->anim_queue, as->event_queue, as->track_map);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_BET:
                 bet(as->game_ctx, as->event_queue);
@@ -557,10 +570,10 @@ void update(AppState *as){
                 split(as->game_ctx, as->event_queue);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_DOUBLE_DOWN:
-                double_down(as->game_ctx, as->anim_queue, as->event_queue);
+                double_down(as->game_ctx, as->anim_queue, as->event_queue, as->track_map);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_INSURANCE: 
-                insure(as->game_ctx, as->anim_queue, as->event_queue);
+                insure(as->game_ctx, as->anim_queue, as->event_queue, as->track_map);
                 break;
             case INPUT_EVENT_BUTTON_RELEASE_STACK: {
                 handle_button_release_stack(as->game_ctx, as->anim_pool, as->event_queue);
@@ -613,10 +626,10 @@ void update(AppState *as){
             case STATE_EVENT_SPLIT:
             case STATE_EVENT_DOUBLE_DOWN: 
             case STATE_EVENT_INSURANCE:
-            case STATE_EVENT_CHEQUE_PUSH_SENT: 
-            case STATE_EVENT_CHEQUE_POP_SENT:
             case STATE_EVENT_BET_PAYOUT:
-            case STATE_EVENT_SPLIT_HIT: {
+            case STATE_EVENT_SPLIT_HIT: 
+            case STATE_EVENT_CHEQUE_PUSH_SENT: 
+            case STATE_EVENT_CHEQUE_POP_SENT: {
                 dependencies = (void *)as->font_map;
                 break;
             }
@@ -631,8 +644,14 @@ void update(AppState *as){
         Event event = event_dequeue(as->event_queue);
         void *dependencies = NULL;
         switch(event.type){
+            case ANIMATION_EVENT_ANIMATION_CARD_DRAW_BEGINNING:
+                MIX_PlayTrack(hmget(as->track_map, TRACK_ID_CARD_DEAL), 0);
+                break;
+            case ANIMATION_EVENT_ANIMATION_CHEQUE_BEGINNING:
+                MIX_PlayTrack(hmget(as->track_map, TRACK_ID_CHEQUE_DEAL), 0);
+                break;
             case ANIMATION_EVENT_ANIMATION_CARD_DRAW_COMPLETED:
-                handle_animation_card_draw_completed(as->game_ctx, event.anim.target);
+                handle_animation_card_draw_completed(as->game_ctx, as->track_map, event.anim.target, as->anim_queue);
                 break;
             case ANIMATION_EVENT_ANIMATION_CHEQUE_COMPLETED: {
                 handle_animation_cheque_completed(as->game_ctx, as->event_queue);

@@ -7,13 +7,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 set(SDLTTF_VENDORED ON)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendored/SDL EXCLUDE_FROM_ALL)
-
 add_subdirectory(${PROJECT_SOURCE_DIR}/vendored/SDL_ttf EXCLUDE_FROM_ALL)
-
-
-#[[ Source - https://stackoverflow.com/a/52887900
-Posted by J Agustin Barrachina, modified by community. See post 'Timeline' for change history
-Retrieved 2026-07-31, License - CC BY-SA 4.0]]
+add_subdirectory(vendored/SDL_mixer EXCLUDE_FROM_ALL)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
@@ -52,6 +47,6 @@ file(GLOB SOURCES
 )
 
 add_executable(main ${SOURCES})
-target_link_libraries(main PRIVATE SDL3::SDL3 SDL3_ttf::SDL3_ttf)
+target_link_libraries(main PRIVATE SDL3::SDL3 SDL3_ttf::SDL3_ttf SDL3_mixer::SDL3_mixer)
 
 file(COPY "${PROJECT_SOURCE_DIR}/resources" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")

@@ -93,6 +93,30 @@ void reposition_visible_move_buttons(Widget** moveb_widgets){
 void button_notify_deal(void *self, Event event, void *dependencies){
     Button *button = (Button *)self;
     switch(event.type){
+        case STATE_EVENT_CHEQUE_POP_SENT: {
+            float bet = event.state.data.cheque_pop_sent.bet;
+            if (bet == 0){
+                button_set_state(button, BUTTON_STATE_DISABLED);
+            }
+            else if (button_get_state(button) == BUTTON_STATE_DISABLED && bet > 0){
+                button_set_state(button, BUTTON_STATE_IDLE);
+            }
+            break;
+        }
+        case STATE_EVENT_CHEQUE_PUSH_RECEIVED: {
+            float bet = event.state.data.cheque_pop_sent.bet;
+            if (bet == 0){
+                button_set_state(button, BUTTON_STATE_DISABLED);
+            }
+            else if (button_get_state(button) == BUTTON_STATE_DISABLED && bet > 0){
+                button_set_state(button, BUTTON_STATE_IDLE);
+            }
+            break;
+        }
+        case STATE_EVENT_BET: {
+            button_set_state(button, BUTTON_STATE_DISABLED);
+            break;
+        }
         case STATE_EVENT_DEAL: {
             int player_cards_in_hand = event.state.data.deal.player_cards_in_hand;
             int player_hand_value = event.state.data.deal.player_hand_value;
@@ -270,17 +294,25 @@ void button_notify_bet(void *self, Event event, void *dependencies){
         } 
         case STATE_EVENT_HIT: {
             int player_hand_value = event.state.data.hit.player_hand_value;
-            if (bust(player_hand_value)){
+            float money = event.state.data.hit.money;
+            if (bust(player_hand_value) && money > 0){
                 button_set_state(button, BUTTON_STATE_IDLE);
                 button->widget.rect.visible = true;
             }
             break;
         }
         case STATE_EVENT_INSURANCE:
-        case STATE_EVENT_STAND:
             button_set_state(button, BUTTON_STATE_IDLE);
             button->widget.rect.visible = true;
             break;
+        case STATE_EVENT_STAND: {
+            float money = event.state.data.hit.money;
+            if (money > 0){
+                button_set_state(button, BUTTON_STATE_IDLE);
+                button->widget.rect.visible = true;
+            }
+            break;
+        }
         case STATE_EVENT_BET:
             button_set_state(button, BUTTON_STATE_DISABLED);
             button->widget.rect.visible = false;

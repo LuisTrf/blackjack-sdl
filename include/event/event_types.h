@@ -42,7 +42,9 @@ typedef enum EventType {
     STATE_EVENT_CHEQUE_POP_RECEIVED,
     STATE_EVENT_BET_PAYOUT,
     STATE_EVENT_GAME_STATE,
+    ANIMATION_EVENT_ANIMATION_CARD_DRAW_BEGINNING,
     ANIMATION_EVENT_ANIMATION_CARD_DRAW_COMPLETED,
+    ANIMATION_EVENT_ANIMATION_CHEQUE_BEGINNING,
     ANIMATION_EVENT_ANIMATION_CHEQUE_COMPLETED,
     ANIMATION_EVENT_QUEUE_BLOCKING,
     ANIMATION_EVENT_QUEUE_NONBLOCKING,
@@ -62,7 +64,7 @@ typedef struct StateEvent {
         struct {int player_cards_in_hand, player_hand_value, player_cards_in_split_hand, player_split_hand_value; float money, bet, split_bet;} split;
         struct {int dealer_cards_in_hand, dealer_hand_value, player_cards_in_hand, player_hand_value; float money, bet;} insurance;
         struct {GAME_STATE game_state, prev_game_state; float money, bet, split_bet;} double_down;
-        struct {int dealer_cards_in_hand, dealer_hand_value, player_cards_in_hand, player_hand_value, player_cards_in_split_hand, player_split_hand_value;} stand, hit;
+        struct {int dealer_cards_in_hand, dealer_hand_value, player_cards_in_hand, player_hand_value, player_cards_in_split_hand, player_split_hand_value; float money;} stand, hit;
         struct {GAME_STATE game_state; int dealer_cards_in_hand, dealer_hand_value, player_cards_in_hand, player_hand_value; char dealer_first_card_rank;} deal;
         struct {float money;} cheque_push_sent, cheque_pop_received, bet, bet_payout;
         struct {TEXTURE_ID tid; float bet;} cheque_push_received, cheque_pop_sent;
