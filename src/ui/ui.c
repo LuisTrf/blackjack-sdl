@@ -550,19 +550,19 @@ SpriteBox* widget_arrow_initialize(AnimationPool *anim_pool, EventListener **eve
     return arrow;
 }
 
-Container* ui_root_initialize(InputListener **input_listeners, EventListener **event_listeners, font_hash* font_map, AnimationPool *anim_pool){
+Container* ui_root_initialize(AppState *as){
     Container *root = container_create(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, true);
     
-    Container *move_buttons = ui_move_buttons_initialize(input_listeners, event_listeners);
+    Container *move_buttons = ui_move_buttons_initialize(&as->input_listeners, &as->event_listeners);
     container_add_widget(root, (Widget *)move_buttons);
 
-    Container *cheque_buttons = ui_cheque_buttons_initialize(input_listeners, event_listeners);
+    Container *cheque_buttons = ui_cheque_buttons_initialize(&as->input_listeners, &as->event_listeners);
     container_add_widget(root, (Widget *)cheque_buttons);
 
-    Container *labels = ui_labels_initialize(font_map, event_listeners);
+    Container *labels = ui_labels_initialize(as->font_map, &as->event_listeners);
     container_add_widget(root, (Widget *)labels);
 
-    SpriteBox *arrow = widget_arrow_initialize(anim_pool, event_listeners);
+    SpriteBox *arrow = widget_arrow_initialize(as->anim_pool, &as->event_listeners);
     container_add_widget(root, (Widget *)arrow);
 
     return root;

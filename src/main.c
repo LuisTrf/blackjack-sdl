@@ -17,6 +17,9 @@
 #include "../include/render/render.h"
 #include "../include/audio.h"
 #include "../include/update/update.h"
+#include "../include/game/game.h"
+#include "../include/update/animation.h"
+#include "../include/ui/ui.h"
 #include "../include/main.h"
 
 AppState* app_state_create(void){
@@ -77,7 +80,7 @@ AppState* app_state_create(void){
     as.game_ctx = game_context_create();
     as.anim_queue = anim_queue_create(16);
     as.anim_pool = anim_pool_create(ANIMATION_POOL_MAXIMUM_ANIMATIONS);
-    as.ui_root = ui_root_initialize(&as.input_listeners, &as.event_listeners, as.font_map, as.anim_pool);
+    as.ui_root = ui_root_initialize(&as);
     as.should_quit = false;
     AppState *p_as = malloc(sizeof(AppState));
     if (p_as == NULL){

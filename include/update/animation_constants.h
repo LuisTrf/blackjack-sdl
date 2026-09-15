@@ -1,0 +1,3 @@
+#pragma once
+
+#define ANIMATION_POOL_MAXIMUM_ANIMATIONS 16

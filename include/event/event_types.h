@@ -2,7 +2,7 @@
 
 #include "../rect.h"
 #include "../render/render_types.h"
-#include "../game/game.h"
+#include "../game/game_enums.h"
 
 typedef enum EventType {
     EVENT_NONE,

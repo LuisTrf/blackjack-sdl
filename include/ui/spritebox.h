@@ -1,6 +1,5 @@
 #pragma once
 
-#include <SDL3/SDL.h>
 #include <stdbool.h>
 #include "widget.h"
 #include "../event/event.h"

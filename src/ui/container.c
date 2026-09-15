@@ -4,8 +4,6 @@
 #include "../../include/ui/button.h"
 #include "../../vendored/stb/stb_ds.h"
 
-#include <stdio.h>
-
 Container* container_create(
     float x, float y, 
     int width, int height, 

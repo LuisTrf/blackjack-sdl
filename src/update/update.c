@@ -9,6 +9,7 @@
 #include "../../include/audio_types.h"
 #include "../../include/event/event.h"
 #include "../../include/ui/button_constants.h"
+#include "../../include/update/animation.h"
 #include "../../include/main.h"
 
 void update_delta_time(Uint64 *previous_frametime, float *delta_time){
@@ -639,7 +640,7 @@ void update(AppState *as){
         }
         event_listeners_notify_all(&as->event_listeners, event, dependencies);
     }
-    animate(as->anim_queue, as->anim_pool, as->event_queue, as->delta_time);
+    animate(as);
     while (!event_queue_empty(as->event_queue)){
         Event event = event_dequeue(as->event_queue);
         void *dependencies = NULL;

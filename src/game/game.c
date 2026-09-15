@@ -4,14 +4,7 @@
 
 #include "../../vendored/stb/stb_ds.h"
 #include "../../include/game/card_constants.h"
-#include "../../include/game/game_constants.h"
-#include "../../include/ui/button_constants.h"
 #include "../../include/game/game.h"
-
-/*
-RULES
-Hits maximum 12 times AAAA22223333, 22 which is bust.
-*/
 
 const char SUITS[4] = {'C', 'D', 'H', 'S'};
 const char RANKS[13] = {'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'};

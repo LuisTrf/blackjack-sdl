@@ -48,5 +48,3 @@ file(GLOB SOURCES
 
 add_executable(main ${SOURCES})
 target_link_libraries(main PRIVATE SDL3::SDL3 SDL3_ttf::SDL3_ttf SDL3_mixer::SDL3_mixer)
-
-file(COPY "${PROJECT_SOURCE_DIR}/resources" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")

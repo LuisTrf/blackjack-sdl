@@ -13,7 +13,6 @@
 #include "../../include/ui/spritebox.h"
 #include "../../include/ui/button.h"
 #include "../../include/ui/label.h"
-#include "../../include/game/game.h"
 #include "../../include/game/card_constants.h"
 #include "../../include/game/game_constants.h"
 #include "../../include/render/render.h"
@@ -29,8 +28,8 @@ TTF_Font* render_load_font_from_ttf(char* filepath){
 
 font_hash* font_map_create(void){
     font_hash* font_map = NULL;
-    hmput(font_map, FONT_ID_OPENSANS_32PT, render_load_font_from_ttf("resources/font/OpenSans-VariableFont_wdth,wght.ttf"));
-    hmput(font_map, FONT_ID_OPENSANS_ITALIC_32PT, render_load_font_from_ttf("resources/font/OpenSans-Italic-VariableFont_wdth,wght.ttf"));
+    hmput(font_map, FONT_ID_OPENSANS_32PT, render_load_font_from_ttf("../resources/font/OpenSans-VariableFont_wdth,wght.ttf"));
+    hmput(font_map, FONT_ID_OPENSANS_ITALIC_32PT, render_load_font_from_ttf("../resources/font/OpenSans-Italic-VariableFont_wdth,wght.ttf"));
     return font_map;
 }
 
@@ -44,6 +43,9 @@ void font_map_destroy(font_hash* font_map){
 
 SDL_Texture* render_load_texture_from_png(SDL_Renderer *renderer, char* filepath){
     SDL_Surface *surface = SDL_LoadPNG(filepath);
+    if (surface == NULL) {
+        fprintf(stderr, "FAILED TO LOAD SURFACE: %s\n", SDL_GetError());
+    }
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_DestroySurface(surface);
     return texture;
@@ -66,41 +68,41 @@ void rerender_font_texture(SDL_Renderer *renderer, texture_hash* texture_map, fo
 
 texture_hash* texture_map_create(SDL_Renderer *renderer, font_hash* font_map){
     texture_hash* texture_map = NULL;
-    hmput(texture_map, TEXTURE_ID_BACKGROUND, render_load_texture_from_png(renderer, "resources/bg.png"));
-    hmput(texture_map, TEXTURE_ID_CARD_SPRITESHEET, render_load_texture_from_png(renderer, "resources/cards.png"));
-    hmput(texture_map, TEXTURE_ID_DEAL_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/deal_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_HIT_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/hit_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_STAND_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/stand_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_BET_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/bet_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_WHITE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/white1_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_RED_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/red5_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_BLUE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/blue10_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_GREEN_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/green25_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_BLACK_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/black100_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_PURPLE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/purple500_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_YELLOW_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/yellow1k_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_ORANGE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/orange5k_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_REDBLUE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/redblue25k_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_GOLD_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/gold100k_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_BACKGROUND, render_load_texture_from_png(renderer, "../resources/bg.png"));
+    hmput(texture_map, TEXTURE_ID_CARD_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/cards.png"));
+    hmput(texture_map, TEXTURE_ID_DEAL_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/deal_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_HIT_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/hit_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_STAND_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/stand_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_BET_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/bet_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_WHITE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/white1_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_RED_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/red5_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_BLUE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/blue10_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_GREEN_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/green25_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_BLACK_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/black100_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_PURPLE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/purple500_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_YELLOW_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/yellow1k_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_ORANGE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/orange5k_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_REDBLUE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/redblue25k_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_GOLD_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/gold100k_spritesheet.png"));
     hmput(texture_map, TEXTURE_ID_LABEL_DEALER_HAND, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
     hmput(texture_map, TEXTURE_ID_LABEL_PLAYER_HAND, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
     hmput(texture_map, TEXTURE_ID_LABEL_PLAYER_MONEY, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
     hmput(texture_map, TEXTURE_ID_LABEL_PLAYER_BET, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
-    hmput(texture_map, TEXTURE_ID_WHITE_CHEQUE, render_load_texture_from_png(renderer, "resources/cheque/white1.png"));
-    hmput(texture_map, TEXTURE_ID_RED_CHEQUE, render_load_texture_from_png(renderer, "resources/cheque/red5.png"));
-    hmput(texture_map, TEXTURE_ID_BLUE_CHEQUE, render_load_texture_from_png(renderer, "resources/cheque/blue10.png"));
-    hmput(texture_map, TEXTURE_ID_GREEN_CHEQUE, render_load_texture_from_png(renderer, "resources/cheque/green25.png"));
-    hmput(texture_map, TEXTURE_ID_BLACK_CHEQUE, render_load_texture_from_png(renderer, "resources/cheque/black100.png"));
-    hmput(texture_map, TEXTURE_ID_PURPLE_CHEQUE, render_load_texture_from_png(renderer, "resources/cheque/purple500.png"));
-    hmput(texture_map, TEXTURE_ID_YELLOW_CHEQUE, render_load_texture_from_png(renderer, "resources/cheque/yellow1k.png"));
-    hmput(texture_map, TEXTURE_ID_ORANGE_CHEQUE, render_load_texture_from_png(renderer, "resources/cheque/orange5k.png"));
-    hmput(texture_map, TEXTURE_ID_REDBLUE_CHEQUE, render_load_texture_from_png(renderer, "resources/cheque/redblue25k.png"));
-    hmput(texture_map, TEXTURE_ID_GOLD_CHEQUE, render_load_texture_from_png(renderer, "resources/cheque/gold100k.png"));
-    hmput(texture_map, TEXTURE_ID_ARROW_SPRITESHEET, render_load_texture_from_png(renderer, "resources/arrow_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_SPLIT_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/split_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_WHITE_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/white1.png"));
+    hmput(texture_map, TEXTURE_ID_RED_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/red5.png"));
+    hmput(texture_map, TEXTURE_ID_BLUE_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/blue10.png"));
+    hmput(texture_map, TEXTURE_ID_GREEN_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/green25.png"));
+    hmput(texture_map, TEXTURE_ID_BLACK_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/black100.png"));
+    hmput(texture_map, TEXTURE_ID_PURPLE_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/purple500.png"));
+    hmput(texture_map, TEXTURE_ID_YELLOW_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/yellow1k.png"));
+    hmput(texture_map, TEXTURE_ID_ORANGE_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/orange5k.png"));
+    hmput(texture_map, TEXTURE_ID_REDBLUE_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/redblue25k.png"));
+    hmput(texture_map, TEXTURE_ID_GOLD_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/gold100k.png"));
+    hmput(texture_map, TEXTURE_ID_ARROW_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/arrow_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_SPLIT_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/split_spritesheet.png"));
     hmput(texture_map, TEXTURE_ID_LABEL_SPLIT_PLAYER_HAND, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
-    hmput(texture_map, TEXTURE_ID_INSURANCE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/insurance_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_DOUBLE_DOWN_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "resources/button/doubledown_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_INSURANCE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/insurance_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_DOUBLE_DOWN_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/doubledown_spritesheet.png"));
     return texture_map;
 }
 

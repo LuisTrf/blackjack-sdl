@@ -1,4 +1,3 @@
-#include <SDL3/SDL.h>
 #include <stdlib.h>
 #include "../../vendored/stb/stb_ds.h"
 #include "../../include/event/event.h"

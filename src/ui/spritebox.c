@@ -1,10 +1,7 @@
-#include <SDL3/SDL.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include "../../include/ui/spritebox_constants.h"
 #include "../../include/ui/spritebox.h"
-
-#include <stdio.h>
 
 SpriteBox* spritebox_create(
     float x, float y, 

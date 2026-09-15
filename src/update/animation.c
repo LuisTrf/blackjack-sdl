@@ -247,15 +247,15 @@ void animate_from_pool(AnimationPool *anim_pool, EventQueue *event_queue, float 
     }
 }
 
-void animate(AnimationQueue *anim_queue, AnimationPool *anim_pool, EventQueue *event_queue, float delta_time){
+void animate(AppState *as){
     animate_from_queue(
-        anim_queue, 
-        event_queue, 
-        delta_time
+        as->anim_queue, 
+        as->event_queue, 
+        as->delta_time
     );
     animate_from_pool(
-        anim_pool, 
-        event_queue,
-        delta_time
+        as->anim_pool, 
+        as->event_queue,
+        as->delta_time
     );
 }
