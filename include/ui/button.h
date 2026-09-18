@@ -23,8 +23,9 @@ typedef struct Button {
 
 Button* button_create(
     float x, float y, 
-    int width, int height, 
-    bool visible, 
+    int width, int height,
+    int sprite_width, int sprite_height, 
+    bool visible,
     EventType release_eventtype, 
     BUTTON_STATE button_state_initial, 
     TEXTURE_ID tid

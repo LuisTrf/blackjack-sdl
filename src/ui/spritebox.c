@@ -6,6 +6,7 @@
 SpriteBox* spritebox_create(
     float x, float y, 
     int width, int height, 
+    int sprite_width, int sprite_height, 
     bool visible, 
     TEXTURE_ID tid, 
     int spritesheet_x, int spritesheet_y
@@ -16,6 +17,8 @@ SpriteBox* spritebox_create(
                 .pos={.x=x, .y=y}, 
                 .width=width, 
                 .height=height, 
+                .sprite_width=sprite_width,
+                .sprite_height=sprite_height,
                 .visible=visible, 
             },
             WIDGET_SPRITEBOX,

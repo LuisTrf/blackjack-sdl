@@ -10,7 +10,7 @@ const char SUITS[4] = {'C', 'D', 'H', 'S'};
 const char RANKS[13] = {'2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'};
 const int RANK_VALUES[13] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11};
 
-Player* player_create(void){
+Player* game_player_create(void){
     Player player = {
         {NULL}, 
         0, 
@@ -34,11 +34,11 @@ Player* player_create(void){
     return p_player;
 }
 
-void player_destroy(Player *player){
+void game_player_destroy(Player *player){
     free(player);
 }
 
-Dealer* dealer_create(void){
+Dealer* game_dealer_create(void){
     Dealer dealer = {
         {NULL},
         0,
@@ -53,11 +53,11 @@ Dealer* dealer_create(void){
     return p_dealer;
 }
 
-void dealer_destroy(Dealer *dealer){
+void game_dealer_destroy(Dealer *dealer){
     free(dealer);
 }
 
-Card* deck_create(void){
+Card* game_deck_create(void){
     Card* deck = calloc(52, sizeof(Card));
     if (deck == NULL){
         abort();
@@ -72,6 +72,8 @@ Card* deck_create(void){
                     },
                     .width=CARD_WIDTH,
                     .height=CARD_HEIGHT,
+                    .sprite_width=CARD_WIDTH,
+                    .sprite_height=CARD_HEIGHT,
                     .visible=true,
                 },
                 .suit=SUITS[s], 
@@ -87,11 +89,11 @@ Card* deck_create(void){
     return deck;
 }
 
-void deck_destroy(Card* deck){
+void game_deck_destroy(Card* deck){
     free(deck);
 }
 
-ChequeRingBuffer* cheque_ring_buffer_create(int size){
+ChequeRingBuffer* game_cheque_ring_buffer_create(int size){
     Cheque *arr = calloc(size, sizeof(Cheque));
     if (arr == NULL){
         abort();
@@ -105,20 +107,21 @@ ChequeRingBuffer* cheque_ring_buffer_create(int size){
     return p_crb;
 }
 
-void cheque_ring_buffer_destroy(ChequeRingBuffer *cheque_ring_buffer){
+void game_cheque_ring_buffer_destroy(ChequeRingBuffer *cheque_ring_buffer){
+    free(cheque_ring_buffer->arr);
     free(cheque_ring_buffer);
 }
 
-bool cheque_ring_buffer_full(ChequeRingBuffer *cheque_ring_buffer){
+bool game_cheque_ring_buffer_full(ChequeRingBuffer *cheque_ring_buffer){
     return cheque_ring_buffer->count == cheque_ring_buffer->size;
 }
 
-bool cheque_ring_buffer_empty(ChequeRingBuffer *cheque_ring_buffer){
+bool game_cheque_ring_buffer_empty(ChequeRingBuffer *cheque_ring_buffer){
     return cheque_ring_buffer->count == 0;
 }
 
-void cheque_ring_buffer_enqueue(ChequeRingBuffer *cheque_ring_buffer, Cheque cheque){
-    if (cheque_ring_buffer_full(cheque_ring_buffer)){
+void game_cheque_ring_buffer_enqueue(ChequeRingBuffer *cheque_ring_buffer, Cheque cheque){
+    if (game_cheque_ring_buffer_full(cheque_ring_buffer)){
         return;
     }
     cheque_ring_buffer->arr[cheque_ring_buffer->tail] = cheque;
@@ -126,8 +129,8 @@ void cheque_ring_buffer_enqueue(ChequeRingBuffer *cheque_ring_buffer, Cheque che
     ++cheque_ring_buffer->count;
 }
 
-Cheque cheque_ring_buffer_dequeue(ChequeRingBuffer *cheque_ring_buffer){
-    if (cheque_ring_buffer_empty(cheque_ring_buffer)){
+Cheque game_cheque_ring_buffer_dequeue(ChequeRingBuffer *cheque_ring_buffer){
+    if (game_cheque_ring_buffer_empty(cheque_ring_buffer)){
         return (Cheque){{0, 0, 0, 0, false}, _CHEQUE_VALUE_NONE, TEXTURE_ID_NULL};
     }
     Cheque cheque = cheque_ring_buffer->arr[cheque_ring_buffer->head];
@@ -136,100 +139,16 @@ Cheque cheque_ring_buffer_dequeue(ChequeRingBuffer *cheque_ring_buffer){
     return cheque;
 }
 
-cheque_data_hash* cheque_data_map_create(void){
-    cheque_data_hash* cheque_data_map = NULL;
-    cheque_data cdata = {
-        TEXTURE_ID_WHITE_CHEQUE, 
-        TEXTURE_ID_WHITE_BUTTON_SPRITESHEET,
-        CHIP_BUTTON_X(0),
-        CHIP_BUTTON_Y(0)
-    };
-    hmput(cheque_data_map, CHEQUE_VALUE_ONE, cdata);
-    cdata = (cheque_data){
-        TEXTURE_ID_RED_CHEQUE, 
-        TEXTURE_ID_RED_BUTTON_SPRITESHEET,
-        CHIP_BUTTON_X(1),
-        CHIP_BUTTON_Y(1)
-    };
-    hmput(cheque_data_map, CHEQUE_VALUE_FIVE, cdata);
-    cdata = (cheque_data){
-        TEXTURE_ID_BLUE_CHEQUE, 
-        TEXTURE_ID_BLUE_BUTTON_SPRITESHEET,
-        CHIP_BUTTON_X(2),
-        CHIP_BUTTON_Y(2)
-    };
-    hmput(cheque_data_map, CHEQUE_VALUE_TEN, cdata);
-    cdata = (cheque_data){
-        TEXTURE_ID_GREEN_CHEQUE, 
-        TEXTURE_ID_GREEN_BUTTON_SPRITESHEET,
-        CHIP_BUTTON_X(3),
-        CHIP_BUTTON_Y(3)
-    };
-    hmput(cheque_data_map, CHEQUE_VALUE_TWENTY_FIVE, cdata);
-    cdata = (cheque_data){
-        TEXTURE_ID_BLACK_CHEQUE, 
-        TEXTURE_ID_BLACK_BUTTON_SPRITESHEET,
-        CHIP_BUTTON_X(4),
-        CHIP_BUTTON_Y(4)
-    };
-    hmput(cheque_data_map, CHEQUE_VALUE_HUNDRED, cdata);
-    cdata = (cheque_data){
-        TEXTURE_ID_PURPLE_CHEQUE, 
-        TEXTURE_ID_PURPLE_BUTTON_SPRITESHEET,
-        CHIP_BUTTON_X(5),
-        CHIP_BUTTON_Y(5)
-    };
-    hmput(cheque_data_map, CHEQUE_VALUE_FIVE_HUNDRED, cdata);
-    cdata = (cheque_data){
-        TEXTURE_ID_YELLOW_CHEQUE, 
-        TEXTURE_ID_YELLOW_BUTTON_SPRITESHEET,
-        CHIP_BUTTON_X(6),
-        CHIP_BUTTON_Y(6)
-    };
-    hmput(cheque_data_map, CHEQUE_VALUE_ONE_K, cdata);
-    cdata = (cheque_data){
-        TEXTURE_ID_ORANGE_CHEQUE, 
-        TEXTURE_ID_ORANGE_BUTTON_SPRITESHEET,
-        CHIP_BUTTON_X(7),
-        CHIP_BUTTON_Y(7)
-    };
-    hmput(cheque_data_map, CHEQUE_VALUE_FIVE_K, cdata);
-    cdata = (cheque_data){
-        TEXTURE_ID_REDBLUE_CHEQUE, 
-        TEXTURE_ID_REDBLUE_BUTTON_SPRITESHEET,
-        CHIP_BUTTON_X(8),
-        CHIP_BUTTON_Y(8)
-    };
-    hmput(cheque_data_map, CHEQUE_VALUE_TWENTY_FIVE_K, cdata);
-    cdata = (cheque_data){
-        TEXTURE_ID_GOLD_CHEQUE, 
-        TEXTURE_ID_GOLD_BUTTON_SPRITESHEET,
-        CHIP_BUTTON_X(9),
-        CHIP_BUTTON_Y(9)
-    };
-    hmput(cheque_data_map, CHEQUE_VALUE_HUNDRED_K, cdata);
-    return cheque_data_map;
-}
-
-void cheque_data_map_destroy(cheque_data_hash *cheque_data_map){
-    hmfree(cheque_data_map);
-}
-
 GameContext* game_context_create(void){
     GameContext game_ctx = {
         _GAME_STATE_NONE,
         _GAME_STATE_NONE,
-        cheque_ring_buffer_create(MAXIMUM_ALIVE_CHEQUES),
-        cheque_data_map_create(),
-        deck_create(),
-        malloc(sizeof(int)),
-        dealer_create(),
-        player_create(),
+        game_cheque_ring_buffer_create(MAXIMUM_ALIVE_CHEQUES),
+        game_deck_create(),
+        51,
+        game_dealer_create(),
+        game_player_create(),
     };
-    if (game_ctx.deck_top_index_ptr == NULL){
-        abort();
-    }
-    *game_ctx.deck_top_index_ptr = 51;
     GameContext *p_game_ctx = malloc(sizeof(GameContext));
     if (p_game_ctx == NULL){
         abort();
@@ -239,15 +158,14 @@ GameContext* game_context_create(void){
 }
 
 void game_context_destroy(GameContext *game_ctx){
-    dealer_destroy(game_ctx->dealer);
+    game_dealer_destroy(game_ctx->dealer);
     game_ctx->dealer = NULL;
-    player_destroy(game_ctx->player);
+    game_player_destroy(game_ctx->player);
     game_ctx->player = NULL;
-    free(game_ctx->deck_top_index_ptr);
-    deck_destroy(game_ctx->deck);
+    game_deck_destroy(game_ctx->deck);
     game_ctx->deck = NULL;
-    cheque_data_map_destroy(game_ctx->cheque_data_map);
-    cheque_ring_buffer_destroy(game_ctx->cheque_ring_buffer);
+    game_cheque_ring_buffer_destroy(game_ctx->cheque_ring_buffer);
+    game_ctx->cheque_ring_buffer = NULL;
     free(game_ctx);
 }
 
@@ -264,8 +182,8 @@ void game_context_set_game_state(GameContext *game_ctx, GAME_STATE state){
     game_ctx->game_state = state;
 }
 
-void deck_shuffle(Card *deck, int *deck_top_index_ptr){
-    for (int i = *deck_top_index_ptr; i > 0; i--){
+void game_deck_shuffle(Card *deck, int* p_deck_top_index){
+    for (int i = *p_deck_top_index; i > 0; i--){
         int j = rand()%(i+1);
         Card temp = deck[j];
         deck[j] = deck[i];
@@ -277,17 +195,17 @@ void deck_shuffle(Card *deck, int *deck_top_index_ptr){
     }
 }
 
-bool is_deck_empty(int deck_top_index){
-    return (deck_top_index == -1);
+bool game_is_deck_empty(int* p_deck_top_index){
+    return (*p_deck_top_index == -1);
 }
 
-bool is_deck_full(int deck_top_index){
-    return (deck_top_index == 51);
+bool game_is_deck_full(int* p_deck_top_index){
+    return (*p_deck_top_index == 51);
 }
 
-Card* draw(Card *deck, int *deck_top_index){
-    if (!is_deck_empty(*deck_top_index)){
-        Card *c = &deck[(*deck_top_index)--];
+Card* game_draw(Card *deck, int *p_deck_top_index){
+    if (!game_is_deck_empty(p_deck_top_index)){
+        Card *c = &deck[(*p_deck_top_index)--];
         return c;
     }
     else {
@@ -295,10 +213,10 @@ Card* draw(Card *deck, int *deck_top_index){
     }
 }
 
-Card* draw_random_card(Card *deck, int *deck_top_index){
+Card* game_draw_random_card(Card *deck, int *p_deck_top_index){
     Card *c;
     do{
-        c = &deck[rand()%(*deck_top_index-1)];
+        c = &deck[rand()%(*p_deck_top_index-1)];
     } while (c->location!=CARD_LOCATION_DECK);
     return c;
 }
@@ -310,8 +228,8 @@ void game_reset_dealer(GameContext *game_ctx){
         int cindex = dealer->cards_in_hand - 1;
         dhand[cindex]->location = CARD_LOCATION_DECK;
         dhand[cindex]->face_down = true;
-        dhand[cindex]->rect.pos.x = DECK_ORIGIN_X - (51 - *game_ctx->deck_top_index_ptr);
-        dhand[cindex]->rect.pos.y = DECK_ORIGIN_Y + (51 - *game_ctx->deck_top_index_ptr);
+        dhand[cindex]->rect.pos.x = DECK_ORIGIN_X - (51 - game_ctx->deck_top_index);
+        dhand[cindex]->rect.pos.y = DECK_ORIGIN_Y + (51 - game_ctx->deck_top_index);
         dhand[cindex] = NULL;
     }
     dealer->hand_value = 0;
@@ -325,8 +243,8 @@ void game_reset_player(GameContext *game_ctx){
         int cindex = player->cards_in_hand - 1;
         phand[cindex]->location = CARD_LOCATION_DECK;
         phand[cindex]->face_down = true;
-        phand[cindex]->rect.pos.x = DECK_ORIGIN_X - (51 - *game_ctx->deck_top_index_ptr);
-        phand[cindex]->rect.pos.y = DECK_ORIGIN_Y + (51 - *game_ctx->deck_top_index_ptr);
+        phand[cindex]->rect.pos.x = DECK_ORIGIN_X - (51 - game_ctx->deck_top_index);
+        phand[cindex]->rect.pos.y = DECK_ORIGIN_Y + (51 - game_ctx->deck_top_index);
         phand[cindex] = NULL;
     }
     player->hand_value = 0;
@@ -336,8 +254,8 @@ void game_reset_player(GameContext *game_ctx){
         int cindex = player->cards_in_split_hand - 1;
         split_phand[cindex]->location = CARD_LOCATION_DECK;
         split_phand[cindex]->face_down = true;
-        split_phand[cindex]->rect.pos.x = DECK_ORIGIN_X - (51 - *game_ctx->deck_top_index_ptr);
-        split_phand[cindex]->rect.pos.y = DECK_ORIGIN_Y + (51 - *game_ctx->deck_top_index_ptr);
+        split_phand[cindex]->rect.pos.x = DECK_ORIGIN_X - (51 - game_ctx->deck_top_index);
+        split_phand[cindex]->rect.pos.y = DECK_ORIGIN_Y + (51 - game_ctx->deck_top_index);
         split_phand[cindex] = NULL;
     }
     player->split_hand_value = 0;
@@ -353,7 +271,7 @@ void game_reset_player(GameContext *game_ctx){
 void game_reset(GameContext *game_ctx){
     game_reset_dealer(game_ctx);
     game_reset_player(game_ctx);
-    *game_ctx->deck_top_index_ptr = 51;
+    game_ctx->deck_top_index = 51;
 }
 
 bool bust(int hand_value){
@@ -368,7 +286,7 @@ bool can_hit(int cards_in_hand, int hand_value){
     return cards_in_hand < 12 && hand_value < 21;
 }
 
-bool dealer_is_hiding_second_card(Dealer *dealer){
+bool game_dealer_is_hiding_second_card(Dealer *dealer){
     if (dealer->hand[1] != NULL){
         return dealer->hand[1]->face_down;
     }
@@ -377,23 +295,23 @@ bool dealer_is_hiding_second_card(Dealer *dealer){
     }
 }
 
-bool is_second_dealer_card(Dealer *dealer, Card *card){
+bool game_card_is_second_dealer_card(Dealer *dealer, Card *card){
     return (card == dealer->hand[1]);
 }
 
-void dealer_reveal_second_card(Dealer *dealer){
+void game_dealer_reveal_second_card(Dealer *dealer){
     dealer->hand[1]->face_down = false;
 }
 
-void flip_card(Card *card, bool is_second_dealer_card, bool dealer_is_hiding_second_card){
+void game_flip_card(Card *card, bool is_second_dealer_card, bool dealer_is_hiding_second_card){
     if (!is_second_dealer_card || !dealer_is_hiding_second_card){
         card->face_down = false;
     }
 }
 
-Card* dealer_hit(Card *deck, int *deck_top_index_ptr, Dealer *dealer){
+Card* game_dealer_hit(Card *deck, int *p_deck_top_index, Dealer *dealer){
     if (can_hit(dealer->cards_in_hand, dealer->hand_value)){
-        Card *c = draw(deck, deck_top_index_ptr);
+        Card *c = game_draw(deck, p_deck_top_index);
         c->location = CARD_LOCATION_DEALER_HAND;
 
         dealer->hand[dealer->cards_in_hand] = c;
@@ -415,9 +333,9 @@ Card* dealer_hit(Card *deck, int *deck_top_index_ptr, Dealer *dealer){
     }
 }
 
-Card* player_hit(Card *deck, int *deck_top_index_ptr, Player *player){
+Card* game_player_hit(Card *deck, int *p_deck_top_index, Player *player){
     if (can_hit(player->cards_in_hand, player->hand_value)){
-        Card *c = draw(deck, deck_top_index_ptr);
+        Card *c = game_draw(deck, p_deck_top_index);
         c->location = CARD_LOCATION_PLAYER_HAND;
         
         player->hand[player->cards_in_hand] = c;
@@ -439,9 +357,9 @@ Card* player_hit(Card *deck, int *deck_top_index_ptr, Player *player){
     }
 }
 
-Card* player_hit_split(Card *deck, int *deck_top_index_ptr, Player *player){
+Card* game_player_hit_split(Card *deck, int *p_deck_top_index, Player *player){
     if (can_hit(player->cards_in_split_hand, player->split_hand_value)){
-        Card *c = draw(deck, deck_top_index_ptr);
+        Card *c = game_draw(deck, p_deck_top_index);
         c->location = CARD_LOCATION_PLAYER_SPLIT_HAND;
         
         player->split_hand[player->cards_in_split_hand] = c;
@@ -463,17 +381,17 @@ Card* player_hit_split(Card *deck, int *deck_top_index_ptr, Player *player){
     }
 }
 
-bool player_is_bet_history_empty(Player *player){
+bool game_player_is_bet_history_empty(Player *player){
     return (player->bet_count == 0);
 }
 
-void player_bet_push(Player *player, CHEQUE_VALUE val){
+void game_player_bet_push(Player *player, CHEQUE_VALUE val){
     player->bet += arrput(player->bet_stack, val);
     player->bet_count++;
 }
 
-CHEQUE_VALUE player_bet_pop(Player *player){
-    if (!player_is_bet_history_empty(player)){
+CHEQUE_VALUE game_player_bet_pop(Player *player){
+    if (!game_player_is_bet_history_empty(player)){
         CHEQUE_VALUE val = arrpop(player->bet_stack);
         player->bet -= val;
         player->bet_count--;
@@ -484,8 +402,8 @@ CHEQUE_VALUE player_bet_pop(Player *player){
     }
 }
 
-CHEQUE_VALUE player_bet_peek(Player *player){
-    if (!player_is_bet_history_empty(player)){
+CHEQUE_VALUE game_player_bet_peek(Player *player){
+    if (!game_player_is_bet_history_empty(player)){
         return player->bet_stack[player->bet_count-1];
     }
     else {
@@ -493,15 +411,15 @@ CHEQUE_VALUE player_bet_peek(Player *player){
     }
 }
 
-bool player_can_bet(Player *player){
+bool game_player_can_bet(Player *player){
     return player->money >= CHEQUE_VALUE_ONE;
 }
 
-bool player_can_double_down(Player *player){
+bool game_player_can_double_down(Player *player){
     return player->money >= player->bet;
 }
 
-bool can_insure(Dealer *dealer){
+bool game_can_insure(Dealer *dealer){
     if (dealer->hand[0] != NULL){
         return dealer->hand[0]->rank == 'A';
     }

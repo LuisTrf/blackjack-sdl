@@ -15,7 +15,9 @@
 
 Button* widget_deal_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
     Button *deal_button = button_create(
-        462.f, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT, 
+        462.f, MOVE_BUTTON_ORIGIN_Y, 
+        MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT, 
+        MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         true,
         INPUT_EVENT_BUTTON_RELEASE_DEAL,
         BUTTON_STATE_IDLE, 
@@ -34,7 +36,9 @@ Button* widget_deal_button_initialize(InputListener **input_listeners, EventList
 
 Button* widget_hit_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
     Button *hit_button = button_create(
-        0.f, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        0.f, MOVE_BUTTON_ORIGIN_Y, 
+        MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         false, 
         INPUT_EVENT_BUTTON_RELEASE_HIT,
         BUTTON_STATE_DISABLED,
@@ -53,7 +57,9 @@ Button* widget_hit_button_initialize(InputListener **input_listeners, EventListe
 
 Button* widget_stand_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
     Button *stand_button = button_create(
-        0.f, MOVE_BUTTON_ORIGIN_Y, MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        0.f, MOVE_BUTTON_ORIGIN_Y, 
+        MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         false, 
         INPUT_EVENT_BUTTON_RELEASE_STAND,
         BUTTON_STATE_DISABLED,
@@ -73,6 +79,7 @@ Button* widget_stand_button_initialize(InputListener **input_listeners, EventLis
 Button *widget_bet_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
     Button *bet_button = button_create(
         640.f, MOVE_BUTTON_ORIGIN_Y,
+        MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         true,
         INPUT_EVENT_BUTTON_RELEASE_BET,
@@ -94,6 +101,7 @@ Button *widget_split_button_initialize(InputListener **input_listeners, EventLis
     Button *split_button = button_create(
         0.f, MOVE_BUTTON_ORIGIN_Y,
         MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         false,
         INPUT_EVENT_BUTTON_RELEASE_SPLIT,
         BUTTON_STATE_DISABLED,
@@ -114,6 +122,7 @@ Button *widget_double_down_button_initialize(InputListener **input_listeners, Ev
     Button *double_down_button = button_create(
         0.f, MOVE_BUTTON_ORIGIN_Y,
         MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
+        MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         false,
         INPUT_EVENT_BUTTON_RELEASE_DOUBLE_DOWN,
         BUTTON_STATE_DISABLED,
@@ -133,6 +142,7 @@ Button *widget_double_down_button_initialize(InputListener **input_listeners, Ev
 Button *widget_insurance_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
     Button *insurance_button = button_create(
         0.f, MOVE_BUTTON_ORIGIN_Y,
+        MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         MOVE_BUTTON_WIDTH, MOVE_BUTTON_HEIGHT,
         false, 
         INPUT_EVENT_BUTTON_RELEASE_INSURANCE,
@@ -180,6 +190,7 @@ Button* widget_stack_button_initialize(InputListener **input_listeners, EventLis
     Button *stack_button = button_create(
         STACK_BUTTON_ORIGIN_X, STACK_BUTTON_ORIGIN_Y,
         CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         false,
         INPUT_EVENT_BUTTON_RELEASE_STACK,
         BUTTON_STATE_DISABLED,
@@ -196,9 +207,10 @@ Button* widget_stack_button_initialize(InputListener **input_listeners, EventLis
     return stack_button;
 }
 
-Button* widget_white_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+Button* widget_white_button_initialize(InputListener **input_listeners, EventListener **event_listeners, cheque_data_hash** p_cheque_data_map){
     Button *white_button = button_create(
         CHIP_BUTTON_X(0), CHIP_BUTTON_Y(0),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         false,
         INPUT_EVENT_BUTTON_RELEASE_WHITE,
@@ -213,12 +225,20 @@ Button* widget_white_button_initialize(InputListener **input_listeners, EventLis
         event_listeners,
         (EventListener){(void *)white_button, button_notify_white}
     );
+    cheque_data cdata = {
+        TEXTURE_ID_WHITE_CHEQUE,
+        TEXTURE_ID_WHITE_BUTTON_SPRITESHEET,
+        &white_button->widget.rect.pos.x,
+        &white_button->widget.rect.pos.y
+    };
+    hmput(*p_cheque_data_map, CHEQUE_VALUE_ONE, cdata);
     return white_button;
 }
 
-Button* widget_red_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+Button* widget_red_button_initialize(InputListener **input_listeners, EventListener **event_listeners, cheque_data_hash** p_cheque_data_map){
     Button *red_button = button_create(
         CHIP_BUTTON_X(1), CHIP_BUTTON_Y(1),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         false,
         INPUT_EVENT_BUTTON_RELEASE_RED,
@@ -233,12 +253,20 @@ Button* widget_red_button_initialize(InputListener **input_listeners, EventListe
         event_listeners,
         (EventListener){(void *)red_button, button_notify_red}
     );
+    cheque_data cdata = {
+        TEXTURE_ID_RED_CHEQUE,
+        TEXTURE_ID_RED_BUTTON_SPRITESHEET,
+        &red_button->widget.rect.pos.x,
+        &red_button->widget.rect.pos.y
+    };
+    hmput(*p_cheque_data_map, CHEQUE_VALUE_FIVE, cdata);
     return red_button;
 }
 
-Button* widget_blue_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+Button* widget_blue_button_initialize(InputListener **input_listeners, EventListener **event_listeners, cheque_data_hash** p_cheque_data_map){
     Button *blue_button = button_create(
         CHIP_BUTTON_X(2), CHIP_BUTTON_Y(2),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         false,
         INPUT_EVENT_BUTTON_RELEASE_BLUE,
@@ -253,12 +281,20 @@ Button* widget_blue_button_initialize(InputListener **input_listeners, EventList
         event_listeners,
         (EventListener){(void *)blue_button, button_notify_blue}
     );
+    cheque_data cdata = {
+        TEXTURE_ID_BLUE_CHEQUE,
+        TEXTURE_ID_BLUE_BUTTON_SPRITESHEET,
+        &blue_button->widget.rect.pos.x,
+        &blue_button->widget.rect.pos.y
+    };
+    hmput(*p_cheque_data_map, CHEQUE_VALUE_TEN, cdata);
     return blue_button;
 }
 
-Button* widget_green_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+Button* widget_green_button_initialize(InputListener **input_listeners, EventListener **event_listeners, cheque_data_hash** p_cheque_data_map){
     Button *green_button = button_create(
         CHIP_BUTTON_X(3), CHIP_BUTTON_Y(3),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         false,
         INPUT_EVENT_BUTTON_RELEASE_GREEN,
@@ -273,12 +309,20 @@ Button* widget_green_button_initialize(InputListener **input_listeners, EventLis
         event_listeners,
         (EventListener){(void *)green_button, button_notify_green}
     );
+    cheque_data cdata = {
+        TEXTURE_ID_GREEN_CHEQUE,
+        TEXTURE_ID_GREEN_BUTTON_SPRITESHEET,
+        &green_button->widget.rect.pos.x,
+        &green_button->widget.rect.pos.y
+    };
+    hmput(*p_cheque_data_map, CHEQUE_VALUE_TWENTY_FIVE, cdata);
     return green_button;
 }
 
-Button* widget_black_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+Button* widget_black_button_initialize(InputListener **input_listeners, EventListener **event_listeners, cheque_data_hash** p_cheque_data_map){
     Button *black_button = button_create(
         CHIP_BUTTON_X(4), CHIP_BUTTON_Y(4),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         false,
         INPUT_EVENT_BUTTON_RELEASE_BLACK,
@@ -293,12 +337,20 @@ Button* widget_black_button_initialize(InputListener **input_listeners, EventLis
         event_listeners,
         (EventListener){(void *)black_button, button_notify_black}
     );
+    cheque_data cdata = {
+        TEXTURE_ID_BLACK_CHEQUE,
+        TEXTURE_ID_BLACK_BUTTON_SPRITESHEET,
+        &black_button->widget.rect.pos.x,
+        &black_button->widget.rect.pos.y
+    };
+    hmput(*p_cheque_data_map, CHEQUE_VALUE_HUNDRED, cdata);
     return black_button;
 }
 
-Button* widget_purple_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+Button* widget_purple_button_initialize(InputListener **input_listeners, EventListener **event_listeners, cheque_data_hash** p_cheque_data_map){
     Button *purple_button = button_create(
         CHIP_BUTTON_X(5), CHIP_BUTTON_Y(5),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         false,
         INPUT_EVENT_BUTTON_RELEASE_PURPLE,
@@ -313,12 +365,20 @@ Button* widget_purple_button_initialize(InputListener **input_listeners, EventLi
         event_listeners,
         (EventListener){(void *)purple_button, button_notify_purple}
     );
+    cheque_data cdata = {
+        TEXTURE_ID_PURPLE_CHEQUE,
+        TEXTURE_ID_PURPLE_BUTTON_SPRITESHEET,
+        &purple_button->widget.rect.pos.x,
+        &purple_button->widget.rect.pos.y
+    };
+    hmput(*p_cheque_data_map, CHEQUE_VALUE_FIVE_HUNDRED, cdata);
     return purple_button;
 }
 
-Button* widget_yellow_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+Button* widget_yellow_button_initialize(InputListener **input_listeners, EventListener **event_listeners, cheque_data_hash** p_cheque_data_map){
     Button *yellow_button = button_create(
         CHIP_BUTTON_X(6), CHIP_BUTTON_Y(6),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         false,
         INPUT_EVENT_BUTTON_RELEASE_YELLOW,
@@ -333,12 +393,20 @@ Button* widget_yellow_button_initialize(InputListener **input_listeners, EventLi
         event_listeners,
         (EventListener){(void *)yellow_button, button_notify_yellow}
     );
+    cheque_data cdata = {
+        TEXTURE_ID_YELLOW_CHEQUE,
+        TEXTURE_ID_YELLOW_BUTTON_SPRITESHEET,
+        &yellow_button->widget.rect.pos.x,
+        &yellow_button->widget.rect.pos.y
+    };
+    hmput(*p_cheque_data_map, CHEQUE_VALUE_ONE_K, cdata);
     return yellow_button;
 }
 
-Button* widget_orange_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+Button* widget_orange_button_initialize(InputListener **input_listeners, EventListener **event_listeners, cheque_data_hash** p_cheque_data_map){
     Button *orange_button = button_create(
         CHIP_BUTTON_X(7), CHIP_BUTTON_Y(7),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         false,
         INPUT_EVENT_BUTTON_RELEASE_ORANGE,
@@ -353,12 +421,20 @@ Button* widget_orange_button_initialize(InputListener **input_listeners, EventLi
         event_listeners,
         (EventListener){(void *)orange_button, button_notify_orange}
     );
+    cheque_data cdata = {
+        TEXTURE_ID_ORANGE_CHEQUE,
+        TEXTURE_ID_ORANGE_BUTTON_SPRITESHEET,
+        &orange_button->widget.rect.pos.x,
+        &orange_button->widget.rect.pos.y
+    };
+    hmput(*p_cheque_data_map, CHEQUE_VALUE_FIVE_K, cdata);
     return orange_button;
 }
 
-Button* widget_redblue_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+Button* widget_redblue_button_initialize(InputListener **input_listeners, EventListener **event_listeners, cheque_data_hash** p_cheque_data_map){
     Button *redblue_button = button_create(
         CHIP_BUTTON_X(8), CHIP_BUTTON_Y(8),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         false,
         INPUT_EVENT_BUTTON_RELEASE_REDBLUE,
@@ -373,12 +449,20 @@ Button* widget_redblue_button_initialize(InputListener **input_listeners, EventL
         event_listeners,
         (EventListener){(void *)redblue_button, button_notify_redblue}
     );
+    cheque_data cdata = {
+        TEXTURE_ID_REDBLUE_CHEQUE,
+        TEXTURE_ID_REDBLUE_BUTTON_SPRITESHEET,
+        &redblue_button->widget.rect.pos.x,
+        &redblue_button->widget.rect.pos.y
+    };
+    hmput(*p_cheque_data_map, CHEQUE_VALUE_TWENTY_FIVE_K, cdata);
     return redblue_button;
 }
 
-Button* widget_gold_button_initialize(InputListener **input_listeners, EventListener **event_listeners){
+Button* widget_gold_button_initialize(InputListener **input_listeners, EventListener **event_listeners, cheque_data_hash** p_cheque_data_map){
     Button *gold_button = button_create(
         CHIP_BUTTON_X(9), CHIP_BUTTON_Y(9),
+        CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         CHIP_BUTTON_WIDTH, CHIP_BUTTON_HEIGHT,
         false,
         INPUT_EVENT_BUTTON_RELEASE_GOLD,
@@ -393,35 +477,42 @@ Button* widget_gold_button_initialize(InputListener **input_listeners, EventList
         event_listeners,
         (EventListener){(void *)gold_button, button_notify_gold}
     );
+    cheque_data cdata = {
+        TEXTURE_ID_GOLD_CHEQUE,
+        TEXTURE_ID_GOLD_BUTTON_SPRITESHEET,
+        &gold_button->widget.rect.pos.x,
+        &gold_button->widget.rect.pos.y
+    };
+    hmput(*p_cheque_data_map, CHEQUE_VALUE_HUNDRED_K, cdata);
     return gold_button;
 }
 
-Container* ui_cheque_buttons_initialize(InputListener **input_listeners, EventListener **event_listeners){
+Container* ui_cheque_buttons_initialize(InputListener **input_listeners, EventListener **event_listeners, cheque_data_hash** p_cheque_data_map){
     Container *cheque_buttons = container_create(
         0, 0, WINDOW_WIDTH, WINDOW_HEIGHT,
         true
     );
     Button *stack_button = widget_stack_button_initialize(input_listeners, event_listeners);
     container_add_widget(cheque_buttons, (Widget *)stack_button);
-    Button *white_button = widget_white_button_initialize(input_listeners, event_listeners);
+    Button *white_button = widget_white_button_initialize(input_listeners, event_listeners, p_cheque_data_map);
     container_add_widget(cheque_buttons, (Widget *)white_button);
-    Button *red_button = widget_red_button_initialize(input_listeners, event_listeners);
+    Button *red_button = widget_red_button_initialize(input_listeners, event_listeners, p_cheque_data_map);
     container_add_widget(cheque_buttons, (Widget *)red_button);
-    Button *blue_button = widget_blue_button_initialize(input_listeners, event_listeners);
+    Button *blue_button = widget_blue_button_initialize(input_listeners, event_listeners, p_cheque_data_map);
     container_add_widget(cheque_buttons, (Widget *)blue_button);
-    Button *green_button = widget_green_button_initialize(input_listeners, event_listeners);
+    Button *green_button = widget_green_button_initialize(input_listeners, event_listeners, p_cheque_data_map);
     container_add_widget(cheque_buttons, (Widget *)green_button);
-    Button *black_button = widget_black_button_initialize(input_listeners, event_listeners);
+    Button *black_button = widget_black_button_initialize(input_listeners, event_listeners, p_cheque_data_map);
     container_add_widget(cheque_buttons, (Widget *)black_button);
-    Button *purple_button = widget_purple_button_initialize(input_listeners, event_listeners);
+    Button *purple_button = widget_purple_button_initialize(input_listeners, event_listeners, p_cheque_data_map);
     container_add_widget(cheque_buttons, (Widget *)purple_button);
-    Button *yellow_button = widget_yellow_button_initialize(input_listeners, event_listeners);
+    Button *yellow_button = widget_yellow_button_initialize(input_listeners, event_listeners, p_cheque_data_map);
     container_add_widget(cheque_buttons, (Widget *)yellow_button);
-    Button *orange_button = widget_orange_button_initialize(input_listeners, event_listeners);
+    Button *orange_button = widget_orange_button_initialize(input_listeners, event_listeners, p_cheque_data_map);
     container_add_widget(cheque_buttons, (Widget *)orange_button);
-    Button *redblue_button = widget_redblue_button_initialize(input_listeners, event_listeners);
+    Button *redblue_button = widget_redblue_button_initialize(input_listeners, event_listeners, p_cheque_data_map);
     container_add_widget(cheque_buttons, (Widget *)redblue_button);
-    Button *gold_button = widget_gold_button_initialize(input_listeners, event_listeners);
+    Button *gold_button = widget_gold_button_initialize(input_listeners, event_listeners, p_cheque_data_map);
     container_add_widget(cheque_buttons, (Widget *)gold_button);
     return cheque_buttons;
 }
@@ -530,6 +621,7 @@ SpriteBox* widget_arrow_initialize(AnimationPool *anim_pool, EventListener **eve
     SpriteBox *arrow = spritebox_create(
         0, 0, 
         64, 64,
+        32, 32,
         false,
         TEXTURE_ID_ARROW_SPRITESHEET,
         0, 0
@@ -556,7 +648,7 @@ Container* ui_root_initialize(AppState *as){
     Container *move_buttons = ui_move_buttons_initialize(&as->input_listeners, &as->event_listeners);
     container_add_widget(root, (Widget *)move_buttons);
 
-    Container *cheque_buttons = ui_cheque_buttons_initialize(&as->input_listeners, &as->event_listeners);
+    Container *cheque_buttons = ui_cheque_buttons_initialize(&as->input_listeners, &as->event_listeners, &as->cheque_data_map);
     container_add_widget(root, (Widget *)cheque_buttons);
 
     Container *labels = ui_labels_initialize(as->font_map, &as->event_listeners);

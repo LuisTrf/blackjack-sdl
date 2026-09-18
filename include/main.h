@@ -29,4 +29,5 @@ typedef struct AppState {
     AnimationQueue *anim_queue;
     AnimationPool *anim_pool;
     Container* ui_root;
+    cheque_data_hash* cheque_data_map;
 } AppState;

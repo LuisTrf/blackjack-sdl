@@ -7,6 +7,8 @@ typedef struct Rect {
     vec2 pos;
     int width;
     int height;
+    int sprite_width;
+    int sprite_height;
     bool visible;
     bool prev_visibility;
 } Rect;

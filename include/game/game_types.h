@@ -9,7 +9,7 @@ typedef struct Cheque {
     Rect rect;
     CHEQUE_VALUE val;
     TEXTURE_ID tid;
-    bool popped;
+    bool pushed;
 } Cheque;
 
 typedef struct ChequeRingBuffer {
@@ -23,8 +23,8 @@ typedef struct ChequeRingBuffer {
 typedef struct cheque_data_t {
     TEXTURE_ID cheque_tid;
     TEXTURE_ID cheque_button_tid;
-    float cheque_button_x;
-    float cheque_button_y;
+    float* p_cheque_button_x;
+    float* p_cheque_button_y;
 } cheque_data;
 
 typedef struct cheque_data_hash_t {
@@ -68,9 +68,8 @@ typedef struct GameContext {
     GAME_STATE game_state;
     GAME_STATE prev_game_state;
     ChequeRingBuffer *cheque_ring_buffer;
-    cheque_data_hash* cheque_data_map;
     Card* deck;
-    int *deck_top_index_ptr;
+    int deck_top_index;
     Dealer *dealer;
     Player *player;
 } GameContext;

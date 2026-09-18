@@ -10,6 +10,7 @@
 Button* button_create(
     float x, float y, 
     int width, int height, 
+    int sprite_width, int sprite_height,
     bool visible, 
     EventType release_eventtype,
     BUTTON_STATE button_state_initial, 
@@ -21,7 +22,9 @@ Button* button_create(
             .rect = {
                 .pos={.x=x, .y=y}, 
                 .width=width, 
-                .height=height, 
+                .height=height,
+                .sprite_width=sprite_width,
+                .sprite_height=sprite_height,
                 .visible=visible, 
             },
             .wtype=WIDGET_BUTTON,

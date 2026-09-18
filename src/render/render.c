@@ -68,41 +68,41 @@ void rerender_font_texture(SDL_Renderer *renderer, texture_hash* texture_map, fo
 
 texture_hash* texture_map_create(SDL_Renderer *renderer, font_hash* font_map){
     texture_hash* texture_map = NULL;
-    hmput(texture_map, TEXTURE_ID_BACKGROUND, render_load_texture_from_png(renderer, "../resources/bg.png"));
-    hmput(texture_map, TEXTURE_ID_CARD_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/cards.png"));
-    hmput(texture_map, TEXTURE_ID_DEAL_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/deal_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_HIT_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/hit_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_STAND_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/stand_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_BET_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/bet_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_WHITE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/white1_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_RED_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/red5_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_BLUE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/blue10_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_GREEN_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/green25_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_BLACK_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/black100_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_PURPLE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/purple500_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_YELLOW_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/yellow1k_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_ORANGE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/orange5k_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_REDBLUE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/redblue25k_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_GOLD_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/gold100k_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_BACKGROUND, render_load_texture_from_png(renderer, "../resources/textures/bg.png"));
+    hmput(texture_map, TEXTURE_ID_CARD_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/cards.png"));
+    hmput(texture_map, TEXTURE_ID_DEAL_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/deal_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_HIT_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/hit_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_STAND_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/stand_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_BET_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/bet_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_WHITE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/white1_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_RED_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/red5_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_BLUE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/blue10_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_GREEN_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/green25_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_BLACK_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/black100_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_PURPLE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/purple500_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_YELLOW_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/yellow1k_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_ORANGE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/orange5k_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_REDBLUE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/redblue25k_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_GOLD_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/gold100k_spritesheet.png"));
     hmput(texture_map, TEXTURE_ID_LABEL_DEALER_HAND, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
     hmput(texture_map, TEXTURE_ID_LABEL_PLAYER_HAND, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
     hmput(texture_map, TEXTURE_ID_LABEL_PLAYER_MONEY, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
     hmput(texture_map, TEXTURE_ID_LABEL_PLAYER_BET, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
-    hmput(texture_map, TEXTURE_ID_WHITE_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/white1.png"));
-    hmput(texture_map, TEXTURE_ID_RED_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/red5.png"));
-    hmput(texture_map, TEXTURE_ID_BLUE_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/blue10.png"));
-    hmput(texture_map, TEXTURE_ID_GREEN_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/green25.png"));
-    hmput(texture_map, TEXTURE_ID_BLACK_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/black100.png"));
-    hmput(texture_map, TEXTURE_ID_PURPLE_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/purple500.png"));
-    hmput(texture_map, TEXTURE_ID_YELLOW_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/yellow1k.png"));
-    hmput(texture_map, TEXTURE_ID_ORANGE_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/orange5k.png"));
-    hmput(texture_map, TEXTURE_ID_REDBLUE_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/redblue25k.png"));
-    hmput(texture_map, TEXTURE_ID_GOLD_CHEQUE, render_load_texture_from_png(renderer, "../resources/cheque/gold100k.png"));
-    hmput(texture_map, TEXTURE_ID_ARROW_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/arrow_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_SPLIT_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/split_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_WHITE_CHEQUE, render_load_texture_from_png(renderer, "../resources/textures/cheque/white1.png"));
+    hmput(texture_map, TEXTURE_ID_RED_CHEQUE, render_load_texture_from_png(renderer, "../resources/textures/cheque/red5.png"));
+    hmput(texture_map, TEXTURE_ID_BLUE_CHEQUE, render_load_texture_from_png(renderer, "../resources/textures/cheque/blue10.png"));
+    hmput(texture_map, TEXTURE_ID_GREEN_CHEQUE, render_load_texture_from_png(renderer, "../resources/textures/cheque/green25.png"));
+    hmput(texture_map, TEXTURE_ID_BLACK_CHEQUE, render_load_texture_from_png(renderer, "../resources/textures/cheque/black100.png"));
+    hmput(texture_map, TEXTURE_ID_PURPLE_CHEQUE, render_load_texture_from_png(renderer, "../resources/textures/cheque/purple500.png"));
+    hmput(texture_map, TEXTURE_ID_YELLOW_CHEQUE, render_load_texture_from_png(renderer, "../resources/textures/cheque/yellow1k.png"));
+    hmput(texture_map, TEXTURE_ID_ORANGE_CHEQUE, render_load_texture_from_png(renderer, "../resources/textures/cheque/orange5k.png"));
+    hmput(texture_map, TEXTURE_ID_REDBLUE_CHEQUE, render_load_texture_from_png(renderer, "../resources/textures/cheque/redblue25k.png"));
+    hmput(texture_map, TEXTURE_ID_GOLD_CHEQUE, render_load_texture_from_png(renderer, "../resources/textures/cheque/gold100k.png"));
+    hmput(texture_map, TEXTURE_ID_ARROW_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/arrow_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_SPLIT_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/split_spritesheet.png"));
     hmput(texture_map, TEXTURE_ID_LABEL_SPLIT_PLAYER_HAND, render_create_empty_font_texture(renderer, font_map, FONT_ID_OPENSANS_32PT));
-    hmput(texture_map, TEXTURE_ID_INSURANCE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/insurance_spritesheet.png"));
-    hmput(texture_map, TEXTURE_ID_DOUBLE_DOWN_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/button/doubledown_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_INSURANCE_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/insurance_spritesheet.png"));
+    hmput(texture_map, TEXTURE_ID_DOUBLE_DOWN_BUTTON_SPRITESHEET, render_load_texture_from_png(renderer, "../resources/textures/button/doubledown_spritesheet.png"));
     return texture_map;
 }
 
@@ -116,13 +116,19 @@ void texture_map_destroy(texture_hash* texture_map){
 
 void render_picturebox(SDL_Renderer *renderer, texture_hash* texture_map, PictureBox *picturebox){
     if (!picturebox->widget.rect.visible) {return;}
+    SDL_FRect src_rect = {
+        0, 
+        0,
+        picturebox->widget.rect.sprite_width,
+        picturebox->widget.rect.sprite_height,
+    };
     SDL_FRect dst_rect = {
         picturebox->widget.rect.pos.x,
         picturebox->widget.rect.pos.y,
         picturebox->widget.rect.width,
         picturebox->widget.rect.height
     };
-    SDL_RenderTexture(renderer, hmget(texture_map, picturebox->tid), NULL, &dst_rect);
+    SDL_RenderTexture(renderer, hmget(texture_map, picturebox->tid), &src_rect, &dst_rect);
 }
 
 void render_spritebox(SDL_Renderer *renderer, texture_hash *texture_map, SpriteBox *spritebox){
@@ -130,8 +136,8 @@ void render_spritebox(SDL_Renderer *renderer, texture_hash *texture_map, SpriteB
     SDL_FRect src_rect = {
         spritebox->spritesheet_x,
         spritebox->spritesheet_y,
-        32,
-        32,
+        spritebox->widget.rect.sprite_width,
+        spritebox->widget.rect.sprite_height,
     };
     SDL_FRect dst_rect = {
         spritebox->widget.rect.pos.x,
@@ -170,8 +176,8 @@ void render_button(SDL_Renderer *renderer, texture_hash *texture_map, Button *bu
     SDL_FRect src_rect = {
         (rel_offset_x)*(button->widget.rect.width + 2),
         (rel_offset_y)*(button->widget.rect.height + 2),
-        button->widget.rect.width,
-        button->widget.rect.height
+        button->widget.rect.sprite_width,
+        button->widget.rect.sprite_height
     };
     SDL_RenderTexture(renderer, hmget(texture_map, button->tid), &src_rect, &dst_rect);
 }
@@ -247,14 +253,14 @@ void render_card(SDL_Renderer *renderer, texture_hash *texture_map, Card card){
     SDL_FRect src_rect = {
         rel_offset_x*(card.rect.width + 2),
         rel_offset_y*(card.rect.height + 2),
-        card.rect.width,
-        card.rect.height
+        card.rect.sprite_width,
+        card.rect.sprite_height
     };
     SDL_RenderTexture(renderer, hmget(texture_map, TEXTURE_ID_CARD_SPRITESHEET), &src_rect, &dst_rect);
 }
 
 void render_cards(SDL_Renderer *renderer, texture_hash* texture_map, GameContext *game_ctx){
-    int deck_card_count = *game_ctx->deck_top_index_ptr + 1;
+    int deck_card_count = game_ctx->deck_top_index + 1;
     for (int i = 0; i < deck_card_count; i++){
         render_card(renderer, texture_map, game_ctx->deck[i]);
     }
@@ -291,13 +297,19 @@ void render_cheques(SDL_Renderer *renderer, texture_hash* texture_map, GameConte
     int idx = head;
     for (int i = 0; i < count; i++){
         idx = (head + i) % size;
+        SDL_FRect src_rect = {
+            0,
+            0,
+            game_ctx->cheque_ring_buffer->arr[idx].rect.sprite_width,
+            game_ctx->cheque_ring_buffer->arr[idx].rect.sprite_height
+        };
         SDL_FRect dst_rect = {
             game_ctx->cheque_ring_buffer->arr[idx].rect.pos.x,
             game_ctx->cheque_ring_buffer->arr[idx].rect.pos.y,
             game_ctx->cheque_ring_buffer->arr[idx].rect.width,
             game_ctx->cheque_ring_buffer->arr[idx].rect.height
         };
-        SDL_RenderTexture(renderer, hmget(texture_map, game_ctx->cheque_ring_buffer->arr[idx].tid), NULL, &dst_rect);
+        SDL_RenderTexture(renderer, hmget(texture_map, game_ctx->cheque_ring_buffer->arr[idx].tid), &src_rect, &dst_rect);
     }
 }
 

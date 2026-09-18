@@ -75,7 +75,12 @@ void label_notify_dealer_hand(void *self, Event event, void *dependencies){
             label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X + (dealer_cards_in_hand - 1)*HAND_LABEL_STEP_X;
             label->widget.rect.visible = true;
             if (blackjack(player_cards_in_hand, player_hand_value)){
-                label_write(label, font_map, "%d, DEALER LOSES...", dealer_hand_value);
+                if (blackjack(dealer_cards_in_hand, dealer_hand_value)){
+                    label_write(label, font_map, "PUSH.");
+                }
+                else {
+                    label_write(label, font_map, "%d, DEALER LOSES...", dealer_hand_value);
+                }
             }
             else {
                 label_write(label, font_map, "?");
@@ -149,9 +154,16 @@ void label_notify_player_hand(void *self, Event event, void *dependencies){
             font_hash* font_map = (font_hash *)dependencies;
             int player_cards_in_hand = event.state.data.deal.player_cards_in_hand;
             int player_hand_value = event.state.data.deal.player_hand_value;
+            int dealer_cards_in_hand = event.state.data.deal.dealer_cards_in_hand;
+            int dealer_hand_value = event.state.data.deal.dealer_hand_value;
             label->widget.rect.pos.x = HAND_LABEL_ORIGIN_X + (player_cards_in_hand - 1)*HAND_LABEL_STEP_X;
             if (blackjack(player_cards_in_hand, player_hand_value)){
-                label_write(label, font_map, "BLACKJACK!");
+                if (blackjack(dealer_cards_in_hand, dealer_hand_value)){
+                    label_write(label, font_map, "PUSH.");
+                }
+                else {
+                    label_write(label, font_map, "BLACKJACK!");
+                }
             }
             else {
                 label_write(label, font_map, "%d", player_hand_value);

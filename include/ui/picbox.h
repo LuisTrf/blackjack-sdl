@@ -12,6 +12,7 @@ typedef struct PictureBox {
 PictureBox* picturebox_create(
     float x, float y, 
     int width, int height, 
+    int sprite_width, int sprite_height,
     bool visible, 
     TEXTURE_ID tid
 );

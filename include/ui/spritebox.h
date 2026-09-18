@@ -15,6 +15,7 @@ typedef struct SpriteBox {
 SpriteBox* spritebox_create(
     float x, float y, 
     int width, int height, 
+    int sprite_width, int sprite_height,
     bool visible, 
     TEXTURE_ID tid, 
     int spritesheet_x, int spritesheet_y
