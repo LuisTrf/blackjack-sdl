@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../vendored/SDL_mixer/include/SDL3_mixer/SDL_mixer.h"
+#include <SDL3_mixer/SDL_mixer.h>
 
 typedef enum AUDIO_ID {
     AUDIO_ID_CARD_PLACE_1,

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../vendored/SDL/include/SDL3/SDL.h"
-#include "../vendored/SDL/include/SDL3/SDL_stdinc.h"
-#include "../vendored/SDL_mixer/include/SDL3_mixer/SDL_mixer.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3_mixer/SDL_mixer.h>
 #include "audio_types.h"
 #include "input/input_listener.h"
 #include "render/render_types.h"
